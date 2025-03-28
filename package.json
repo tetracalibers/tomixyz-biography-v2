@@ -18,8 +18,14 @@
   },
   "devDependencies": {
     "@fontsource/fira-sans": "^5.2.5",
+    "@shikijs/transformers": "^3.2.1",
     "prettier": "^3.5.3",
     "prettier-plugin-astro": "^0.14.1",
-    "prettier-plugin-svelte": "^3.3.3"
+    "prettier-plugin-svelte": "^3.3.3",
+    "rehype-katex": "^7.0.1",
+    "rehype-pretty-code": "^0.14.1",
+    "remark-breaks": "^4.0.0",
+    "remark-math": "^6.0.0",
+    "validate-color": "^2.2.4"
   }
 }
