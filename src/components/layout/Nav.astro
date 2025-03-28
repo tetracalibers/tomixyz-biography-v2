@@ -1,0 +1,36 @@
+---
+import { toTitleCase } from "$/utils"
+import { NAV_ITEMS, SITE } from "$/config"
+
+const navItems = Object.keys(NAV_ITEMS).map((navItemKey) => {
+  const { path, ...navItem } = NAV_ITEMS[navItemKey]
+  return {
+    ...navItem,
+    path: SITE.base + path,
+    isCurrent: path === Astro.url.pathname
+  }
+})
+---
+
+<nav class="nav p-3">
+  <ul class="nav-list dark:text-theme-dark-secondary">
+    {
+      navItems.map((item) => (
+        <li>
+          <a
+            class:list={[`pb-1`, { "border-b-2 border-theme-primary": item.isCurrent }]}
+            href={item.path}
+            title={item.title}
+          >
+            {toTitleCase(item.title)}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+<style>
+  .nav-list {
+    @apply inline-flex list-none gap-8 text-xl font-semibold text-theme-secondary dark:text-theme-dark-secondary py-2 flex-wrap;
+  }
+</style>

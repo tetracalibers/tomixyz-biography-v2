@@ -1,0 +1,64 @@
+---
+import { SITE } from "$/config"
+import ModeSwitcherBtn from "$/components/mode-switcher/ModeSwitcherBtn.svelte"
+import { Icon } from "astro-icon/components"
+
+const topUrl = SITE.base
+---
+
+<header class="header">
+  <div class="flex flex-col justify-center items-center gap-10 w-full">
+    <h3 class="header__title dark:text-theme-dark-secondary">
+      <a href={topUrl}>{SITE.name}</a>
+    </h3>
+    <nav class="px-4 gap-3 flex justify-between w-full">
+      <ul class="header__ref-list">
+        <li>
+          <a href="https://www.npmjs.com/~tomixy" title="npm">
+            <Icon name="ri:npmjs-line" size={23} />
+          </a>
+        </li>
+        <li>
+          <a href={SITE.githubUrl} title="GitHub">
+            <Icon name="mingcute:github-line" size={24} />
+          </a>
+        </li>
+        <li>
+          <a href="https://bsky.app/profile/tetracalibers.bsky.social" title="Bluesky">
+            <Icon name="mingcute:bluesky-social-line" size={24} />
+          </a>
+        </li>
+        <li>
+          <a href={"https://twitter.com/" + SITE.authorTwitter} title="X（Twitter）">
+            <Icon name="ri:twitter-x-line" size={24} />
+          </a>
+        </li>
+      </ul>
+      <ul class="header__ref-list">
+        <li>
+          <ModeSwitcherBtn client:visible />
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .header {
+    @apply border-b py-3;
+    display: grid;
+    place-items: center;
+  }
+  .header__title {
+    @apply text-4xl font-extrabold md:text-5xl text-theme-secondary dark:text-theme-dark-secondary;
+    text-align: center;
+    line-height: normal;
+  }
+  .header__ref-list {
+    @apply flex gap-3 text-gray-400;
+    align-items: center;
+  }
+  .header__ref-list > li {
+    display: flex;
+  }
+</style>

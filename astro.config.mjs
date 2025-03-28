@@ -2,6 +2,7 @@
 import { defineConfig } from "astro/config"
 import svelte from "@astrojs/svelte"
 import mdx from "@astrojs/mdx"
+import icon from "astro-icon"
 
 import path, { dirname } from "node:path"
 import { fileURLToPath } from "node:url"
@@ -49,7 +50,7 @@ export default defineConfig({
     ],
     remarkPlugins: [remarkMath, remarkBreaks]
   },
-  integrations: [svelte(), mdx()],
+  integrations: [icon(), svelte(), mdx()],
   vite: {
     resolve: {
       alias: {
