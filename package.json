@@ -10,6 +10,7 @@
     "format": "prettier --write --plugin prettier-plugin-astro --plugin prettier-plugin-svelte ."
   },
   "dependencies": {
+    "@astrojs/mdx": "^4.2.2",
     "@astrojs/svelte": "^7.0.8",
     "astro": "^5.5.5",
     "svelte": "^5.25.3",
