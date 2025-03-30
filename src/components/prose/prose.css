@@ -75,3 +75,7 @@
 :where(.dark .prose blockquote) {
   background-color: rgba(100, 116, 139, 0.5);
 }
+
+:where(.prose > :first-child) {
+  margin-block-start: 0;
+}

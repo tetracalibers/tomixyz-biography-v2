@@ -1,0 +1,33 @@
+---
+interface Props {
+  date: string | Date
+}
+
+const { date } = Astro.props
+
+const dateObj = new Date(date)
+const year = dateObj.getFullYear().toString()
+const month = (dateObj.getMonth() + 1).toString()
+---
+
+<div class="PublishMonth">
+  <span class="year">{year}</span>
+  <span class="month">{month.padStart(2, "0")}</span>
+</div>
+
+<style>
+  .PublishMonth {
+    display: grid;
+    place-items: center;
+    width: fit-content;
+  }
+  .year {
+    color: light-dark(var(--gray-500), var(--gray-300));
+  }
+  .month {
+    font-size: 3rem;
+    line-height: 1;
+    font-weight: 600;
+    color: light-dark(var(--gray-500), var(--gray-300));
+  }
+</style>
