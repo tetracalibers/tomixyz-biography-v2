@@ -30,9 +30,9 @@ const { content, meta } = Astro.props
   </head>
   <body>
     <MainLayout>
-      <div class="flex flex-col gap-14">
+      <div class="MainLayout-inner">
         <PageHeader title={content.title} subtitle={content.description} />
-        <div class="page__content contents"><slot /></div>
+        <div class="slot-wrapper"><slot /></div>
       </div>
     </MainLayout>
   </body>
@@ -42,8 +42,15 @@ const { content, meta } = Astro.props
   body {
     margin: 0;
   }
+  .MainLayout-inner {
+    display: grid;
+    gap: 3.5rem;
+  }
+  .slot-wrapper {
+    display: contents;
+  }
 
-  .page__content :global(h4) {
+  .slot-wrapper :global(h4) {
     @apply text-lg;
 
     border-image-source: linear-gradient(to right, currentColor, transparent);
@@ -55,11 +62,11 @@ const { content, meta } = Astro.props
     text-indent: -1em;
     padding-left: 1em;
   }
-  .page__content :global(h4::before) {
+  .slot-wrapper :global(h4::before) {
     content: "$";
     padding-inline-end: 0.5em;
   }
-  .page__content :global(h4 + p) {
+  .slot-wrapper :global(h4 + p) {
     padding-inline-start: 0.5em;
   }
 </style>
