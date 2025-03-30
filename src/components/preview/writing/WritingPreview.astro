@@ -1,6 +1,4 @@
 ---
-import PublishMonth from "$components/article-link/PublishMonth.astro"
-
 interface Props {
   title: string
   url: string
@@ -9,6 +7,10 @@ interface Props {
 }
 
 const { title, url, date, media } = Astro.props
+
+const dateObj = new Date(date)
+const year = dateObj.getFullYear().toString()
+const month = (dateObj.getMonth() + 1).toString()
 ---
 
 <div class="WritingPreview">
@@ -19,8 +21,9 @@ const { title, url, date, media } = Astro.props
         <h2 class="title">{title}</h2>
         <p class="desc">{media ?? ""}</p>
       </div>
-      <div class="date">
-        <PublishMonth date={date} />
+      <div class="publish">
+        <span class="year">{year}</span>
+        <span class="month">{month.padStart(2, "0")}</span>
       </div>
     </div>
   </a>
@@ -30,7 +33,7 @@ const { title, url, date, media } = Astro.props
   .WritingPreview {
     overflow: hidden;
     border-radius: 28px;
-    background-color: light-dark(aliceblue, #5edbff91);
+    background-color: light-dark(#f0f8ffd9, #8aafff8a);
   }
   .link-container {
     display: block;
@@ -92,13 +95,41 @@ const { title, url, date, media } = Astro.props
     font-weight: bold;
     font-size: 30px;
   }
-  .date {
+
+  .publish {
     grid-area: date;
     font-weight: bold;
-    color: light-dark(#f9b234, #6dfdff);
+    color: #f9b234;
     z-index: 2;
     justify-self: end;
+    display: flex;
+    width: fit-content;
+    gap: 0.5rem;
   }
+  .WritingPreview:nth-child(2n) .publish {
+    color: #1fe4f5;
+  }
+  .WritingPreview:nth-child(3n) .publish {
+    color: #fbc1cc;
+  }
+  .WritingPreview:nth-child(4n) .publish {
+    color: #76b2fe;
+  }
+  .WritingPreview:nth-child(5n) .publish {
+    color: #60efbc;
+  }
+  .WritingPreview:nth-child(6n) .publish {
+    color: #f588d8;
+  }
+  .year {
+    font-size: 1.1rem;
+  }
+  .month {
+    font-size: 3rem;
+    line-height: 1;
+    font-weight: 600;
+  }
+
   .title {
     margin: 0;
     color: light-dark(var(--slate-500), var(--slate-200));
@@ -118,10 +149,10 @@ const { title, url, date, media } = Astro.props
     justify-self: start;
     min-height: 2rem;
   }
-  :where(.title, .desc, .date) {
+  :is(.title, .desc, .publish) {
     transition: color 0.25s ease;
   }
-  .link-container:hover :where(.title, .desc, .date) {
+  .link-container:hover :is(.title, .desc, .publish) {
     color: #fff;
   }
 </style>
