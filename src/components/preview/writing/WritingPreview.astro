@@ -1,4 +1,6 @@
 ---
+import PublishMonth from "$components/article-link/PublishMonth.astro"
+
 interface Props {
   title: string
   url: string
@@ -11,16 +13,14 @@ const { title, url, date, media } = Astro.props
 
 <div class="WritingPreview">
   <a class="link-container" href={url}>
-    <div class="background"></div>
     <div class="inner">
+      <div class="background"></div>
       <div class="content">
-        <h2 class="title">
-          {title}
-        </h2>
-        {media && <p class="desc">{media}</p>}
+        <h2 class="title">{title}</h2>
+        <p class="desc">{media ?? ""}</p>
       </div>
       <div class="date">
-        {date}
+        <PublishMonth date={date} />
       </div>
     </div>
   </a>
@@ -30,50 +30,39 @@ const { title, url, date, media } = Astro.props
   .WritingPreview {
     overflow: hidden;
     border-radius: 28px;
-    background-color: aliceblue;
+    background-color: light-dark(aliceblue, #5edbff91);
   }
   .link-container {
     display: block;
-    padding: 2em 1.5em;
     height: 100%;
     box-sizing: border-box;
-    position: relative;
     text-decoration: none;
   }
   .inner {
+    --pad-x: 2em;
+    --pad-y: 2em;
+
     display: grid;
-    gap: 0.5rem;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr auto;
+    grid-template-areas:
+      "background"
+      "date";
+    padding: var(--pad-y) var(--pad-x);
+    box-sizing: border-box;
     height: 100%;
-    grid-template-rows: 1fr auto;
-  }
-  .content {
-    display: grid;
-    grid-template-rows: 1fr auto;
-    align-items: center;
-    gap: 0.5rem;
-    min-height: 87px;
-    overflow: hidden;
-    font-weight: bold;
-    font-size: 30px;
-    color: #fff;
-    z-index: 2;
-    position: relative;
-  }
-  .date {
-    font-weight: bold;
-    color: #f9b234;
-    transition: color 0.5s ease;
   }
   .background {
-    height: 128px;
+    grid-area: background;
+    justify-self: end; /* 右寄せ */
+    align-self: start; /* 上寄せ */
     width: 128px;
-    background-color: #f9b234;
-    z-index: 1;
-    position: absolute;
-    top: -75px;
-    right: -75px;
+    height: 128px;
     border-radius: 50%;
-    transition: all 0.5s ease;
+    background-color: #f9b234;
+    transition: transform 0.5s ease;
+    z-index: 1;
+    translate: calc(50% + var(--pad-x)) calc(-50% - var(--pad-y));
   }
   .link-container:hover .background {
     transform: scale(7);
@@ -94,13 +83,30 @@ const { title, url, date, media } = Astro.props
     background: radial-gradient(#f588d8, #c0a3e5);
   }
 
+  .content {
+    grid-area: background;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    gap: 0.5rem;
+    z-index: 2;
+    font-weight: bold;
+    font-size: 30px;
+  }
+  .date {
+    grid-area: date;
+    font-weight: bold;
+    color: light-dark(#f9b234, #6dfdff);
+    z-index: 2;
+    justify-self: end;
+  }
   .title {
     margin: 0;
     color: light-dark(var(--slate-500), var(--slate-200));
+    align-self: center;
   }
   .desc {
     margin: 0;
-    color: light-dark(var(--prose-body), white);
+    color: light-dark(var(--slate-500), var(--slate-200));
     font-size: 1rem;
     line-height: 1.5rem;
     display: -webkit-box;
@@ -109,5 +115,13 @@ const { title, url, date, media } = Astro.props
     overflow: hidden;
     text-overflow: ellipsis;
     hyphens: auto;
+    justify-self: start;
+    min-height: 2rem;
+  }
+  :where(.title, .desc, .date) {
+    transition: color 0.25s ease;
+  }
+  .link-container:hover :where(.title, .desc, .date) {
+    color: #fff;
   }
 </style>
