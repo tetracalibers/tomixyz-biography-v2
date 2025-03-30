@@ -4,7 +4,7 @@ import Footer from "./Footer.astro"
 import Nav from "./Nav.astro"
 ---
 
-<div class="h-full min-h-screen flex flex-col justify-start gap-10 pt-8">
+<div class="container">
   <div>
     <Header />
     <Nav />
@@ -16,6 +16,13 @@ import Nav from "./Nav.astro"
 </div>
 
 <style>
+  .container {
+    display: grid;
+    gap: 2.5rem;
+    padding-inline: clamp(1rem, 2vw, 2rem);
+    min-height: 100dvh;
+  }
+
   .content {
     position: relative;
   }
