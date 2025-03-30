@@ -17,12 +17,11 @@ const month = (dateObj.getMonth() + 1).toString()
 
 <style>
   .PublishMonth {
-    display: flex;
+    display: grid;
+    place-items: center;
     width: fit-content;
-    gap: 0.5rem;
   }
   .year {
-    font-size: 1.1rem;
     color: light-dark(var(--gray-500), var(--gray-300));
   }
   .month {
