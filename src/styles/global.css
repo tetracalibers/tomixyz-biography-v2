@@ -1,3 +1,7 @@
+:root {
+  color-scheme: light dark;
+}
+
 html.dark {
   @apply text-gray-200;
   header,
@@ -30,4 +34,12 @@ body {
 
 [data-icon] > symbol {
   overflow: visible;
+}
+
+:root {
+  --gray-200: oklch(0.928 0.006 264.531);
+  --gray-400: oklch(0.707 0.022 261.325);
+
+  --slate-300: oklch(0.869 0.022 252.894);
+  --slate-600: oklch(0.446 0.043 257.281);
 }
