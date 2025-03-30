@@ -2,28 +2,21 @@
   color-scheme: light dark;
 }
 
-html.dark {
-  @apply text-gray-200;
-  header,
-  footer {
-    @apply text-gray-400 border-gray-700;
-  }
+.dark {
+  color-scheme: dark;
+  color: var(--gray-200);
 }
 
 @font-face {
   font-family: "TsukuBRdGothic";
-  src:
-    url("/tomixyz-biography/fonts/AppleTsukuARdGothic-Regular-AlphaNum-01.otf") format("opentype"),
-    url("/fonts/AppleTsukuARdGothic-Regular-AlphaNum-01.otf") format("opentype");
+  src: url("/fonts/AppleTsukuARdGothic-Regular-AlphaNum-01.otf") format("opentype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "TsukuBRdGothic";
-  src:
-    url("/tomixyz-biography/fonts/AppleTsukuBRdGothic-Bold-AlphaNum-02.otf") format("opentype"),
-    url("/fonts/AppleTsukuBRdGothic-Bold-AlphaNum-02.otf") format("opentype");
+  src: url("/fonts/AppleTsukuBRdGothic-Bold-AlphaNum-02.otf") format("opentype");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -39,6 +32,8 @@ body {
 :root {
   --gray-200: oklch(0.928 0.006 264.531);
   --gray-400: oklch(0.707 0.022 261.325);
+  --gray-600: oklch(0.446 0.03 256.802);
+  --gray-700: oklch(0.373 0.034 259.733);
 
   --slate-200: oklch(0.929 0.013 255.508);
   --slate-300: oklch(0.869 0.022 252.894);
