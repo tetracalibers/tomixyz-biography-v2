@@ -14,22 +14,22 @@ const topUrl = SITE.base
     <ul class="header__ref-list">
       <li>
         <a href="https://www.npmjs.com/~tomixy" title="npm">
-          <Icon name="ri:npmjs-line" size={23} />
+          <Icon name="ri:npmjs-line" size={28} />
         </a>
       </li>
       <li>
         <a href={SITE.githubUrl} title="GitHub">
-          <Icon name="mingcute:github-line" size={24} />
+          <Icon name="mingcute:github-line" size={28} />
         </a>
       </li>
       <li>
         <a href="https://bsky.app/profile/tetracalibers.bsky.social" title="Bluesky">
-          <Icon name="mingcute:bluesky-social-line" size={24} />
+          <Icon name="mingcute:bluesky-social-line" size={28} />
         </a>
       </li>
       <li>
         <a href={"https://twitter.com/" + SITE.authorTwitter} title="X（Twitter）">
-          <Icon name="ri:twitter-x-line" size={24} />
+          <Icon name="ri:twitter-x-line" size={28} />
         </a>
       </li>
     </ul>
@@ -66,6 +66,7 @@ const topUrl = SITE.base
     gap: 0.75rem;
     justify-content: space-between;
     padding-inline: 1rem;
+    box-sizing: border-box;
     width: 100%;
   }
 
@@ -75,9 +76,12 @@ const topUrl = SITE.base
     gap: 0.75rem;
     margin: 0;
     padding: 0;
-    color: var(--gray-400);
   }
   .header__ref-list > li {
     display: flex;
+  }
+  .header__ref-list a {
+    display: flex;
+    color: var(--gray-400);
   }
 </style>

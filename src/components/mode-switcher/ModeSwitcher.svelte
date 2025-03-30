@@ -33,6 +33,18 @@
   })
 </script>
 
-<button on:click={toggleTheme}>
+<button class="mode-switcher" on:click={toggleTheme}>
   <slot theme={currTheme} />
 </button>
+
+<style>
+  .mode-switcher {
+    appearance: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+    color: var(--gray-400);
+  }
+</style>
