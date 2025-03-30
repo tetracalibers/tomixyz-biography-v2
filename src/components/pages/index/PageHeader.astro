@@ -9,7 +9,17 @@ interface Props {
 const { title, subtitle } = Astro.props
 ---
 
-<div class="flex flex-col text-center">
+<div class="PageHeader">
   <PageTitle title={title} />
-  <p class="text-theme-secondary dark:text-theme-dark-primary">{subtitle}</p>
+  <p class="subtitle">{subtitle}</p>
 </div>
+
+<style>
+  .PageHeader {
+    display: grid;
+    text-align: center;
+  }
+  .subtitle {
+    color: light-dark(var(--slate-600), var(--slate-200));
+  }
+</style>
