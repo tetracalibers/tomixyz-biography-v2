@@ -1,0 +1,28 @@
+---
+import MediaPreview from "./WritingPreview.astro"
+
+interface Post {
+  title: string
+  url: string
+  date: string
+  media?: string
+}
+
+interface Props {
+  list: Post[]
+}
+
+const { list } = Astro.props
+---
+
+<div class="WritingPreviewList">
+  {list.map((obj) => <MediaPreview {...obj} />)}
+</div>
+
+<style>
+  .WritingPreviewList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+  }
+</style>

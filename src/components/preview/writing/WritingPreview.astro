@@ -1,0 +1,158 @@
+---
+interface Props {
+  title: string
+  url: string
+  date: string
+  media?: string
+}
+
+const { title, url, date, media } = Astro.props
+
+const dateObj = new Date(date)
+const year = dateObj.getFullYear().toString()
+const month = (dateObj.getMonth() + 1).toString()
+---
+
+<div class="WritingPreview">
+  <a class="link-container" href={url}>
+    <div class="inner">
+      <div class="background"></div>
+      <div class="content">
+        <h2 class="title">{title}</h2>
+        <p class="desc">{media ?? ""}</p>
+      </div>
+      <div class="publish">
+        <span class="year">{year}</span>
+        <span class="month">{month.padStart(2, "0")}</span>
+      </div>
+    </div>
+  </a>
+</div>
+
+<style>
+  .WritingPreview {
+    overflow: hidden;
+    border-radius: 28px;
+    background-color: light-dark(#f0f8ffd9, #8aafff8a);
+  }
+  .link-container {
+    display: block;
+    height: 100%;
+    box-sizing: border-box;
+    text-decoration: none;
+  }
+  .inner {
+    --pad-x: 2em;
+    --pad-y: 2em;
+
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr auto;
+    grid-template-areas:
+      "background"
+      "date";
+    padding: var(--pad-y) var(--pad-x);
+    box-sizing: border-box;
+    height: 100%;
+  }
+  .background {
+    grid-area: background;
+    justify-self: end; /* 右寄せ */
+    align-self: start; /* 上寄せ */
+    width: 128px;
+    height: 128px;
+    border-radius: 50%;
+    background-color: #f9b234;
+    transition: transform 0.5s ease;
+    z-index: 1;
+    translate: calc(50% + var(--pad-x)) calc(-50% - var(--pad-y));
+  }
+  .link-container:hover .background {
+    transform: scale(7);
+  }
+  .WritingPreview:nth-child(2n) .background {
+    background: radial-gradient(#1fe4f5, #3fbafe);
+  }
+  .WritingPreview:nth-child(3n) .background {
+    background: radial-gradient(#fbc1cc, #fa99b2);
+  }
+  .WritingPreview:nth-child(4n) .background {
+    background: radial-gradient(#76b2fe, #b69efe);
+  }
+  .WritingPreview:nth-child(5n) .background {
+    background: radial-gradient(#60efbc, #58d5c9);
+  }
+  .WritingPreview:nth-child(6n) .background {
+    background: radial-gradient(#f588d8, #c0a3e5);
+  }
+
+  .content {
+    grid-area: background;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    gap: 0.5rem;
+    z-index: 2;
+    font-weight: bold;
+    font-size: 30px;
+  }
+
+  .publish {
+    grid-area: date;
+    font-weight: bold;
+    color: #f9b234;
+    z-index: 2;
+    justify-self: end;
+    display: flex;
+    width: fit-content;
+    gap: 0.5rem;
+  }
+  .WritingPreview:nth-child(2n) .publish {
+    color: #1fe4f5;
+  }
+  .WritingPreview:nth-child(3n) .publish {
+    color: #fbc1cc;
+  }
+  .WritingPreview:nth-child(4n) .publish {
+    color: #76b2fe;
+  }
+  .WritingPreview:nth-child(5n) .publish {
+    color: #60efbc;
+  }
+  .WritingPreview:nth-child(6n) .publish {
+    color: #f588d8;
+  }
+  .year {
+    font-size: 1.1rem;
+  }
+  .month {
+    font-size: 3rem;
+    line-height: 1;
+    font-weight: 600;
+  }
+
+  .title {
+    margin: 0;
+    color: light-dark(var(--slate-500), var(--slate-200));
+    align-self: center;
+  }
+  .desc {
+    margin: 0;
+    color: light-dark(var(--slate-500), var(--slate-200));
+    font-size: 1rem;
+    line-height: 1.5rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    hyphens: auto;
+    justify-self: start;
+    min-height: 2rem;
+  }
+  :is(.title, .desc, .publish) {
+    transition: color 0.25s ease;
+  }
+  .link-container:hover :is(.title, .desc, .publish) {
+    color: #fff;
+  }
+</style>
