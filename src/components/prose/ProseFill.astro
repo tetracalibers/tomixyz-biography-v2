@@ -1,1 +1,13 @@
-<slot />
+---
+import "./prose.css"
+---
+
+<article class="ProseFill prose dark:prose-dark">
+  <slot />
+</article>
+
+<style>
+  .ProseFill::before {
+    background-color: light-dark(#f4f6ff, transparent);
+  }
+</style>

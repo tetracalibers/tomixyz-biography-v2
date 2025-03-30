@@ -16,7 +16,7 @@ const meta = {
 
 <DefaultPageLayout content={{ title, description }} meta={meta}>
   <ProseFill>
-    <div class="text-lg leading-loose px-[calc(2vw*2.5)]">
+    <div class="ProseFill-inner">
       <p>2002年生まれ。</p>
       <p>
         高校時代に独学でプログラミングを始め、高校在学中からフリーランスとしてWeb開発に携わる。<br />
@@ -34,3 +34,10 @@ const meta = {
     </div>
   </ProseFill>
 </DefaultPageLayout>
+
+<style>
+  .ProseFill-inner {
+    font-size: 1.125rem;
+    padding-inline: calc(2vw * 2.5);
+  }
+</style>
