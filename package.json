@@ -30,6 +30,7 @@
     "rehype-pretty-code": "^0.14.1",
     "remark-breaks": "^4.0.0",
     "remark-math": "^6.0.0",
+    "shiki": "^3.2.1",
     "validate-color": "^2.2.4"
   }
 }
