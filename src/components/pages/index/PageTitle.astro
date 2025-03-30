@@ -8,10 +8,16 @@ interface Props {
 const { title } = Astro.props
 ---
 
-<LeadingTrimText
-  tag="h1"
-  trim="start"
-  className="leading-normal text-5xl font-extrabold text-theme-primary dark:text-theme-dark-primary"
->
+<LeadingTrimText tag="h1" trim="start" className="PageTitle">
   {title}
 </LeadingTrimText>
+
+<style>
+  .PageTitle {
+    line-height: 1.5;
+    font-size: 3rem;
+    font-weight: 800;
+    margin: 0;
+    color: light-dark(var(--slate-500), var(--slate-200));
+  }
+</style>
