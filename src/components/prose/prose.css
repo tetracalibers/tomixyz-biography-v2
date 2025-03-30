@@ -1,4 +1,4 @@
-.prose {
+:where(.prose) {
   --prose-body: #374151;
   --prose-headings: #111827;
 
@@ -11,17 +11,38 @@
   letter-spacing: 0.025em;
 }
 
-.prose p {
+:where(.prose p) {
   margin-block: 1.25em;
   color: var(--prose-body);
 }
 
-.prose h4 {
-  margin-block-start: 2rem;
-  margin-block-end: 1.25rem;
+:where(.prose h2) {
+  color: #64748b;
+  font-weight: 700;
+  font-size: 1.5em;
+  margin-block-start: 2em;
+  margin-block-end: 1em;
+  line-height: 1.3333333;
 }
 
-.prose a {
+:where(.prose h3) {
+  color: #64748b;
+  font-weight: 600;
+  font-size: 1.25em;
+  margin-top: 1.6em;
+  margin-bottom: 0.6em;
+  line-height: 1.6;
+}
+
+:where(.prose h4) {
+  color: #64748b;
+  font-weight: 600;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  line-height: 1.5;
+}
+
+:where(.prose a) {
   color: #475569;
   text-decoration: underline;
   font-weight: 500;
@@ -30,11 +51,12 @@
   text-decoration-thickness: 1px;
   text-decoration-style: dotted;
 }
-.prose a:hover {
+
+:where(.prose a:hover) {
   color: #64748b;
 }
 
-.prose blockquote {
+:where(.prose blockquote) {
   font-style: normal;
   background-color: rgba(191, 219, 254, 0.9);
   border: 1px solid currentColor;
@@ -45,12 +67,11 @@
 }
 
 @media (min-width: 768px) {
-  .prose blockquote {
+  :where(.prose blockquote) {
     padding-inline: 1.5rem;
   }
 }
 
-/* blockquote のダークモード背景色 */
-.dark .prose blockquote {
+:where(.dark .prose blockquote) {
   background-color: rgba(100, 116, 139, 0.5);
 }

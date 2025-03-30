@@ -49,24 +49,4 @@ const { content, meta } = Astro.props
   .slot-wrapper {
     display: contents;
   }
-
-  .slot-wrapper :global(h4) {
-    @apply text-lg;
-
-    border-image-source: linear-gradient(to right, currentColor, transparent);
-    border-image-width: 0 0 1px 0;
-    border-image-outset: 5px;
-    border-image-slice: 1;
-
-    /** 2行目以降字下げ */
-    text-indent: -1em;
-    padding-left: 1em;
-  }
-  .slot-wrapper :global(h4::before) {
-    content: "$";
-    padding-inline-end: 0.5em;
-  }
-  .slot-wrapper :global(h4 + p) {
-    padding-inline-start: 0.5em;
-  }
 </style>
