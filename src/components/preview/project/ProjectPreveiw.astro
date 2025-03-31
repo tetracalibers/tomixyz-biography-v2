@@ -17,14 +17,16 @@ const pageUrl = SITE.base + "/projests/" + id
 
 <div class="ProjectPreview">
   <div class="ProjectPreview-text">
-    <PublishDate date={project.date} />
-    <div class="content">
-      <h2 class="title">
-        <a href={pageUrl} title={project.title}>{project.title}</a>
-      </h2>
-      <p class="desc">
-        {project.description}
-      </p>
+    <div class="text-inner">
+      <PublishDate date={project.date} />
+      <div class="content">
+        <h2 class="title">
+          <a href={pageUrl} title={project.title}>{project.title}</a>
+        </h2>
+        <p class="desc">
+          {project.description}
+        </p>
+      </div>
     </div>
   </div>
   {
@@ -49,8 +51,13 @@ const pageUrl = SITE.base + "/projests/" + id
     display: flex;
     flex-basis: calc((var(--breakpoint) - 100%) * 999);
     flex-grow: 1;
-    gap: clamp(1rem, 0.648rem + 1.502vw, 2rem);
     align-items: center;
+  }
+  .text-inner {
+    display: grid;
+    grid-template-columns: max(20%, 100px) 1fr;
+    place-items: center;
+    gap: clamp(1rem, 0.648rem + 1.502vw, 2rem);
   }
   .content {
     display: grid;
