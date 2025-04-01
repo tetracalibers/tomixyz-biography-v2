@@ -1,3 +1,15 @@
-<div class="flex flex-col gap-1 border-l-2 pl-2 w-full text-slate-400 dark:text-theme-dark-secondary text-left">
+<div class="ArticleMetaBlock">
   <slot />
 </div>
+
+<style>
+  .ArticleMetaBlock {
+    display: grid;
+    width: 100%;
+    color: light-dark(var(--slate-400), var(--slate-300));
+    text-align: start;
+    gap: 0.25rem;
+    border-inline-start: 2px rgb(229, 231, 235) solid;
+    padding-inline-start: 0.5rem;
+  }
+</style>
