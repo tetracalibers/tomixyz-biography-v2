@@ -10,7 +10,18 @@ interface Props {
 const { url, icon, label } = Astro.props
 ---
 
-<a class="flex font-bold" href={url}>
+<a class="IconLink" href={url}>
   <Icon name={icon} size={30} />
-  {label}
+  <span>{label}</span>
 </a>
+
+<style>
+  .IconLink {
+    text-decoration: none;
+    color: inherit;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+</style>
