@@ -55,9 +55,11 @@ const pageUrl = SITE.base + "/projests/" + id
   }
   .text-inner {
     display: grid;
-    grid-template-columns: max(20%, 100px) 1fr;
-    place-items: center;
-    gap: clamp(1rem, 0.648rem + 1.502vw, 2rem);
+    grid-template-columns: max(20%, 105px) 1fr;
+    justify-items: start;
+    align-items: center;
+    gap: 0.25rem;
+    margin-inline-start: -1rem;
   }
   .content {
     display: grid;

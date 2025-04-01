@@ -13,7 +13,7 @@ const year = dateObj.getFullYear().toString()
 ---
 
 <div class="PublishDate">
-  <Icon name="blob" />
+  <div class="background"><Icon name="blob" width={200} /></div>
   <div class="text">
     <span class="year">{year}</span>
     <span class="month">
@@ -30,8 +30,10 @@ const year = dateObj.getFullYear().toString()
     line-height: 1;
     font-weight: 600;
     font-style: italic;
+    width: 100%;
+    height: 100%;
   }
-  :is(svg, .text) {
+  :is(.background, .text) {
     grid-column: 1 / -1;
     grid-row: 1 / -1;
   }
@@ -48,9 +50,13 @@ const year = dateObj.getFullYear().toString()
     font-size: 1.2rem;
   }
 
-  [data-icon="blob"] {
+  .background {
     width: 100%;
     height: 100%;
     z-index: -1;
+  }
+  [data-icon="blob"] {
+    width: 100%;
+    height: 100%;
   }
 </style>
