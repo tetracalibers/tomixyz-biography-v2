@@ -2,30 +2,33 @@
 import "./prose.css"
 ---
 
-<article class="ProseGrid prose">
-  <slot />
+<article class="ProseGridFill prose">
+  <div class="background"></div>
+  <div class="content"><slot /></div>
 </article>
 
 <style>
-  .ProseGrid::before {
-    background-color: light-dark(#f4f6ff, transparent);
+  .ProseGridFill {
+    --px: 2vw;
+    --py: 2vh;
+
+    display: grid;
+  }
+  :is(.background, .content) {
+    grid-column: 1 / -1;
+    grid-row: 1 / -1;
   }
 
-  .ProseGrid:has(*) {
-    --px: 3vw;
-    --py: 3vh;
-    position: relative;
-    padding: calc(max(var(--px), var(--py)) * 2.5);
-    margin-inline: -1rem;
-  }
-
-  .ProseGrid:has(*)::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-
+  .background {
     --line-color: #e8e5e3;
+
+    border-radius: 3rem 2rem;
+    box-sizing: border-box;
+    background-color: light-dark(rgba(244, 246, 255, 0.7), transparent);
+    z-index: -1;
+    padding-inline: calc(max(var(--px), var(--py)) * 2.5);
+    padding-block: calc(max(var(--px), var(--py)) * 2.5);
+    margin: -1rem;
     background-image:
       linear-gradient(180deg, transparent 96%, var(--line-color) 100%),
       linear-gradient(90deg, transparent 96%, var(--line-color) 100%);
@@ -48,13 +51,13 @@ import "./prose.css"
         rgba(0, 0, 0, 0) 100%
       );
   }
-
-  :global(.dark) .ProseGrid:has(*)::before {
+  :global(.dark) .background {
     --line-color: #475569;
     background-color: transparent;
   }
 
-  /* .ProseGrid:has(*) :global(> *:not(img)) {
-    margin-inline: -1rem;
-  } */
+  .content {
+    padding-inline: calc(max(var(--px), var(--py)) * 1.5);
+    padding-block: calc(max(var(--px), var(--py)) * 1.5);
+  }
 </style>
