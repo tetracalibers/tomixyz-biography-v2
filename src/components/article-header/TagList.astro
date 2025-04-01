@@ -1,0 +1,22 @@
+---
+import { tagToSlug } from "$/utils/tag"
+import TagLink from "$components/tag/TagLink.astro"
+
+interface Props {
+  tags: string[]
+  lang: string
+}
+
+const { tags } = Astro.props
+---
+
+<div class="inline-flex flex-wrap gap-x-2 gap-y-3 justify-center md:justify-start">
+  {
+    tags.length > 0 &&
+      tags.map((tag) => (
+        <TagLink href={`/tags/${tagToSlug(tag)}`} small>
+          {tag}
+        </TagLink>
+      ))
+  }
+</div>

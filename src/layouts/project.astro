@@ -1,0 +1,61 @@
+---
+import type { CollectionEntry } from "astro:content"
+import { SITE } from "$/config"
+import MainLayout from "$/components/layout/MainLayout.astro"
+import BaseHead from "$/components/layout/BaseHead.astro"
+import Prose from "$/components/prose/Prose.astro"
+import ArticleTitle from "$components/article-header/ArticleTitle.astro"
+import ArticleSummary from "$/components/article-header/ArticleSummary.astro"
+import TagList from "$/components/article-header/TagList.astro"
+import PublishDate from "$/components/article-header/PublishDate.astro"
+import CoverImage from "$/components/article-header/CoverImage.astro"
+import ArticleMetaBlock from "$components/article-header/ArticleMetaBlock.astro"
+import IconLinkList from "$/components/article-header/IconLinkList.astro"
+import ArticleHeaderContentBlock from "$/components/article-header/ArticleHeaderContentBlock.astro"
+import ArticleHeaderBlock from "$/components/article-header/ArticleHeaderBlock.astro"
+
+interface Props {
+  content: CollectionEntry<"project">["data"]
+  meta?: {
+    title?: string
+    description?: string
+    ogimage?: string
+  }
+}
+const { content, meta } = Astro.props
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <BaseHead
+      image={meta?.ogimage ?? "/og-image.png"}
+      title={meta?.title ? `${SITE.title} | ${meta.title}` : `${SITE.title} | ${content.title}`}
+      description={meta?.description ?? content.description}
+    />
+  </head>
+  <MainLayout>
+    <ArticleHeaderBlock>
+      <ArticleHeaderContentBlock slot="content">
+        <Fragment slot="heading">
+          <TagList tags={content.tags} />
+          <ArticleTitle title={content.title} overflow="fade" />
+          <ArticleSummary summary={content.description} />
+        </Fragment>
+        <ArticleMetaBlock slot="meta">
+          <IconLinkList
+            links={[
+              { url: content.url, icon: "line-md/external-link-rounded", label: "Visit Site" },
+              { url: content.github, icon: "lucide/github", label: "GitHub" }
+            ]}
+          />
+          <PublishDate date={content.date} />
+        </ArticleMetaBlock>
+      </ArticleHeaderContentBlock>
+      <CoverImage slot="image" src={content.image} alt={content.title} />
+    </ArticleHeaderBlock>
+    <Prose>
+      <slot />
+    </Prose>
+  </MainLayout>
+</html>
