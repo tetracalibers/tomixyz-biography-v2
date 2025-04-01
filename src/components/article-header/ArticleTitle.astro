@@ -11,19 +11,34 @@ const { title, overflow = "wrap" } = Astro.props
 
 const maxWordLength = Math.max(...title.split(" ").map((word) => word.length))
 const isFadable = overflow === "fade" && maxWordLength > 11
-
-const className =
-  "leading-tight text-4xl md:text-5xl font-extrabold text-center md:text-left text-theme-primary dark:text-theme-dark-primary"
 ---
 
 {
   isFadable ? (
     <LeadingTrimText tag="div">
-      <OverflowFadeText as="h1" text={title} class={className} client:load />
+      <OverflowFadeText as="h1" text={title} class="ArticleTitle" client:load />
     </LeadingTrimText>
   ) : (
-    <LeadingTrimText tag="h1" className={className}>
+    <LeadingTrimText tag="h1" className="ArticleTitle">
       {title}
     </LeadingTrimText>
   )
 }
+
+<style>
+  .ArticleTitle {
+    font-size: 2.25rem;
+    line-height: 2.5rem;
+    font-weight: 800;
+    text-align: center;
+    margin: 0;
+    color: light-dark(var(--slate-500), var(--slate-200));
+  }
+  @media (min-width: 768px) {
+    .ArticleTitle {
+      font-size: 3rem;
+      line-height: 1;
+      text-align: left;
+    }
+  }
+</style>
