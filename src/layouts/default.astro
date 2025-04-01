@@ -3,6 +3,7 @@ import { SITE } from "$/config"
 import BaseHead from "$/components/layout/BaseHead.astro"
 import MainLayout from "$/components/layout/MainLayout.astro"
 import PageHeader from "$/components/pages/index/PageHeader.astro"
+import Body from "$components/layout/Body.astro"
 
 interface Props {
   content: {
@@ -28,20 +29,17 @@ const { content, meta } = Astro.props
       image={meta?.ogimage ?? "/og-image.png"}
     />
   </head>
-  <body>
+  <Body>
     <MainLayout>
       <div class="MainLayout-inner">
         <PageHeader title={content.title} subtitle={content.description} />
         <div class="slot-wrapper"><slot /></div>
       </div>
     </MainLayout>
-  </body>
+  </Body>
 </html>
 
 <style>
-  body {
-    margin: 0;
-  }
   .MainLayout-inner {
     display: grid;
     gap: 3.5rem;
