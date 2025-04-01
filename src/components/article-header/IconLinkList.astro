@@ -12,7 +12,7 @@ interface Props {
 const { links } = Astro.props
 ---
 
-<ul class="flex flex-wrap gap-4">
+<ul class="IconLinkList">
   {
     links.map(
       ({ url, label, icon }) =>
@@ -24,3 +24,14 @@ const { links } = Astro.props
     )
   }
 </ul>
+
+<style>
+  .IconLinkList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+</style>
