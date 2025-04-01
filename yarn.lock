@@ -270,10 +270,24 @@
   resolved "https://registry.yarnpkg.com/@fontsource/fira-sans/-/fira-sans-5.2.5.tgz#3db23558395c14c04cabd410df03e29719288676"
   integrity sha512-N+GrTGOTIeYE/Wi5tY0RAnc1Tl3ddCdwfZQncvA1zH/lOpKerj9ZS5nfniSXDZ9wrXFRdWTH7anyrRDc+cMpCg==
 
+"@iconify-json/geo@^1.2.2":
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/@iconify-json/geo/-/geo-1.2.2.tgz#834d4c77afdc14ff403a1d30695f57163714a142"
+  integrity sha512-RH6EMqgzs3RKY0HXrg0hXkEliTgyvJ9waxT7Lkg2SiaKCGUF0Xg/B2GQ846ySTB+fbcxpQadrF0f9yq6IVhcbw==
+  dependencies:
+    "@iconify/types" "*"
+
 "@iconify-json/mingcute@^1.2.3":
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/@iconify-json/mingcute/-/mingcute-1.2.3.tgz#a576b008f55957035017f3c19240c90b3dacc9c7"
   integrity sha512-yiEQfLBF5iwyOdxuY0kEU06+8Mp6Mrp14KVXTb+5jjSVuD71C9EQrzM/mm1Efd8Nu2amJalTPisl3loC8pHBqQ==
+  dependencies:
+    "@iconify/types" "*"
+
+"@iconify-json/pepicons-print@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@iconify-json/pepicons-print/-/pepicons-print-1.2.1.tgz#eb3c78b99174bfd246b63ecded7a2d2821d23d6d"
+  integrity sha512-1/E+x5OKCh2jK7UmKMyvSTg/whCrriPW7qhyxy5hJDexWTVd1iVSVyqvLUlvY+g3XpV88fppIs42UU+flNKvaQ==
   dependencies:
     "@iconify/types" "*"
 

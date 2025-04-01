@@ -1,0 +1,18 @@
+<div class="tetcali-grid h-fit">
+  <slot />
+</div>
+
+<style>
+  .tetcali-grid {
+    display: flex;
+    flex-wrap: wrap;
+    row-gap: 3em;
+    column-gap: 2em;
+  }
+
+  .tetcali-grid > :global(*) {
+    flex-basis: 0;
+    flex-shrink: 1;
+    flex-grow: 999;
+  }
+</style>

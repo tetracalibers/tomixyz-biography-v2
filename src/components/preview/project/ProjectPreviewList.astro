@@ -1,0 +1,26 @@
+---
+import type { CollectionEntry } from "astro:content"
+import ProjectPreview from "./ProjectPreveiw.astro"
+
+interface Props {
+  entries: CollectionEntry<"project">[]
+}
+
+const { entries } = Astro.props
+---
+
+<div class="ProjectPreviewList">
+  {entries.map((entry) => <ProjectPreview entry={entry} />)}
+</div>
+
+<style>
+  .ProjectPreviewList {
+    display: grid;
+    gap: 2rem;
+  }
+  @media (max-width: 499px) {
+    .ProjectPreviewList {
+      gap: 5rem;
+    }
+  }
+</style>

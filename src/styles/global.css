@@ -25,11 +25,10 @@ body {
   font-family: "Ysabeau Office", "TsukuBRdGothic";
 }
 
-[data-icon] > symbol {
-  overflow: visible;
-}
-
 :root {
+  --indigo-400: oklch(0.673 0.182 276.935);
+
+  --gray-100: oklch(0.967 0.003 264.542);
   --gray-200: oklch(0.928 0.006 264.531);
   --gray-300: oklch(0.872 0.01 258.338);
   --gray-400: oklch(0.707 0.022 261.325);
@@ -44,6 +43,7 @@ body {
   --slate-500: oklch(0.554 0.046 257.417);
   --slate-600: oklch(0.446 0.043 257.281);
   --slate-700: oklch(0.372 0.044 257.287);
+  --slate-800: oklch(0.279 0.041 260.031);
 }
 
 img {

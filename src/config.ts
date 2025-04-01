@@ -6,7 +6,7 @@ export const NAV_ITEMS: NavItems = {
     title: "about"
   },
   projects: {
-    path: "/projects/",
+    path: "/projects/1",
     title: "projects"
   },
   events: {
@@ -41,3 +41,5 @@ export const SITE = {
   author: "tomixy",
   authorTwitter: "tetracalibers"
 }
+
+export const PAGE_SIZE = 8
