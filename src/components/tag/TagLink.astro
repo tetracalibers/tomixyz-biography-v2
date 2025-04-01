@@ -9,19 +9,16 @@ const { href, small } = Astro.props
 const hue = Math.floor(Math.random() * 360) + "deg"
 ---
 
-<a
-  href={href}
-  class:list={[
-    "_tag inline-block text-theme-secondary dark:text-white",
-    small ? "rounded-br-xl rounded-tl-xl text-md px-2 py-0" : "rounded-br-3xl rounded-tl-3xl text-xl px-4 py-1"
-  ]}
->
+<a href={href} class:list={["Tag", { "-small": small }]}>
   <slot />
 </a>
 
 <style define:vars={{ hue, "dark-twinkle-width": small ? "0.5rem" : "1rem" }}>
-  ._tag {
+  .Tag {
     --twinkle-width: 24%;
+
+    display: inline-block;
+    color: light-dark(var(--slate-600), white);
     background-image: repeating-linear-gradient(
       225deg,
       rgba(191, 228, 255, 0.1) var(--twinkle-width),
@@ -32,11 +29,27 @@ const hue = Math.floor(Math.random() * 360) + "deg"
       rgba(234, 239, 242, 0.1) 100%
     );
     filter: hue-rotate(var(--hue));
+    text-decoration: none;
+    border-bottom-right-radius: 1.5rem;
+    border-top-left-radius: 1.5rem;
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    padding-inline: 1rem;
+    padding-block: 0.25rem;
   }
 
-  :global(.dark) ._tag {
+  :global(.dark) .Tag {
     --twinkle-width: var(--dark-twinkle-width);
     filter: hue-rotate(var(--hue)) saturate(1.5) contrast(1.2);
     mix-blend-mode: hard-light;
+  }
+
+  .-small {
+    border-bottom-right-radius: 0.75rem;
+    border-top-left-radius: 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    padding-inline: 0.5rem;
+    padding-block: 0;
   }
 </style>
