@@ -56,6 +56,14 @@
   color: light-dark(#64748b, #cbd5e1);
 }
 
+:where(.prose ul) {
+  padding-inline-start: 1.625em;
+  list-style-type: disc;
+}
+.prose ul > li::marker {
+  color: #d1d5db;
+}
+
 :where(.prose blockquote) {
   font-style: normal;
   background-color: rgba(191, 219, 254, 0.9);
