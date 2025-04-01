@@ -3,7 +3,6 @@ import type { CollectionEntry } from "astro:content"
 import { SITE } from "$/config"
 import MainLayout from "$/components/layout/MainLayout.astro"
 import BaseHead from "$/components/layout/BaseHead.astro"
-import Prose from "$/components/prose/Prose.astro"
 import ArticleTitle from "$components/article-header/ArticleTitle.astro"
 import ArticleSummary from "$/components/article-header/ArticleSummary.astro"
 import TagList from "$/components/article-header/TagList.astro"
@@ -14,6 +13,7 @@ import IconLinkList from "$/components/article-header/IconLinkList.astro"
 import ArticleHeaderContentBlock from "$/components/article-header/ArticleHeaderContentBlock.astro"
 import ArticleHeaderBlock from "$/components/article-header/ArticleHeaderBlock.astro"
 import Body from "$components/layout/Body.astro"
+import ProseGridFill from "$components/prose/ProseGridFill.astro"
 
 interface Props {
   content: CollectionEntry<"project">["data"]
@@ -56,9 +56,9 @@ const { content, meta } = Astro.props
         </ArticleHeaderContentBlock>
         <CoverImage slot="image" src={content.image} alt={content.title} />
       </ArticleHeaderBlock>
-      <Prose>
+      <ProseGridFill>
         <slot />
-      </Prose>
+      </ProseGridFill>
     </MainLayout>
   </Body>
 </html>

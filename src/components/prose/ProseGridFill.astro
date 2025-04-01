@@ -7,6 +7,10 @@ import "./prose.css"
 </article>
 
 <style>
+  .ProseGrid::before {
+    background-color: light-dark(#f4f6ff, transparent);
+  }
+
   .ProseGrid:has(*) {
     --px: 3vw;
     --py: 3vh;
