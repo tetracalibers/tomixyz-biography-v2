@@ -10,5 +10,14 @@ interface Props {
 const { src, alt } = Astro.props
 ---
 
-<Image class="relative rounded-lg drop-shadow-xl overflow-hidden w-full" src={src} alt={alt} />
-<br />
+<Image class="CoverImage" src={src} alt={alt} />
+
+<style>
+  .CoverImage {
+    overflow: hidden;
+    position: relative;
+    border-radius: 0.5rem;
+    width: 100%;
+    filter: drop-shadow(0 3px 3px rgb(0 0 0 / 0.12));
+  }
+</style>
