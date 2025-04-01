@@ -54,31 +54,30 @@ const pages = new Array(lastPage).fill(0).map((_, i) => i)
       rgb(230 227 245 / 77%) 93%,
       rgb(234 239 242 / 80%) 100%
     );
-    filter: hue-rotate(var(--hue));
   }
   .-page-num {
-    --hue: 0deg;
+    background-color: #fcd888;
   }
   .-page-num:nth-child(2n) {
-    --hue: 60deg;
+    background-color: #b8f1f8;
   }
   .-page-num:nth-child(3n) {
-    --hue: 120deg;
+    background-color: #fcdce0;
   }
   .-page-num:nth-child(4n) {
-    --hue: 180deg;
+    background-color: #c6d9fd;
   }
   .-page-num:nth-child(5n) {
-    --hue: 240deg;
+    background-color: #ccf5e6;
   }
   .-page-num:nth-child(6n) {
-    --hue: 300deg;
+    background-color: #f9c0e7;
   }
   :is(.-prev, .-next) {
     --hue: 0deg;
   }
   .Paginator-item a {
-    color: light-dark(var(--gray-500), white);
+    color: light-dark(var(--gray-500), var(--gray-600));
     text-decoration: none;
     font-weight: bold;
     padding: 0.5rem;
@@ -114,10 +113,15 @@ const pages = new Array(lastPage).fill(0).map((_, i) => i)
       rgb(230 227 245 / 37%) 93%,
       rgb(234 239 242 / 36%) 100%
     );
-    filter: hue-rotate(var(--hue)) saturate(2);
+    filter: saturate(2);
     mix-blend-mode: multiply;
+  }
+  :global(.dark) .Paginator-item:has([inert]) {
+    background-image: none;
   }
   :global(.dark) .Paginator-item:has([aria-current]) {
     box-shadow: rgb(108 240 249 / 70%) 0px 0px 0px 3px;
+    box-shadow: rgb(108 240 249 / 36%) 0px 0px 0px 3px;
+    box-shadow: rgb(108 183 249 / 52%) 0px 0px 0px 3px;
   }
 </style>
