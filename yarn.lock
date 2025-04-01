@@ -284,6 +284,13 @@
   dependencies:
     "@iconify/types" "*"
 
+"@iconify-json/pepicons-print@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@iconify-json/pepicons-print/-/pepicons-print-1.2.1.tgz#eb3c78b99174bfd246b63ecded7a2d2821d23d6d"
+  integrity sha512-1/E+x5OKCh2jK7UmKMyvSTg/whCrriPW7qhyxy5hJDexWTVd1iVSVyqvLUlvY+g3XpV88fppIs42UU+flNKvaQ==
+  dependencies:
+    "@iconify/types" "*"
+
 "@iconify-json/ri@^1.2.5":
   version "1.2.5"
   resolved "https://registry.yarnpkg.com/@iconify-json/ri/-/ri-1.2.5.tgz#bd7d607225cc69b42928df3a55d4069ad8b7aaea"

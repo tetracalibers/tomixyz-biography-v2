@@ -1,31 +1,123 @@
 ---
-import { SITE } from "$/config"
+import type { Page } from "astro"
+import type { CollectionEntry } from "astro:content"
+import { Icon } from "astro-icon/components"
+interface Props {
+  page: Page<CollectionEntry<"project">>
+}
+
 const { page } = Astro.props
 
-const isShow = page.url.prev || page.url.next
+const { currentPage, lastPage } = page
+const { prev, next } = page.url
+const pages = new Array(lastPage).fill(0).map((_, i) => i)
 ---
 
-{
-  isShow && (
-    <div class="page__actions">
-      {page.url.prev && (
-        <a class="action__go-to-x" href={SITE.base + page.url.prev} title="Go to Previous">
-          &larr; Prev
+<ul class="Paginator">
+  <li class="Paginator-item -prev">
+    <a href={prev} aria-label="前のページ" inert={!prev} aria-disabled={!prev}>
+      <Icon name="pepicons-print:arrow-left" />
+    </a>
+  </li>
+  {
+    pages.map((index) => (
+      <li class="Paginator-item -page-num">
+        <a href={`/projects/${index + 1}`} aria-current={index + 1 === currentPage ? "page" : undefined}>
+          {index + 1}
         </a>
-      )}
-      {page.url.next && (
-        <a class="action__go-to-x" href={SITE.base + page.url.next} title="Go to Next">
-          Next &rarr;
-        </a>
-      )}
-    </div>
-  )
-}
-<style>
-  .page__actions {
-    @apply flex justify-center md:justify-end gap-2;
+      </li>
+    ))
   }
-  .action__go-to-x {
-    @apply text-base uppercase text-gray-500 dark:text-gray-300 hover:underline;
+  <li class="Paginator-item -next">
+    <a href={next} aria-label="次のページ" inert={!next} aria-disabled={!next}>
+      <Icon name="pepicons-print:arrow-right" />
+    </a>
+  </li>
+</ul>
+
+<style>
+  .Paginator {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    list-style: none;
+    margin: 0 auto;
+    padding: 0;
+  }
+  .Paginator-item {
+    border-radius: 50%;
+    background-image: repeating-linear-gradient(
+      45deg,
+      rgba(234, 239, 242, 0.3) 0%,
+      rgb(206 206 255 / 82%) 55.07%,
+      rgb(223 209 249 / 80%) 100%,
+      rgb(230 227 245 / 77%) 93%,
+      rgb(234 239 242 / 80%) 100%
+    );
+    filter: hue-rotate(var(--hue));
+  }
+  .-page-num {
+    --hue: 0deg;
+  }
+  .-page-num:nth-child(2n) {
+    --hue: 60deg;
+  }
+  .-page-num:nth-child(3n) {
+    --hue: 120deg;
+  }
+  .-page-num:nth-child(4n) {
+    --hue: 180deg;
+  }
+  .-page-num:nth-child(5n) {
+    --hue: 240deg;
+  }
+  .-page-num:nth-child(6n) {
+    --hue: 300deg;
+  }
+  :is(.-prev, .-next) {
+    --hue: 0deg;
+  }
+  .Paginator-item a {
+    color: light-dark(var(--gray-500), white);
+    text-decoration: none;
+    font-weight: bold;
+    padding: 0.5rem;
+    width: 3ch;
+    height: 3ch;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .Paginator-item:has([inert]) {
+    background: #dedede4f;
+    cursor: not-allowed;
+  }
+  .Paginator-item:has([inert]) svg {
+    opacity: 0.4;
+  }
+  .Paginator-item:has([aria-current]) {
+    box-shadow: rgba(3, 102, 214, 0.3) 0px 0px 0px 3px;
+  }
+  [aria-current] {
+    cursor: default;
+  }
+  :is(.-prev, .-next) a {
+    font-size: 1.5rem;
+    padding: 0;
+  }
+  :global(.dark) .Paginator-item {
+    background-image: repeating-linear-gradient(
+      45deg,
+      rgb(234 239 242 / 47%) 0%,
+      rgb(206 206 255 / 89%) 55.07%,
+      rgb(223 209 249 / 41%) 100%,
+      rgb(230 227 245 / 37%) 93%,
+      rgb(234 239 242 / 36%) 100%
+    );
+    filter: hue-rotate(var(--hue)) saturate(2);
+    mix-blend-mode: multiply;
+  }
+  :global(.dark) .Paginator-item:has([aria-current]) {
+    box-shadow: rgb(108 240 249 / 70%) 0px 0px 0px 3px;
   }
 </style>
