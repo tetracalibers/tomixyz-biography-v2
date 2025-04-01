@@ -26,11 +26,21 @@ const year = dateObj.getFullYear().toString()
   .PublishDate {
     display: grid;
     place-items: center;
-    color: light-dark(var(--gray-500), var(--gray-200));
+    color: light-dark(var(--gray-400), var(--gray-300));
     line-height: 1;
     font-weight: 600;
-    width: 100%;
+    width: max(20%, 105px);
     height: 100%;
+    position: absolute;
+    top: -3.5rem;
+    right: 0.5cqw;
+  }
+  @media (min-width: 499px) {
+    .PublishDate {
+      position: relative;
+      top: 0;
+      right: 0;
+    }
   }
   :is(.background, .text) {
     grid-column: 1 / -1;
