@@ -44,17 +44,19 @@ const { content, meta } = Astro.props
             <ArticleTitle title={content.title} overflow="fade" />
             <ArticleSummary summary={content.description} />
           </Fragment>
-          <ArticleMetaBlock slot="meta">
+          <Fragment slot="meta">
             <IconLinkList
               links={[
                 { url: content.url, icon: "line-md:external-link-rounded", label: "Visit Site" },
                 { url: content.github, icon: "lucide:github", label: "GitHub" }
               ]}
             />
-            <PublishDate date={content.date} />
-          </ArticleMetaBlock>
+          </Fragment>
         </ArticleHeaderContentBlock>
-        <CoverImage slot="image" src={content.image} alt={content.title} />
+        <Fragment slot="image">
+          <CoverImage src={content.image} alt={content.title} />
+          <PublishDate date={content.date} />
+        </Fragment>
       </ArticleHeaderBlock>
       <ProseGridFill>
         <slot />

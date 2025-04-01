@@ -6,6 +6,15 @@ interface Props {
 const { date } = Astro.props
 ---
 
-<span class="text-slate-500 dark:text-theme-dark-secondary">
+<div class="PublishDate">
   {new Intl.DateTimeFormat("en-US", { dateStyle: "full" }).format(new Date(date))}
-</span>
+</div>
+
+<style>
+  .PublishDate {
+    color: light-dark(var(--slate-400), var(--slate-300));
+    font-weight: bold;
+    font-style: italic;
+    text-align: end;
+  }
+</style>
