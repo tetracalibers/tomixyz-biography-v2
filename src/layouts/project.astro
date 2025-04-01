@@ -53,10 +53,10 @@ const { content, meta } = Astro.props
             />
           </Fragment>
         </ArticleHeaderContentBlock>
-        <Fragment slot="image">
+        <div slot="image">
           <CoverImage src={content.image} alt={content.title} />
           <PublishDate date={content.date} />
-        </Fragment>
+        </div>
       </ArticleHeaderBlock>
       <ProseGridFill>
         <slot />
