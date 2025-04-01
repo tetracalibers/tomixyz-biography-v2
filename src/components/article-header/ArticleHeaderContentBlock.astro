@@ -1,15 +1,33 @@
-<div class="flex flex-col justify-evenly gap-11 h-full">
-  <div class="_heading h-fit grid gap-8 justify-center md:justify-start">
+<div class="ArticleHeaderContentBlock">
+  <div class="heading">
     <slot name="heading" />
   </div>
   <slot name="meta" />
 </div>
 
 <style>
-  ._heading :global(> *) {
+  .ArticleHeaderContentBlock {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    gap: 2.75rem;
+    height: 100%;
+  }
+  .heading {
+    height: fit-content;
+    display: grid;
+    gap: 2rem;
+    justify-content: center;
+  }
+  @media (min-width: 768px) {
+    .heading {
+      justify-content: start;
+    }
+  }
+  .heading :global(> *) {
     min-width: 0;
   }
-  ._heading :global(> astro-island > *) {
+  .heading :global(> astro-island > *) {
     min-width: 0;
   }
 </style>
