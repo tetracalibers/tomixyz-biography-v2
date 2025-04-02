@@ -11,8 +11,8 @@ import ArticleHeaderContentBlock from "$/components/article-header/ArticleHeader
 import ArticleHeaderBlock from "$/components/article-header/ArticleHeaderBlock.astro"
 import Body from "$components/layout/Body.astro"
 import ProseGridFill from "$components/prose/ProseGridFill.astro"
-import ResponsiveTitle from "$components/article-header/ResponsiveTitle.astro"
 import ArticleSummaryMedium from "$components/article-header/ArticleSummaryMedium.astro"
+import ArticleTitleResponsive from "$components/article-header/ArticleTitleResponsive.astro"
 
 interface Props {
   content: CollectionEntry<"project">["data"]
@@ -40,7 +40,7 @@ const { content, meta } = Astro.props
         <ArticleHeaderContentBlock slot="content">
           <Fragment slot="heading">
             <TagList tags={content.tags} />
-            <ResponsiveTitle title={content.title} overflow="fade" />
+            <ArticleTitleResponsive title={content.title} overflow="fade" />
             <ArticleSummaryMedium summary={content.description} />
           </Fragment>
           <Fragment slot="meta">
