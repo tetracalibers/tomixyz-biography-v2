@@ -10,7 +10,7 @@ export const NAV_ITEMS: NavItems = {
     title: "projects"
   },
   events: {
-    path: "/events/",
+    path: "/events/1",
     title: "events"
   },
   writing: {

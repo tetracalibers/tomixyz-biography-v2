@@ -1,0 +1,31 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content"
+import DefaultPageLayout from "$/layouts/default.astro"
+import Paginator from "$/components/pagination/Paginator.astro"
+import EventPreviewList from "$/components/preview/event/EventPreviewList.astro"
+import { compareDateForSort } from "$/utils"
+import type { GetStaticPaths, Page } from "astro"
+import { PAGE_SIZE } from "$/config"
+
+const title = "Events"
+const description = "イベントでの発表"
+const meta = {
+  ogimage: "/og-image/events.png"
+}
+
+export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
+  const collection = (await getCollection("event")).sort(compareDateForSort)
+  return paginate(collection, { pageSize: PAGE_SIZE })
+}
+
+interface Props {
+  page: Page<CollectionEntry<"event">>
+}
+
+const { page } = Astro.props
+---
+
+<DefaultPageLayout content={{ title, description }} meta={{ ...meta }}>
+  <EventPreviewList entries={page.data} />
+  <Paginator page={page} />
+</DefaultPageLayout>
