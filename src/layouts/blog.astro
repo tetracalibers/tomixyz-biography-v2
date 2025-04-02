@@ -54,7 +54,7 @@ const AUTHOR_NAME = SITE.author
           <BlogToc headings={headings} />
         </ArticleTocBlock>
         <ProseGridFill>
-          <div class="_content text-lg leading-loose"><slot /></div>
+          <div class="main-content"><slot /></div>
         </ProseGridFill>
       </div>
     </MainLayout>
@@ -66,8 +66,12 @@ const AUTHOR_NAME = SITE.author
     display: grid;
     gap: 2rem;
   }
-
-  ._content :global(p > img) {
+  .main-content {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    line-height: 2;
+  }
+  .main-content :global(p > img) {
     --fluid-bp-320-600: calc((100vw - 320px) / (600 - 320));
     --__max-height: 300px;
     --__space: clamp(16px, (16px + (68 - 16) * var(--fluid-bp-320-600)), 68px);
