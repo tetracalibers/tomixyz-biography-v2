@@ -1,0 +1,19 @@
+---
+import { Image } from "astro:assets"
+import img_tomixy from "../../../assets/profiles/pastel-tomixy_op.png"
+---
+
+<Image src={img_tomixy} class="AvatarImage" alt="tomixy's avatar" />
+
+<style>
+  .AvatarImage {
+    object-fit: cover;
+    padding: 0.25rem;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 9999px;
+    border-width: 2px;
+    border-style: solid;
+    border-color: light-dark(var(--slate-200), var(--slate-500));
+  }
+</style>

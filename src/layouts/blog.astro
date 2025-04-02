@@ -4,7 +4,7 @@ import { SITE } from "$/config"
 import MainLayout from "$/components/layout/MainLayout.astro"
 import BaseHead from "$/components/layout/BaseHead.astro"
 import ProseGridFill from "$/components/prose/ProseGridFill.astro"
-import AvatarImage from "$components/image-wrapper/AvatarImage.astro"
+import AvatarImage from "$components/article-header/layout-2/AvatarImage.astro"
 import PublishDate from "$components/article-header/PublishDate.astro"
 import type { MarkdownHeading } from "astro"
 import BlogToc from "$components/toc/BlogToc.astro"
@@ -47,9 +47,7 @@ const AUTHOR_NAME = SITE.author
           <div
             class="text-gray-500 dark:text-gray-100 flex justify-center text-left md:flex-none md:justify-start flex-row gap-2"
           >
-            <AvatarImage
-              className="w-12 h-12 rounded-full object-cover p-1 border-2 border-solid border-theme-dark-primary dark:border-theme-primary"
-            />
+            <AvatarImage />
             <div class="flex flex-col border-l-2 pl-2">
               <span class="no-underline text-gray-500 dark:text-gray-100 hover:text-theme-primary">{AUTHOR_NAME}</span>
               <PublishDate date={content.date} />
