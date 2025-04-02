@@ -15,14 +15,16 @@ const pageUrl = SITE.base + "/blog/" + id
 ---
 
 <div class="BlogPreview">
-  <PublishDate date={post.date} />
-  <div class="content">
-    <h2 class="title">
-      <a href={pageUrl} title={post.title}>{post.title}</a>
-    </h2>
-    <p class="desc">
-      {post.description}
-    </p>
+  <div class="inner">
+    <div class="date"><PublishDate date={post.date} /></div>
+    <div class="content">
+      <h2 class="title">
+        <a href={pageUrl} title={post.title}>{post.title}</a>
+      </h2>
+      <p class="desc">
+        {post.description}
+      </p>
+    </div>
   </div>
 </div>
 
@@ -31,11 +33,38 @@ const pageUrl = SITE.base + "/blog/" + id
     display: flex;
     gap: 1.5rem;
   }
+  .inner {
+    display: grid;
+    justify-items: start;
+    align-items: center;
+    column-gap: 0.75rem;
+    width: 100%;
+  }
+  .date {
+    justify-self: end;
+    translate: 0 2rem;
+    z-index: -1;
+  }
+  @media (min-width: 500px) {
+    .date {
+      translate: 0 0;
+    }
+  }
   .content {
     display: flex;
     flex-direction: column;
     justify-content: center;
     gap: 0.5rem;
+    padding: 1rem;
+    border: 1px solid light-dark(var(--slate-300), var(--slate-400));
+    border-radius: 10px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  @media (min-width: 500px) {
+    .inner {
+      grid-template-columns: auto 1fr;
+    }
   }
   .title {
     margin: 0;
