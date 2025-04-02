@@ -1,0 +1,112 @@
+---
+import type { CollectionEntry } from "astro:content"
+import PublishDate from "./PublishDate.astro"
+import { SITE } from "$/config"
+
+interface Props {
+  entry: CollectionEntry<"blog">
+}
+
+const {
+  entry: { data: post, id }
+} = Astro.props
+
+const pageUrl = SITE.base + "/blog/" + id
+---
+
+<div class="BlogPreview">
+  <div class="inner">
+    <div class="date"><PublishDate date={post.date} /></div>
+    <div class="content">
+      <h2 class="title">
+        <a href={pageUrl} title={post.title}>{post.title}</a>
+      </h2>
+      <p class="desc">
+        {post.description}
+      </p>
+    </div>
+  </div>
+</div>
+
+<style>
+  .BlogPreview {
+    display: flex;
+    gap: 1.5rem;
+  }
+  @media (max-width: 499px) {
+    .BlogPreview {
+      margin-block-start: -1rem;
+    }
+  }
+  .inner {
+    display: grid;
+    justify-items: start;
+    align-items: center;
+    column-gap: 0.75rem;
+    width: 100%;
+  }
+  .date {
+    justify-self: end;
+    translate: 0 2rem;
+    z-index: -1;
+  }
+  @media (min-width: 500px) {
+    .date {
+      translate: 0 0;
+    }
+  }
+  .content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    border: 1px solid light-dark(var(--slate-300), var(--slate-400));
+    border-radius: 10px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  @media (min-width: 500px) {
+    .inner {
+      grid-template-columns: auto 1fr;
+    }
+  }
+  .title {
+    margin: 0;
+  }
+  .title a {
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 600;
+    color: light-dark(var(--slate-500), var(--slate-200));
+    text-decoration: none;
+  }
+  .title a:hover {
+    text-decoration: underline;
+  }
+  .desc {
+    margin: 0;
+    line-height: 1.5rem;
+    hyphens: auto;
+    color: light-dark(var(--slate-800), white);
+  }
+
+  .BlogPreview :global(.PublishDate svg) {
+    color: #fcd888;
+  }
+  .BlogPreview:nth-child(2n) :global(.PublishDate svg) {
+    color: #b8f1f8;
+  }
+  .BlogPreview:nth-child(3n) :global(.PublishDate svg) {
+    color: #fcdce0;
+  }
+  .BlogPreview:nth-child(4n) :global(.PublishDate svg) {
+    color: #c6d9fd;
+  }
+  .BlogPreview:nth-child(5n) :global(.PublishDate svg) {
+    color: #ccf5e6;
+  }
+  .BlogPreview:nth-child(6n) :global(.PublishDate svg) {
+    color: #f9c0e7;
+  }
+</style>

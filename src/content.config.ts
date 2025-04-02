@@ -36,6 +36,7 @@ const project = defineCollection({
 })
 
 const event = defineCollection({
+  loader: glob({ pattern: "**/*.mdx", base: "./src/content/event" }),
   schema: ({ image }) =>
     z.object({
       title: z.string().max(100, "The title length must be less than or equal to 100 chars"),
@@ -55,4 +56,21 @@ const event = defineCollection({
     })
 })
 
-export const collections = { page, project, event }
+const blog = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: "./src/content/blog" }),
+  schema: () =>
+    z.object({
+      title: z.string().max(100, "The title length must be less than or equal to 100 chars"),
+      description: z.string(),
+      meta: z
+        .object({
+          title: z.string().optional(),
+          description: z.string().optional()
+        })
+        .optional(),
+      date: z.string(),
+      category: z.enum(["essay", "tech"])
+    })
+})
+
+export const collections = { page, project, event, blog }

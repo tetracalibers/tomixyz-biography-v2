@@ -1,0 +1,63 @@
+---
+import { Icon } from "astro-icon/components"
+
+interface Props {
+  date: string | Date
+}
+
+const { date } = Astro.props
+const dateObj = new Date(date)
+const year = dateObj.getFullYear().toString()
+const month = (dateObj.getMonth() + 1).toString().padStart(2, "0")
+const day = dateObj.getDate().toString().padStart(2, "0")
+---
+
+<div class="PublishDate w-full text-center">
+  <div class="background">
+    <Icon name="geo:turf-intersect" />
+  </div>
+  <div class="text">
+    <span class="year">{year}</span>
+    <span class="date">
+      {`${month}/${day}`}
+    </span>
+  </div>
+</div>
+
+<style>
+  .PublishDate {
+    display: grid;
+    place-items: center;
+    font-weight: bold;
+    color: light-dark(var(--gray-400), var(--gray-300));
+  }
+  :is(.background, .text) {
+    grid-column: 1 / -1;
+    grid-row: 1 / -1;
+  }
+  .text {
+    display: grid;
+    place-items: center;
+    gap: 0.2rem;
+    padding: 2rem;
+  }
+  .year {
+    font-size: 1.5rem;
+    line-height: 1;
+    font-weight: 600;
+  }
+
+  .background {
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    opacity: 0.6;
+  }
+  :global(.dark) .background {
+    opacity: 0.3;
+  }
+  [data-icon] {
+    width: 100%;
+    height: 100%;
+  }
+</style>

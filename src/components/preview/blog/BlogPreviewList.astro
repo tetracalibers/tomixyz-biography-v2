@@ -1,0 +1,27 @@
+---
+import type { CollectionEntry } from "astro:content"
+import PostPreview from "./BlogPreview.astro"
+
+interface Props {
+  entries: CollectionEntry<"blog">[]
+}
+
+const { entries } = Astro.props
+---
+
+<div class="BlogPreviewList">
+  {entries.map((entry) => <PostPreview entry={entry} />)}
+</div>
+
+<style>
+  .BlogPreviewList {
+    display: grid;
+    gap: 0.5rem;
+  }
+  @media (max-width: 499px) {
+    .BlogPreviewList {
+      gap: 0;
+      margin-block-start: -3.5rem;
+    }
+  }
+</style>
