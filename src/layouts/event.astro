@@ -4,14 +4,14 @@ import { SITE } from "$/config"
 import MainLayout from "$/components/layout/MainLayout.astro"
 import BaseHead from "$/components/layout/BaseHead.astro"
 import PublishDate from "$components/article-header/PublishDate.astro"
-import CoverImage from "$components/article-header/CoverImage.astro"
+import CoverImage from "$components/article-header/layout-1/CoverImage.astro"
 import IconLinkList from "$/components/article-header/IconLinkList.astro"
-import ArticleHeaderBlock from "$components/article-header/ArticleHeaderBlock.astro"
-import ArticleHeaderContentBlock from "$components/article-header/ArticleHeaderContentBlock.astro"
+import ArticleHeaderBlock from "$components/article-header/layout-1/ArticleHeaderBlock.astro"
+import ArticleHeaderContentBlock from "$components/article-header/layout-1/ArticleHeaderContentBlock.astro"
 import Body from "$components/layout/Body.astro"
 import ProseGridFill from "$components/prose/ProseGridFill.astro"
-import ArticleSummaryMedium from "$components/article-header/ArticleSummaryMedium.astro"
-import ArticleTitleResponsive from "$components/article-header/ArticleTitleResponsive.astro"
+import ArticleSummary from "$components/article-header/layout-1/ArticleSummary.astro"
+import ArticleTitle from "$components/article-header/layout-1/ArticleTitle.astro"
 
 interface Props {
   content: CollectionEntry<"event">["data"]
@@ -38,8 +38,8 @@ const { content, meta } = Astro.props
       <ArticleHeaderBlock>
         <ArticleHeaderContentBlock slot="content">
           <Fragment slot="heading">
-            <ArticleTitleResponsive title={content.title} />
-            <ArticleSummaryMedium summary={content.description} />
+            <ArticleTitle title={content.title} />
+            <ArticleSummary summary={content.description} />
           </Fragment>
           <Fragment slot="meta">
             <IconLinkList
