@@ -1,0 +1,21 @@
+---
+import type { CollectionEntry } from "astro:content"
+import EventPreview from "./EventPreveiw.astro"
+
+interface Props {
+  entries: CollectionEntry<"event">[]
+}
+
+const { entries } = Astro.props
+---
+
+<div class="EventPreviewList">
+  {entries.map((entry) => <EventPreview entry={entry} />)}
+</div>
+
+<style>
+  .EventPreviewList {
+    display: grid;
+    gap: 2rem;
+  }
+</style>
