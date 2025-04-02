@@ -14,28 +14,65 @@ const {
 const pageUrl = SITE.base + "/blog/" + id
 ---
 
-<div class="post-preview">
-  <div class="sm:w-20 md:w-32">
-    <PublishDate date={post.date} />
-  </div>
-  <div class="flex-1 flex flex-col justify-center">
-    <h2 class="post-preview__title dark:text-theme-dark-primary">
+<div class="BlogPreview">
+  <PublishDate date={post.date} />
+  <div class="content">
+    <h2 class="title">
       <a href={pageUrl} title={post.title}>{post.title}</a>
     </h2>
-    <p class="post-preview__desc">
+    <p class="desc">
       {post.description}
     </p>
   </div>
 </div>
 
 <style>
-  .post-preview {
-    @apply flex gap-6;
+  .BlogPreview {
+    display: flex;
+    gap: 1.5rem;
   }
-  .post-preview__title {
-    @apply text-2xl font-semibold text-theme-primary dark:text-theme-dark-primary /* this doesn't works here */ hover:underline mb-2;
+  .content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.5rem;
   }
-  .post-preview__desc {
-    @apply leading-6 dark:text-white hyphens-auto;
+  .title {
+    margin: 0;
+  }
+  .title a {
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 600;
+    color: light-dark(var(--slate-500), var(--slate-200));
+    text-decoration: none;
+  }
+  .title a:hover {
+    text-decoration: underline;
+  }
+  .desc {
+    margin: 0;
+    line-height: 1.5rem;
+    hyphens: auto;
+    color: light-dark(var(--slate-800), white);
+  }
+
+  .BlogPreview :global(.PublishDate svg) {
+    color: #fcd888;
+  }
+  .BlogPreview:nth-child(2n) :global(.PublishDate svg) {
+    color: #b8f1f8;
+  }
+  .BlogPreview:nth-child(3n) :global(.PublishDate svg) {
+    color: #fcdce0;
+  }
+  .BlogPreview:nth-child(4n) :global(.PublishDate svg) {
+    color: #c6d9fd;
+  }
+  .BlogPreview:nth-child(5n) :global(.PublishDate svg) {
+    color: #ccf5e6;
+  }
+  .BlogPreview:nth-child(6n) :global(.PublishDate svg) {
+    color: #f9c0e7;
   }
 </style>
