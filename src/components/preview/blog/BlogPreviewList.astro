@@ -16,5 +16,12 @@ const { entries } = Astro.props
 <style>
   .BlogPreviewList {
     display: grid;
+    gap: 0.5rem;
+  }
+  @media (max-width: 499px) {
+    .BlogPreviewList {
+      gap: 0;
+      margin-block-start: -3.5rem;
+    }
   }
 </style>

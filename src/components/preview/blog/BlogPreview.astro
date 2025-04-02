@@ -33,6 +33,11 @@ const pageUrl = SITE.base + "/blog/" + id
     display: flex;
     gap: 1.5rem;
   }
+  @media (max-width: 499px) {
+    .BlogPreview {
+      margin-block-start: -1rem;
+    }
+  }
   .inner {
     display: grid;
     justify-items: start;
