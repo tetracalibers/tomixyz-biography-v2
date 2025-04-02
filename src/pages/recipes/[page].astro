@@ -1,0 +1,36 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content"
+import DefaultPageLayout from "$/layouts/default.astro"
+import Paginator from "$/components/pagination/Paginator.astro"
+import { compareDateForSort } from "$/utils"
+import type { GetStaticPaths, Page } from "astro"
+import RecipePreviewList from "$components/preview/recipe/RecipePreviewList.astro"
+import { PAGE_SIZE } from "$/config"
+
+const title = "Recipes"
+const description = "作りながら学ぶ、ちいさなレシピ集"
+const meta = {
+  ogimage: "/og-image/recipe.png"
+}
+
+export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
+  const filterPublic = (entry: CollectionEntry<"recipe">) => {
+    if (import.meta.env.DEV) return true
+    return !entry.data.draft && !entry.data.private
+  }
+
+  const collection = (await getCollection("recipe", filterPublic)).sort(compareDateForSort)
+  return paginate(collection, { pageSize: PAGE_SIZE })
+}
+
+interface Props {
+  page: Page<CollectionEntry<"recipe">>
+}
+
+const { page } = Astro.props
+---
+
+<DefaultPageLayout content={{ title, description }} meta={{ ...meta }}>
+  <RecipePreviewList entries={page.data} />
+  {PAGE_SIZE < page.total && <Paginator page={page} />}
+</DefaultPageLayout>
