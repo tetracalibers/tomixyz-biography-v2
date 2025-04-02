@@ -2,8 +2,10 @@
 import type { Page } from "astro"
 import type { CollectionEntry } from "astro:content"
 import { Icon } from "astro-icon/components"
-interface Props {
-  page: Page<CollectionEntry<"project">>
+import type { DataEntryMap } from "astro:content"
+
+interface Props<K extends keyof DataEntryMap> {
+  page: Page<CollectionEntry<K>>
 }
 
 const { page } = Astro.props
