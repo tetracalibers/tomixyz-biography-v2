@@ -18,7 +18,7 @@ export const NAV_ITEMS: NavItems = {
     title: "writing"
   },
   blog: {
-    path: "/blog/",
+    path: "/blog/1",
     title: "blog"
   },
   tutorial: {
