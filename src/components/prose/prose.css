@@ -65,13 +65,20 @@
 }
 
 :where(.prose blockquote) {
+  background-color: light-dark(rgb(239, 246, 255, 0.9), rgb(100, 116, 139, 0.5));
   font-style: normal;
-  background-color: rgba(191, 219, 254, 0.9);
-  border: 1px solid currentColor;
+  border-bottom-right-radius: 0.75rem;
+  border-top-left-radius: 0.75rem;
+  border: 1px solid;
+  border-color: light-dark(#e2e8f0, #64748b);
+  padding-inline: 1.25rem;
+  padding-block: 1rem;
+  margin-inline: 0;
   border-top-left-radius: 0.75rem;
   border-bottom-right-radius: 0.75rem;
-  padding-block: 1rem;
-  padding-inline: 1.25rem;
+}
+:where(.prose blockquote p) {
+  margin: 0;
 }
 
 @media (min-width: 768px) {
