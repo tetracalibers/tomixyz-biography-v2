@@ -3,7 +3,6 @@ import type { CollectionEntry } from "astro:content"
 import { SITE } from "$/config"
 import MainLayout from "$/components/layout/MainLayout.astro"
 import BaseHead from "$/components/layout/BaseHead.astro"
-import ArticleSummary from "$components/article-header/ArticleSummary.astro"
 import PublishDate from "$components/article-header/PublishDate.astro"
 import CoverImage from "$components/article-header/CoverImage.astro"
 import IconLinkList from "$/components/article-header/IconLinkList.astro"
@@ -12,6 +11,7 @@ import ArticleHeaderContentBlock from "$components/article-header/ArticleHeaderC
 import Body from "$components/layout/Body.astro"
 import ProseGridFill from "$components/prose/ProseGridFill.astro"
 import ResponsiveTitle from "$components/article-header/ResponsiveTitle.astro"
+import ArticleSummary1 from "$components/article-header/ArticleSummary1.astro"
 
 interface Props {
   content: CollectionEntry<"event">["data"]
@@ -39,7 +39,7 @@ const { content, meta } = Astro.props
         <ArticleHeaderContentBlock slot="content">
           <Fragment slot="heading">
             <ResponsiveTitle title={content.title} />
-            <ArticleSummary summary={content.description} />
+            <ArticleSummary1 summary={content.description} />
           </Fragment>
           <Fragment slot="meta">
             <IconLinkList
