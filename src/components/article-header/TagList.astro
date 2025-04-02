@@ -9,7 +9,7 @@ interface Props {
 const { tags } = Astro.props
 ---
 
-<div class="inline-flex flex-wrap gap-x-2 gap-y-3 justify-center md:justify-start">
+<div class="TagList">
   {
     tags.length > 0 &&
       tags.map((tag) => (
@@ -19,3 +19,18 @@ const { tags } = Astro.props
       ))
   }
 </div>
+
+<style>
+  .TagList {
+    display: inline-flex;
+    flex-wrap: wrap;
+    row-gap: 0.75rem;
+    column-gap: 0.5rem;
+    justify-content: center;
+  }
+  @media (min-width: 768px) {
+    .TagList {
+      justify-content: start;
+    }
+  }
+</style>
