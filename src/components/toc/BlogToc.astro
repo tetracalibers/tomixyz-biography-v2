@@ -11,10 +11,10 @@ const showHeadings = headings.filter((heading) => heading.depth < 4)
 
 {
   showHeadings.length > 0 && (
-    <ul class="flex flex-col gap-2 w-fit">
+    <ul class="BlogToc">
       {showHeadings.map((heading) => (
         <li>
-          <a href={`#${heading.slug}`} class="flex gap-4" class:list={["_heading-link", `_depth-${heading.depth}`]}>
+          <a href={`#${heading.slug}`} class="toc-link" class:list={[`_depth-${heading.depth}`]}>
             {heading.text}
           </a>
         </li>
@@ -24,7 +24,30 @@ const showHeadings = headings.filter((heading) => heading.depth < 4)
 }
 
 <style>
-  ._heading-link::before {
+  .BlogToc {
+    display: grid;
+    gap: 0.5rem;
+    width: fit-content;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .toc-link {
+    display: flex;
+    gap: 1rem;
+    color: inherit;
+    text-decoration: none;
+  }
+  .toc-link:hover {
+    color: light-dark(#475569, #e2e8f0);
+    text-decoration: underline;
+    font-weight: 500;
+
+    text-underline-offset: 0.25rem;
+    text-decoration-thickness: 1px;
+    text-decoration-style: dotted;
+  }
+  .toc-link::before {
     flex-shrink: 0;
     width: 2ch;
     text-align: end;
