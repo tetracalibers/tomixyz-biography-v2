@@ -13,6 +13,11 @@
   color: light-dark(#374151, #e5e7eb);
 }
 
+:where(.prose strong) {
+  color: #64748b;
+  font-weight: 600;
+}
+
 :where(.prose :is(h2, h3, h4)) {
   color: light-dark(#64748b, #cbd5e1);
 }
