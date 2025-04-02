@@ -1,0 +1,27 @@
+<div class="ArticleHeaderBlock">
+  <div class="content">
+    <slot name="content" />
+  </div>
+  <div class="image">
+    <slot name="image" />
+  </div>
+</div>
+
+<style>
+  .ArticleHeaderBlock {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding-inline: 1rem;
+  }
+  .content {
+    flex-grow: 1;
+    flex-basis: 40%;
+  }
+  .image {
+    flex-grow: 9999;
+    flex-basis: 24rem;
+    display: flex;
+    align-items: center;
+  }
+</style>

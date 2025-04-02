@@ -1,0 +1,78 @@
+---
+interface Props {
+  col: number
+  sp_col?: number
+}
+
+const { col, sp_col = 1 } = Astro.props
+---
+
+<div class="GridGallery">
+  <slot />
+</div>
+
+<style define:vars={{ col, sp_col }}>
+  .GridGallery {
+    display: grid;
+    grid-template-columns: repeat(var(--col), 1fr);
+    grid-auto-rows: auto;
+    grid-auto-flow: dense;
+    gap: 1rem;
+    place-items: center;
+  }
+
+  .GridGallery :global(.-c-span-2) {
+    grid-column: span 2 / auto;
+  }
+  .GridGallery :global(.-c-span-3) {
+    grid-column: span 3 / auto;
+  }
+  .GridGallery :global(.-c-span-4) {
+    grid-column: span 4 / auto;
+  }
+  .GridGallery :global(.-c-span-5) {
+    grid-column: span 5 / auto;
+  }
+
+  .GridGallery :global(.-c-span-1-3) {
+    grid-column: span 1 / 3;
+  }
+  .GridGallery :global(.-c-span-1-4) {
+    grid-column: span 1 / 4;
+  }
+  .GridGallery :global(.-c-span-1-5) {
+    grid-column: span 1 / 5;
+  }
+  .GridGallery :global(.-c-span-2-3) {
+    grid-column: span 2 / 3;
+  }
+  .GridGallery :global(.-c-span-2-4) {
+    grid-column: span 2 / 4;
+  }
+  .GridGallery :global(.-c-span-2-5) {
+    grid-column: span 2 / 5;
+  }
+
+  @media screen and (max-width: 768px) {
+    .GridGallery {
+      grid-template-columns: repeat(var(--sp_col), auto);
+    }
+
+    .GridGallery :global(.-sp-c-span-1) {
+      grid-column: span 1 / auto;
+    }
+    .GridGallery :global(.-sp-c-span-2) {
+      grid-column: span 2 / auto;
+    }
+    .GridGallery :global(.-sp-c-span-3) {
+      grid-column: span 3 / auto;
+    }
+    .GridGallery :global(.-sp-c-span-4) {
+      grid-column: span 4 / auto;
+    }
+
+    .GridGallery :global(.-sp-c-span-2-4) {
+      grid-column: span 2 / 4;
+    }
+  }
+</style>

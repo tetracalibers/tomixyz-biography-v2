@@ -10,25 +10,30 @@ interface Props {
 const { src, alt = "", caption } = Astro.props
 ---
 
-<figure class="_figure-box w-full bg-slate-300/[.3] dark:bg-white/[.3] relative">
+<figure class="FigureBox">
   {caption && <figcaption class="_caption">{caption}</figcaption>}
   <Image src={src} alt={alt} />
 </figure>
 
 <style>
-  ._figure-box {
+  .FigureBox {
     --_title-border: #6e85b7;
     --_padding: clamp(0.2rem, 2.5vw, 0.75rem);
 
+    width: 100%;
+    margin: 0;
     padding: var(--_padding);
+    background-color: rgba(203, 213, 225, 0.3);
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
   }
-  :global(.dark) ._figure-box {
+  :global(.dark) .FigureBox {
     --_title-border: #94b3fd;
-  }
 
-  ._figure-box > ._caption {
+    background-color: rgba(255, 255, 255, 0.3);
+  }
+  .FigureBox > ._caption {
     display: inline-flex;
     align-items: center;
 

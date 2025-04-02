@@ -277,6 +277,20 @@
   dependencies:
     "@iconify/types" "*"
 
+"@iconify-json/line-md@^1.2.5":
+  version "1.2.5"
+  resolved "https://registry.yarnpkg.com/@iconify-json/line-md/-/line-md-1.2.5.tgz#d1bbd4f0180b13cd87e0e8e3dc5aab4b2c094992"
+  integrity sha512-6zFKhs6g++kFJLLi+ye5nPoHgjYh44yVLjua0tmbxH1HdImMQZ6rkRsPnBgxADY4bQWiapXBzfoiz7+UBXgtWg==
+  dependencies:
+    "@iconify/types" "*"
+
+"@iconify-json/lucide@^1.2.34":
+  version "1.2.34"
+  resolved "https://registry.yarnpkg.com/@iconify-json/lucide/-/lucide-1.2.34.tgz#769e28b734dfc8544a51f4ac95e4406147b253a1"
+  integrity sha512-6xiITvlYP/5d6KQPRBHDQ+eaLxRWiTvXfuVGuNX2ahNLbEi0VKB04v008IQLPrMu/C4tRMI4+sRzHd/wSFxGZQ==
+  dependencies:
+    "@iconify/types" "*"
+
 "@iconify-json/mingcute@^1.2.3":
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/@iconify-json/mingcute/-/mingcute-1.2.3.tgz#a576b008f55957035017f3c19240c90b3dacc9c7"

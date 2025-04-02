@@ -1,0 +1,33 @@
+<div class="ArticleHeaderContentBlock">
+  <div class="heading">
+    <slot name="heading" />
+  </div>
+  <slot name="meta" />
+</div>
+
+<style>
+  .ArticleHeaderContentBlock {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    gap: 1.5rem;
+    height: 100%;
+  }
+  .heading {
+    height: fit-content;
+    display: grid;
+    gap: 2rem;
+    justify-content: center;
+  }
+  @media (min-width: 768px) {
+    .heading {
+      justify-content: start;
+    }
+  }
+  .heading :global(> *) {
+    min-width: 0;
+  }
+  .heading :global(> astro-island > *) {
+    min-width: 0;
+  }
+</style>

@@ -1,0 +1,26 @@
+---
+interface Props {
+  summary: string
+}
+
+const { summary } = Astro.props
+---
+
+<p class="ArticleSummary">
+  {summary}
+</p>
+
+<style>
+  .ArticleSummary {
+    margin: 0;
+    color: light-dark(var(--slate-500), var(--slate-200));
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    text-align: center;
+  }
+  @media (min-width: 640px) {
+    .ArticleSummary {
+      text-align: left;
+    }
+  }
+</style>

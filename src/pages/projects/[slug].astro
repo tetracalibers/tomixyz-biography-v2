@@ -1,9 +1,9 @@
 ---
 import { getCollection, type CollectionEntry, render } from "astro:content"
-import DefaultPageLayout from "$/layouts/default.astro"
+import ProjectLayout from "$/layouts/project.astro"
 
 export async function getStaticPaths() {
-  const collection = await getCollection("page")
+  const collection = await getCollection("project")
   return collection.map((page) => {
     return {
       params: { slug: page.id },
@@ -13,19 +13,20 @@ export async function getStaticPaths() {
 }
 
 interface Props {
-  page: CollectionEntry<"page">
+  page: CollectionEntry<"project">
 }
 
 const { page } = Astro.props
 const { slug } = Astro.params
 
-const { Content } = await render(page)
 const { data } = page
-const { title, description, meta } = data
+const { meta } = data
 
-const ogimage = `/og-image/${slug}.png`
+const { Content } = await render(page)
+
+const ogimage = `/og-image/projects/${slug}.png`
 ---
 
-<DefaultPageLayout content={{ title, description }} meta={{ ogimage, ...meta }}>
+<ProjectLayout content={page.data} meta={{ ogimage, ...meta }}>
   <Content />
-</DefaultPageLayout>
+</ProjectLayout>

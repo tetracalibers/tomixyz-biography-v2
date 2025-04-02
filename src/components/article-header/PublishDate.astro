@@ -1,0 +1,20 @@
+---
+interface Props {
+  date: string
+}
+
+const { date } = Astro.props
+---
+
+<div class="PublishDate">
+  {new Intl.DateTimeFormat("en-US", { dateStyle: "full" }).format(new Date(date))}
+</div>
+
+<style>
+  .PublishDate {
+    color: light-dark(var(--slate-400), var(--slate-300));
+    font-weight: bold;
+    font-style: italic;
+    text-align: end;
+  }
+</style>

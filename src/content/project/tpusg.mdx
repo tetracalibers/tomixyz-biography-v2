@@ -12,8 +12,9 @@ tags:
 description: リアルタイムチャット風掲示板とブログ機能を備えた交流サイト
 ---
 
+import { Image } from "astro:assets"
+import GridGallery from "$/components/placement/GridGallery.astro"
 import FluidImage from "$/components/image-wrapper/FluidImage.astro"
-import HStack from "$/components/placement/HStack.astro"
 
 import img_SongsMenu from "../../assets/projects/tpusg/songs-menu-mobile.png"
 import img_BBS from "../../assets/projects/tpusg/bbs-tablet.png"
@@ -23,10 +24,10 @@ import img_Logo from "../../assets/projects/tpusg/tpUSGlogo_white.jpg"
 
 オリジナルのWordPressテーマおよび各所UIをjQuery、HTML、Sassによるコーディングで作成し、BBS機能については、搭載したい機能やサイトデザインとの親和性の問題を解決するため、既存プラグインを使用せずPHPとAjaxによるフルスクラッチ開発を行ったが、いいね機能、リプライ機能、画像添付、Twitter botでの新着投稿通知などを搭載した多機能なものに仕上がっている。
 
-<HStack>
-  <FluidImage maxHeight="400" src={img_SongsMenu} />
-  <FluidImage maxHeight="400" src={img_BBS} />
-</HStack>
+<GridGallery col={6} sp_col={1}>
+  <Image class="-c-span-2 -sp-c-span-2-4" alt="" src={img_SongsMenu} />
+  <Image class="-c-span-4" alt="" src={img_BBS} />
+</GridGallery>
 
 また、Illustratorを買うお金がなかったため、サイトのロゴはSVGコードを手書きして作成している。
 

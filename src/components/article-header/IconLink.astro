@@ -1,0 +1,27 @@
+---
+import { Icon } from "astro-icon/components"
+
+interface Props {
+  url: string
+  icon: string
+  label: string
+}
+
+const { url, icon, label } = Astro.props
+---
+
+<a class="IconLink" href={url}>
+  <Icon name={icon} size={30} />
+  <span>{label}</span>
+</a>
+
+<style>
+  .IconLink {
+    text-decoration: none;
+    color: inherit;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+</style>
