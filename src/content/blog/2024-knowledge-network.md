@@ -127,13 +127,13 @@ Obsidianの思想は、「知識を関連づけて理解する」という目的
 
 トピックの詳細情報が子トピックとして表示されてしまうマインドマップとは違って、Obsidianのグラフビューではトピック名だけが表示されるのも良い。
 
-![](../../../assets/blog/2024-knowledge-network/obsidian-graph-view.png)
+![](../../assets/blog/2024-knowledge-network/obsidian-graph-view.png)
 
 トピック（ページ）を表す点にカーソルを乗せると、リンクで紐付けた関連トピックだけがハイライトされる。
 
 どこにも繋がっていない孤独な点は、まだ単体でしか理解できていないトピックだともいえる。今日はどのトピックを深掘りするか、次の学習対象を探す用途でもグラフビューを使っている。
 
-![](../../../assets/blog/2024-knowledge-network/obsidian-graph-view-hover.png)
+![](../../assets/blog/2024-knowledge-network/obsidian-graph-view-hover.png)
 
 まだ使い始めて間もないObsidianだが、知識を繋げて広げていく感覚が手に取るようにわかってくるのが楽しい。
 
