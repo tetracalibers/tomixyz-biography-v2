@@ -1,0 +1,64 @@
+<div class="ArticleHeaderBlock">
+  <div class="content">
+    <slot name="content" />
+  </div>
+  <div class="meta">
+    <slot name="avatar" />
+    <div class="meta-content">
+      <span class="author"><slot name="author" /></span>
+      <slot name="publish" />
+    </div>
+  </div>
+</div>
+
+<style>
+  .ArticleHeaderBlock {
+    display: grid;
+    gap: 2rem;
+    padding-block: 1rem;
+    margin-block-end: 1rem;
+    text-align: center;
+  }
+  @media (min-width: 640px) {
+    .ArticleHeaderBlock {
+      margin-inline: 1.5rem;
+    }
+  }
+  @media (min-width: 768px) {
+    .ArticleHeaderBlock {
+      text-align: left;
+    }
+  }
+
+  .content {
+    display: contents;
+  }
+
+  .meta {
+    color: light-dark(var(--gray-500), var(--gray-100));
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    text-align: left;
+  }
+  @media (min-width: 768px) {
+    .meta {
+      flex: none;
+      justify-content: flex-start;
+    }
+  }
+
+  .meta-content {
+    display: grid;
+    padding-inline-start: 0.5rem;
+    border-inline-start-style: solid;
+    border-inline-start-width: 2px;
+    border-inline-start-color: light-dark(var(--gray-200), var(--gray-500));
+  }
+
+  .author {
+    color: light-dark(var(--slate-400), var(--slate-300));
+    font-weight: bold;
+    font-style: italic;
+  }
+</style>
