@@ -270,6 +270,13 @@
   resolved "https://registry.yarnpkg.com/@fontsource/fira-sans/-/fira-sans-5.2.5.tgz#3db23558395c14c04cabd410df03e29719288676"
   integrity sha512-N+GrTGOTIeYE/Wi5tY0RAnc1Tl3ddCdwfZQncvA1zH/lOpKerj9ZS5nfniSXDZ9wrXFRdWTH7anyrRDc+cMpCg==
 
+"@iconify-json/bx@^1.2.2":
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/@iconify-json/bx/-/bx-1.2.2.tgz#264468b4777d7555a5a0424c671831011091828c"
+  integrity sha512-hZVx6LMEkYckScdRdUuQWcmv8Lm2au6Cnf799TLoR6YgiAfFvaJ4M5ElwcnExvCu8ntsS7jW89r0W5LwBAfZXQ==
+  dependencies:
+    "@iconify/types" "*"
+
 "@iconify-json/geo@^1.2.2":
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/@iconify-json/geo/-/geo-1.2.2.tgz#834d4c77afdc14ff403a1d30695f57163714a142"
@@ -288,6 +295,13 @@
   version "1.2.34"
   resolved "https://registry.yarnpkg.com/@iconify-json/lucide/-/lucide-1.2.34.tgz#769e28b734dfc8544a51f4ac95e4406147b253a1"
   integrity sha512-6xiITvlYP/5d6KQPRBHDQ+eaLxRWiTvXfuVGuNX2ahNLbEi0VKB04v008IQLPrMu/C4tRMI4+sRzHd/wSFxGZQ==
+  dependencies:
+    "@iconify/types" "*"
+
+"@iconify-json/majesticons@^1.2.2":
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/@iconify-json/majesticons/-/majesticons-1.2.2.tgz#452d6baa4d04ccd187c2c01303d0a15c9bf47ed9"
+  integrity sha512-hFZb/XYr2b/jW5DPpr7He0wm8iyORkryjxIiBFB8iyecpEXA1vp6ALyxN5LlKKhQ9yqhICeQ7uYWEMbwkXkRCg==
   dependencies:
     "@iconify/types" "*"
 
