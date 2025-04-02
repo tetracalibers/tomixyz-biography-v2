@@ -1,0 +1,32 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content"
+import EventLayout from "$/layouts/event.astro"
+
+export async function getStaticPaths() {
+  const collection = await getCollection("event")
+  return collection.map((page) => {
+    return {
+      params: { slug: page.id },
+      props: { page }
+    }
+  })
+}
+
+interface Props {
+  page: CollectionEntry<"event">
+}
+
+const { page } = Astro.props
+const { slug } = Astro.params
+
+const { data } = page
+const { meta } = data
+
+const { Content } = await render(page)
+
+const ogimage = `/og-image/events/${slug}.png`
+---
+
+<EventLayout content={page.data} meta={{ ogimage, ...meta }}>
+  <Content />
+</EventLayout>
