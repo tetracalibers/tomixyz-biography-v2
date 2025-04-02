@@ -9,12 +9,12 @@ interface Props {
 const { entries } = Astro.props
 ---
 
-<div class="post-preview__list">
+<div class="RecipePreviewList">
   {entries.map((entry) => <RecipePreview entry={entry} />)}
 </div>
 
 <style>
-  .post-preview__list {
-    @apply flex flex-col gap-12;
+  .RecipePreviewList {
+    display: grid;
   }
 </style>
