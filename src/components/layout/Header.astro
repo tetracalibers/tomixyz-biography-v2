@@ -2,13 +2,11 @@
 import { SITE } from "$/config"
 import ModeSwitcherBtn from "$/components/mode-switcher/ModeSwitcherBtn.svelte"
 import { Icon } from "astro-icon/components"
-
-const topUrl = SITE.base
 ---
 
 <header class="header">
   <h3 class="header__title">
-    <a href={topUrl}>{SITE.name}</a>
+    <a href="/">{SITE.name}</a>
   </h3>
   <nav class="header__ref">
     <ul class="header__ref-list">
