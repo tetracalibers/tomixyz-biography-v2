@@ -27,5 +27,5 @@ const { page } = Astro.props
 
 <DefaultPageLayout content={{ title, description }} meta={{ ...meta }}>
   <EventPreviewList entries={page.data} />
-  <Paginator page={page} />
+  {PAGE_SIZE < page.total && <Paginator page={page} />}
 </DefaultPageLayout>
