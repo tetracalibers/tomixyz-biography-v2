@@ -35,4 +35,24 @@ const project = defineCollection({
     })
 })
 
-export const collections = { page, project }
+const event = defineCollection({
+  schema: ({ image }) =>
+    z.object({
+      title: z.string().max(100, "The title length must be less than or equal to 100 chars"),
+      description: z.string(),
+      meta: z
+        .object({
+          title: z.string().optional(),
+          description: z.string().optional()
+        })
+        .optional(),
+      date: z.string(),
+      image: image(),
+      url: z.string().url().optional(),
+      slide: z.string().url().optional(),
+      archive: z.string().url().optional(),
+      github: z.string().url().optional()
+    })
+})
+
+export const collections = { page, project, event }
