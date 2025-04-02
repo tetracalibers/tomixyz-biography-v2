@@ -1,4 +1,4 @@
-import { defineCollection, z } from "astro:content"
+import { defineCollection, reference, z } from "astro:content"
 import { glob } from "astro/loaders"
 
 const page = defineCollection({
@@ -73,4 +73,18 @@ const blog = defineCollection({
     })
 })
 
-export const collections = { page, project, event, blog }
+const recipe = defineCollection({
+  loader: glob({ pattern: "**/*.mdx", base: "./src/content/recipe" }),
+  schema: () =>
+    z.object({
+      title: z.string().max(100, "The title length must be less than or equal to 100 chars"),
+      description: z.string(),
+      tags: z.array(z.string()).default([]),
+      date: z.string(),
+      series: reference("series").optional(),
+      draft: z.boolean().default(false),
+      private: z.boolean().default(false)
+    })
+})
+
+export const collections = { page, project, event, blog, recipe }

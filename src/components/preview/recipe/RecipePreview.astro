@@ -1,0 +1,138 @@
+---
+import type { CollectionEntry } from "astro:content"
+import PublishDate from "./PublishDate.astro"
+import { SITE } from "$/config"
+
+interface Props {
+  entry: CollectionEntry<"recipe">
+}
+
+const {
+  entry: { data: recipe, id }
+} = Astro.props
+
+const pageUrl = SITE.base + "/recipes/" + id
+---
+
+<div class="RecipePreview">
+  <div class="inner">
+    <div class="date"><PublishDate date={recipe.date} /></div>
+    <div class="content">
+      <h2 class="title">
+        <a href={pageUrl} title={recipe.title}>{recipe.title}</a>
+      </h2>
+      <p class="desc">
+        {recipe.description}
+      </p>
+    </div>
+  </div>
+</div>
+
+<style>
+  .RecipePreview {
+    display: flex;
+    gap: 1.5rem;
+  }
+  @media (max-width: 499px) {
+    .RecipePreview:not(:first-child) {
+      margin-block-start: -1.75rem;
+    }
+  }
+  .inner {
+    display: grid;
+    justify-items: start;
+    align-items: center;
+    column-gap: 0.75rem;
+    width: 100%;
+  }
+  .date {
+    grid-row: 2;
+    justify-self: end;
+    translate: 0 -40%;
+    z-index: -1;
+  }
+  @media (min-width: 500px) {
+    .date {
+      translate: 0 -0.75rem;
+      grid-row: 1;
+    }
+  }
+  .content {
+    --bd-color: light-dark(var(--slate-300), var(--slate-400));
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    border-radius: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    background-image:
+      repeating-linear-gradient(90deg, var(--bd-color), var(--bd-color) 12px, transparent 12px, transparent 16px),
+      repeating-linear-gradient(180deg, var(--bd-color), var(--bd-color) 12px, transparent 12px, transparent 16px),
+      repeating-linear-gradient(90deg, var(--bd-color), var(--bd-color) 12px, transparent 12px, transparent 16px),
+      repeating-linear-gradient(180deg, var(--bd-color), var(--bd-color) 12px, transparent 12px, transparent 16px);
+    background-position:
+      left top,
+      right top,
+      left bottom,
+      left top;
+    background-repeat: repeat-x, repeat-y, repeat-x, repeat-y;
+    background-size:
+      100% 2px,
+      2px 100%,
+      100% 2px,
+      2px 100%;
+  }
+  @media (min-width: 500px) {
+    .inner {
+      grid-template-columns: auto 1fr;
+    }
+  }
+  .title {
+    margin: 0;
+    text-align: center;
+    display: inline-block;
+  }
+  @media (min-width: 500px) {
+    .title {
+      text-align: left;
+    }
+  }
+  .title a {
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 600;
+    color: light-dark(var(--slate-500), var(--slate-200));
+    text-decoration: none;
+  }
+  .title a:hover {
+    text-decoration: underline;
+  }
+  .desc {
+    margin: 0;
+    line-height: 1.5rem;
+    hyphens: auto;
+    color: light-dark(var(--slate-800), white);
+  }
+
+  .RecipePreview :global(.PublishDate svg) {
+    color: #fcd888;
+  }
+  .RecipePreview:nth-child(2n) :global(.PublishDate svg) {
+    color: #b8f1f8;
+  }
+  .RecipePreview:nth-child(3n) :global(.PublishDate svg) {
+    color: #fcdce0;
+  }
+  .RecipePreview:nth-child(4n) :global(.PublishDate svg) {
+    color: #c6d9fd;
+  }
+  .RecipePreview:nth-child(5n) :global(.PublishDate svg) {
+    color: #ccf5e6;
+  }
+  .RecipePreview:nth-child(6n) :global(.PublishDate svg) {
+    color: #f9c0e7;
+  }
+</style>

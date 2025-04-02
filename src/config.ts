@@ -21,9 +21,9 @@ export const NAV_ITEMS: NavItems = {
     path: "/blog/1",
     title: "blog"
   },
-  tutorial: {
-    path: "/tutorial/",
-    title: "tutorial"
+  recipes: {
+    path: "/recipes/1",
+    title: "recipes"
   },
   tags: {
     path: "/tags/",
