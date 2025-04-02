@@ -88,4 +88,26 @@ const pageUrl = SITE.base + "/events/" + id
     object-position: center;
     border-radius: 0.375rem;
   }
+
+  .EventPreview :global(.PublishDate svg) {
+    color: #fcd888;
+  }
+  .EventPreview:nth-child(2n) :global(.PublishDate svg) {
+    color: #b8f1f8;
+  }
+  .EventPreview:nth-child(3n) :global(.PublishDate svg) {
+    color: #fcdce0;
+  }
+  .EventPreview:nth-child(4n) :global(.PublishDate svg) {
+    color: #c6d9fd;
+  }
+  .EventPreview:nth-child(5n) :global(.PublishDate svg) {
+    color: #ccf5e6;
+  }
+  .EventPreview:nth-child(6n) :global(.PublishDate svg) {
+    color: #f9c0e7;
+  }
+  :global(.dark) .EventPreview :global(.PublishDate svg) {
+    opacity: 0.6;
+  }
 </style>
