@@ -1,16 +1,17 @@
-<div class="tetcali-grid h-fit">
+<div class="HStack">
   <slot />
 </div>
 
 <style>
-  .tetcali-grid {
+  .HStack {
     display: flex;
     flex-wrap: wrap;
     row-gap: 3em;
     column-gap: 2em;
+    height: fit-content;
   }
 
-  .tetcali-grid > :global(*) {
+  .HStack > :global(*) {
     flex-basis: 0;
     flex-shrink: 1;
     flex-grow: 999;
