@@ -9,9 +9,9 @@ import CoverImage from "$components/article-header/CoverImage.astro"
 import IconLinkList from "$/components/article-header/IconLinkList.astro"
 import ArticleHeaderBlock from "$components/article-header/ArticleHeaderBlock.astro"
 import ArticleHeaderContentBlock from "$components/article-header/ArticleHeaderContentBlock.astro"
-import ArticleTitle from "$components/article-header/ArticleTitle.astro"
 import Body from "$components/layout/Body.astro"
 import ProseGridFill from "$components/prose/ProseGridFill.astro"
+import ResponsiveTitle from "$components/article-header/ResponsiveTitle.astro"
 
 interface Props {
   content: CollectionEntry<"event">["data"]
@@ -38,7 +38,7 @@ const { content, meta } = Astro.props
       <ArticleHeaderBlock>
         <ArticleHeaderContentBlock slot="content">
           <Fragment slot="heading">
-            <ArticleTitle title={content.title} />
+            <ResponsiveTitle title={content.title} />
             <ArticleSummary summary={content.description} />
           </Fragment>
           <Fragment slot="meta">

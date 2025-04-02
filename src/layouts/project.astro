@@ -3,7 +3,6 @@ import type { CollectionEntry } from "astro:content"
 import { SITE } from "$/config"
 import MainLayout from "$/components/layout/MainLayout.astro"
 import BaseHead from "$/components/layout/BaseHead.astro"
-import ArticleTitle from "$components/article-header/ArticleTitle.astro"
 import ArticleSummary from "$/components/article-header/ArticleSummary.astro"
 import TagList from "$/components/article-header/TagList.astro"
 import PublishDate from "$/components/article-header/PublishDate.astro"
@@ -13,6 +12,7 @@ import ArticleHeaderContentBlock from "$/components/article-header/ArticleHeader
 import ArticleHeaderBlock from "$/components/article-header/ArticleHeaderBlock.astro"
 import Body from "$components/layout/Body.astro"
 import ProseGridFill from "$components/prose/ProseGridFill.astro"
+import ResponsiveTitle from "$components/article-header/ResponsiveTitle.astro"
 
 interface Props {
   content: CollectionEntry<"project">["data"]
@@ -40,7 +40,7 @@ const { content, meta } = Astro.props
         <ArticleHeaderContentBlock slot="content">
           <Fragment slot="heading">
             <TagList tags={content.tags} />
-            <ArticleTitle title={content.title} overflow="fade" />
+            <ResponsiveTitle title={content.title} overflow="fade" />
             <ArticleSummary summary={content.description} />
           </Fragment>
           <Fragment slot="meta">
