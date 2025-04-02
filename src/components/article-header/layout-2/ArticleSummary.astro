@@ -1,0 +1,16 @@
+---
+interface Props {
+  summary: string
+}
+
+const { summary } = Astro.props
+---
+
+<p class="ArticleSummary">{summary}</p>
+
+<style>
+  .ArticleSummary {
+    margin: 0;
+    color: light-dark(var(--gray-500), var(--gray-100));
+  }
+</style>

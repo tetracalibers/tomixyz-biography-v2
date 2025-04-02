@@ -1,7 +1,4 @@
 :where(.prose) {
-  --prose-body: #374151;
-  --prose-headings: #111827;
-
   font-size: 1rem;
   line-height: 1.75;
 
@@ -16,12 +13,17 @@
   color: light-dark(#374151, #e5e7eb);
 }
 
+:where(.prose strong) {
+  color: #64748b;
+  font-weight: 600;
+}
+
 :where(.prose :is(h2, h3, h4)) {
   color: light-dark(#64748b, #cbd5e1);
 }
 :where(.prose h2) {
   font-weight: 700;
-  font-size: 1.5rem;
+  font-size: 1.5em;
   margin-block-start: 2em;
   margin-block-end: 1em;
   line-height: 1.3333333;
@@ -29,7 +31,7 @@
 
 :where(.prose h3) {
   font-weight: 600;
-  font-size: 1.25rem;
+  font-size: 1.25em;
   margin-top: 1.6em;
   margin-bottom: 0.6em;
   line-height: 1.6;
@@ -57,6 +59,7 @@
 }
 
 :where(.prose ul) {
+  color: light-dark(#374151, #e5e7eb);
   padding-inline-start: 1.625em;
   list-style-type: disc;
 }
@@ -65,13 +68,20 @@
 }
 
 :where(.prose blockquote) {
+  background-color: light-dark(rgb(239, 246, 255, 0.9), rgb(100, 116, 139, 0.5));
   font-style: normal;
-  background-color: rgba(191, 219, 254, 0.9);
-  border: 1px solid currentColor;
+  border-bottom-right-radius: 0.75rem;
+  border-top-left-radius: 0.75rem;
+  border: 1px solid;
+  border-color: light-dark(#e2e8f0, #64748b);
+  padding-inline: 1.25rem;
+  padding-block: 1rem;
+  margin-inline: 0;
   border-top-left-radius: 0.75rem;
   border-bottom-right-radius: 0.75rem;
-  padding-block: 1rem;
-  padding-inline: 1.25rem;
+}
+:where(.prose blockquote p) {
+  margin: 0;
 }
 
 @media (min-width: 768px) {

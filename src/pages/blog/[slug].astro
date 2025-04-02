@@ -1,0 +1,33 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content"
+import BlogLayout from "$/layouts/blog.astro"
+import { render } from "astro:content"
+
+export async function getStaticPaths() {
+  const collection = await getCollection("blog")
+  return collection.map((page) => {
+    return {
+      params: { slug: page.id },
+      props: { page }
+    }
+  })
+}
+
+interface Props {
+  page: CollectionEntry<"blog">
+}
+
+const { page } = Astro.props
+const { slug } = Astro.params
+
+const { data } = page
+const { meta } = data
+
+const { Content, headings } = await render(page)
+
+const ogimage = `/og-image/blog/${slug}.png`
+---
+
+<BlogLayout content={page.data} meta={{ ogimage, ...meta }} headings={headings}>
+  <Content />
+</BlogLayout>
