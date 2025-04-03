@@ -1,0 +1,95 @@
+---
+import { marked } from "marked"
+
+interface Item {
+  date: string
+  title: string
+  details: string
+}
+
+interface Props {
+  items: Item[]
+}
+
+const { items } = Astro.props
+---
+
+<ul class="Timeline">
+  {
+    items.map((item) => (
+      <li class="timeline-event">
+        <span class="timeline-event-icon" />
+        <div class="timeline-event-copy">
+          <h3 class="timeline-event-thumbnail">{item.date}</h3>
+          <h4 class="timeline-event-title">{item.title}</h4>
+          <div class="timeline-event-detail">
+            <Fragment set:html={marked.parse(item.details)} />
+          </div>
+        </div>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .Timeline {
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1.5rem 1fr;
+    row-gap: 3em;
+    position: relative;
+    margin: 0;
+    padding: 0;
+    padding-block-start: 3rem;
+    height: 100%;
+  }
+  .Timeline::before {
+    content: "";
+    position: absolute;
+    grid-column: 1;
+    top: 3rem;
+    left: calc(0.75rem - 1px);
+    width: 2px;
+    height: calc(100% - 3rem);
+    background-color: var(--slate-400);
+  }
+  .timeline-event {
+    display: contents;
+  }
+  .timeline-event-icon {
+    grid-column: 1;
+    background-color: #ea8fea;
+    width: 1em;
+    height: 1em;
+    transform: rotate(45deg);
+    align-self: start;
+    justify-self: center;
+  }
+  .timeline-event-thumbnail {
+    font-weight: bold;
+    display: inline-block;
+    margin: 0;
+    font-size: 1.5rem;
+    opacity: 0.7;
+  }
+  .timeline-event-copy {
+    grid-column: 3;
+    translate: 0 -0.75rem;
+    padding-inline-start: 1rem;
+    display: grid;
+    gap: 1rem;
+  }
+  .timeline-event-title {
+    margin: 0;
+    text-indent: 0;
+    padding: 0;
+    border-image-source: linear-gradient(to right, var(--slate-400), transparent);
+    border-image-width: 0 0 1px 0;
+    border-image-outset: 5px;
+    border-image-slice: 1;
+  }
+  .timeline-event-detail :global(p) {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+</style>
