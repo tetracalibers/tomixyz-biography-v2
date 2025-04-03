@@ -1,12 +1,10 @@
 ---
 import { getCollection, type CollectionEntry } from "astro:content"
 import DefaultPageLayout from "$/layouts/default.astro"
-import ProjectPreviewList from "$components/preview/project/ProjectPreviewList.astro"
 import { collectTags, includeTag, tagToSlug } from "$/utils/tag"
 import { compareDateForSort } from "$/utils"
 import type { GetStaticPaths } from "astro"
-import RecipePreviewList from "$components/preview/recipe/RecipePreviewList.astro"
-import LeadingTrimText from "$components/text/LeadingTrimText.astro"
+import ArticlePreviewList from "$components/preview/tag/ArticlePreviewList.astro"
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const filterPublic = (entry: CollectionEntry<"recipe">) => {
@@ -48,31 +46,10 @@ const description = `${tagName}を扱った作品や記事`
 const meta = {
   ogimage: `/og-image/tags/${tag}.png`
 }
+
+const entries = [...projects, ...recipes]
 ---
 
 <DefaultPageLayout content={{ title, description }} meta={{ ...meta }}>
-  {
-    recipes.length > 0 && (
-      <section class="flex flex-col gap-10 text-theme-primary dark:text-theme-dark-primary">
-        <h1 class="flex items-center gap-4 text-3xl before:content-[''] before:h-px before:w-16 before:sm:w-20 before:md:w-32 before:border-b before:border-current">
-          <LeadingTrimText tag="span" trim="start">
-            Recipe
-          </LeadingTrimText>
-        </h1>
-        <RecipePreviewList entries={recipes} />
-      </section>
-    )
-  }
-  {
-    projects.length > 0 && (
-      <section class="flex flex-col gap-10 text-theme-primary dark:text-theme-dark-primary">
-        <h1 class="flex items-center gap-4 text-3xl before:content-[''] before:h-px before:w-16 before:sm:w-20 before:md:w-32 before:border-b before:border-current">
-          <LeadingTrimText tag="span" trim="start">
-            Project
-          </LeadingTrimText>
-        </h1>
-        <ProjectPreviewList entries={projects} />
-      </section>
-    )
-  }
+  <ArticlePreviewList entries={entries} />
 </DefaultPageLayout>
