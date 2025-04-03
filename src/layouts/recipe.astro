@@ -87,4 +87,13 @@ const AUTHOR_NAME = SITE.author
     object-position: center;
     object-fit: contain;
   }
+
+  .main-content :global(.demo) {
+    margin-inline: auto;
+  }
+  .main-content :global(img[src$="svg"]) {
+    max-height: 250px;
+    display: block;
+    margin-inline: auto;
+  }
 </style>
