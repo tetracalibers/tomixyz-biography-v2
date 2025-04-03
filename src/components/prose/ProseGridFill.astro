@@ -59,6 +59,8 @@ import "./prose.css"
   .content {
     padding-inline: calc(max(var(--px), var(--py)) * 1.5);
     padding-block: calc(max(var(--px), var(--py)) * 1.5);
+    min-height: 0;
+    min-width: 0;
   }
 
   .content:not(:has(*)) {
