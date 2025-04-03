@@ -5,6 +5,8 @@ import { Image } from "astro:assets"
 import img_tomixy from "$/assets/profiles/pastel-tomixy_op.png"
 import { marked } from "marked"
 import Timeline from "$components/pages/index/Timeline.astro"
+import Prose from "$components/prose/Prose.astro"
+import TagsList from "$components/pages/index/TagsList.astro"
 
 const title = "tomixy"
 const description = "I'm a front-end developer for PixelGrid Inc."
@@ -87,10 +89,16 @@ const history = [
   </ProseFill>
   <ProseFill>
     <div class="ProseFill-inner">
-      <h2 class="history-heading">History</h2>
+      <h2 class="heading">History</h2>
       <Timeline items={history} />
     </div>
   </ProseFill>
+  <Prose>
+    <div class="ProseFill-inner">
+      <h2 class="heading">Skill Tag</h2>
+      <TagsList />
+    </div>
+  </Prose>
 </DefaultPageLayout>
 
 <style>
@@ -102,8 +110,7 @@ const history = [
     width: fit-content;
     margin-inline: auto;
   }
-
-  .history-heading {
+  .heading {
     margin: 0;
   }
 </style>
