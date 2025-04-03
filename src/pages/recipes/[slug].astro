@@ -1,0 +1,42 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content"
+import FigureBox from "$/components/image-wrapper/FigureBox.astro"
+import RecipeLayout from "$/layouts/recipe.astro"
+
+export async function getStaticPaths() {
+  const filterPublic = (entry: CollectionEntry<"recipe">) => {
+    if (import.meta.env.DEV) return true
+    return !entry.data.draft
+  }
+
+  const collection = await getCollection("recipe", filterPublic)
+  return collection.map((page) => {
+    return {
+      params: { slug: page.id },
+      props: { page }
+    }
+  })
+}
+
+interface Props {
+  page: CollectionEntry<"recipe">
+}
+
+const { page } = Astro.props
+const { slug } = Astro.params
+
+const { data } = page
+const { meta } = data
+
+const { Content, headings } = await render(page)
+
+const ogimage = `/og-image/recipes/${slug}.png`
+---
+
+<RecipeLayout content={page.data} meta={{ ogimage, ...meta }} headings={headings}>
+  <Content
+    components={{
+      FigureBox
+    }}
+  />
+</RecipeLayout>

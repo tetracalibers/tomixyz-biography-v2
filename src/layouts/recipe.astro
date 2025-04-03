@@ -1,0 +1,99 @@
+---
+import type { CollectionEntry } from "astro:content"
+import { SITE } from "$/config"
+import MainLayout from "$/components/layout/MainLayout.astro"
+import BaseHead from "$/components/layout/BaseHead.astro"
+import ProseGridFill from "$/components/prose/ProseGridFill.astro"
+import AvatarImage from "$components/article-header/layout-2/AvatarImage.astro"
+import PublishDate from "$components/article-header/PublishDate.astro"
+import type { MarkdownHeading } from "astro"
+import BlogToc from "$components/toc/BlogToc.astro"
+import Body from "$components/layout/Body.astro"
+import ArticleTitle from "$components/article-header/layout-2/ArticleTitle.astro"
+import ArticleSummary from "$components/article-header/layout-2/ArticleSummary.astro"
+import ArticleHeaderBlock from "$components/article-header/layout-2/ArticleHeaderBlock.astro"
+import ArticleTocBlock from "$components/article-header/layout-2/ArticleTocBlock.astro"
+import TagList from "$components/article-header/TagList.astro"
+
+interface Props {
+  content: CollectionEntry<"recipe">["data"]
+  headings: MarkdownHeading[]
+  meta?: {
+    title?: string
+    description?: string
+    ogimage?: string
+  }
+}
+
+const { content, headings, meta } = Astro.props
+
+const AUTHOR_NAME = SITE.author
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <BaseHead
+      image={meta?.ogimage ?? "/og-image.png"}
+      title={meta?.title ? `${SITE.title} | ${meta.title}` : `${SITE.title} | ${content.title}`}
+      description={meta?.description ?? content.description}
+    />
+  </head>
+  <Body>
+    <MainLayout>
+      <div class="MainLayout-inner">
+        <ArticleHeaderBlock>
+          <Fragment slot="content">
+            <ArticleTitle title={content.title} />
+            <ArticleSummary summary={content.description} />
+            <TagList tags={content.tags} />
+          </Fragment>
+          <Fragment slot="avatar"><AvatarImage /></Fragment>
+          <Fragment slot="author">{AUTHOR_NAME}</Fragment>
+          <Fragment slot="publish"><PublishDate date={content.date} /></Fragment>
+        </ArticleHeaderBlock>
+        <ArticleTocBlock>
+          <BlogToc headings={headings} />
+        </ArticleTocBlock>
+        <ProseGridFill>
+          <div class="main-content"><slot /></div>
+        </ProseGridFill>
+      </div>
+    </MainLayout>
+  </Body>
+</html>
+
+<style>
+  .MainLayout-inner {
+    display: grid;
+    gap: 2rem;
+  }
+  .main-content {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    line-height: 2;
+  }
+  .main-content :global(p > img) {
+    --fluid-bp-320-600: calc((100vw - 320px) / (600 - 320));
+    --__max-height: 300px;
+    --__space: clamp(16px, (16px + (68 - 16) * var(--fluid-bp-320-600)), 68px);
+
+    width: 100%;
+    height: 100%;
+    max-height: calc(var(--__max-height) + var(--__space) * 2);
+
+    box-sizing: border-box;
+
+    object-position: center;
+    object-fit: contain;
+  }
+
+  .main-content :global(.demo) {
+    margin-inline: auto;
+  }
+  .main-content :global(img[src$="svg"]) {
+    max-height: 250px;
+    display: block;
+    margin-inline: auto;
+  }
+</style>

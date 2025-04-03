@@ -1,0 +1,15 @@
+<svg width="250" height="250" viewBox="0 0 250 250" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="inset-shadow-only">
+      <feComponentTransfer in="SourceAlpha">
+        <feFuncA type="table" tableValues="1 0" />
+      </feComponentTransfer>
+      <feGaussianBlur stdDeviation="4" />
+      <feOffset dx="4" dy="6" result="SHADOW" />
+      <feFlood flood-color="rgb(142, 172, 205)" flood-opacity="0.7" />
+      <feComposite in2="SHADOW" operator="in" />
+      <feComposite in2="SourceAlpha" operator="in" />
+    </filter>
+  </defs>
+  <rect fill="#D2E0FB" filter="url(#inset-shadow-only)" x="25" y="25" width="200" height="200" />
+</svg>
