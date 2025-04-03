@@ -1,0 +1,39 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content"
+import { collectTags, tagToSlug } from "$/utils/tag"
+import { SITE } from "$/config"
+import TagLink from "$components/tag/TagLink.astro"
+
+const filterPublic = (entry: CollectionEntry<"recipe">) => {
+  if (import.meta.env.DEV) return true
+  return !entry.data.draft && !entry.data.private
+}
+
+const projects = await getCollection("project")
+const recipes = await getCollection("recipe", filterPublic)
+
+const tags = collectTags(projects, recipes).sort((a, b) => a.localeCompare(b))
+
+const pageUrlFromTagName = (tagName: string) => SITE.base + "/" + tagToSlug(tagName)
+---
+
+<ul class="TagsList">
+  {
+    tags.map((tag) => (
+      <li>
+        <TagLink href={pageUrlFromTagName(tag)}>{tag}</TagLink>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .TagsList {
+    display: flex;
+    list-style-type: none;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+  }
+</style>
