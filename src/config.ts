@@ -24,10 +24,6 @@ export const NAV_ITEMS: NavItems = {
   recipes: {
     path: "/recipes/1",
     title: "recipes"
-  },
-  tags: {
-    path: "/tags/",
-    title: "tags"
   }
 }
 
