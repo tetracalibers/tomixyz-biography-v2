@@ -1,0 +1,112 @@
+---
+import { SITE } from "$/config"
+import PublishDate from "./PublishDate.astro"
+import type { CollectionEntry } from "astro:content"
+
+interface Props {
+  entries: CollectionEntry<"recipe" | "project">[]
+}
+
+const { entries } = Astro.props
+---
+
+<div class="ArticlePreviewList">
+  {
+    entries.map((entry) => (
+      <div class="ArticlePreview">
+        <div class="inner">
+          <div class="content">
+            <h2 class="title">
+              <a href={`${SITE.base}/${entry.collection}s/${entry.id}`} title={entry.data.title}>
+                {entry.data.title}
+              </a>
+            </h2>
+            <p class="desc">{entry.data.description}</p>
+          </div>
+          <div class="meta">
+            <div class="category">{entry.collection}</div>
+            <PublishDate date={entry.data.date} />
+          </div>
+        </div>
+      </div>
+    ))
+  }
+</div>
+
+<style>
+  .ArticlePreview {
+    font-size: 1em;
+    line-height: 1.75em;
+    border-top: 3px solid;
+    border-image: linear-gradient(135deg, #c7a9e9, #a1c4fd);
+    border-image-slice: 1;
+    border-width: 3px;
+    margin: 0 auto;
+    padding: clamp(2rem, 1.648rem + 1.502vw, 3rem);
+    max-width: 40rem;
+    box-sizing: border-box;
+  }
+  .ArticlePreview:nth-child(odd) {
+    border-right: 3px solid;
+  }
+  .ArticlePreview:nth-child(even) {
+    border-left: 3px solid;
+  }
+  .ArticlePreview:first-child {
+    border-top: 0;
+    border-top-right-radius: 0;
+    border-top-left-radius: 0;
+  }
+  .ArticlePreview:last-child {
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+
+  .inner {
+    display: grid;
+    gap: 1rem;
+  }
+  .content {
+    display: grid;
+    gap: 0.5rem;
+  }
+  .meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .title {
+    margin: 0;
+  }
+  .title a {
+    text-decoration: none;
+    font-size: 1.5rem;
+    color: light-dark(var(--slate-500), var(--slate-200));
+  }
+  .title a:hover {
+    text-decoration: underline;
+  }
+  .desc {
+    margin: 0;
+    color: light-dark(var(--slate-600), var(--slate-200));
+  }
+  .category {
+    font-size: min(8vw, 3rem);
+    font-weight: bold;
+    text-transform: uppercase;
+    background-image: linear-gradient(135deg, #c7a9e9, #a1c4fd);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    line-height: 1.5;
+    opacity: 0.5;
+    mix-blend-mode: hard-light;
+    align-self: end;
+    position: relative;
+    z-index: -1;
+  }
+  :global(.dark) .category {
+    mix-blend-mode: multiply;
+    opacity: 0.3;
+  }
+</style>
