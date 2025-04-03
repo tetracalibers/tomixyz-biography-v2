@@ -80,7 +80,7 @@ const history = [
 
 <DefaultPageLayout content={{ title, description }} meta={meta}>
   <ProseFill>
-    <div class="ProseFill-inner">
+    <div class="section -profile">
       <Fragment set:html={marked.parse(profile)} />
       <div class="Image-wrapper">
         <Image src={img_tomixy} alt="tomixy" style="max-width: 160px;" />
@@ -88,13 +88,13 @@ const history = [
     </div>
   </ProseFill>
   <ProseFill>
-    <div class="ProseFill-inner">
+    <div class="section -history">
       <h2 class="heading">History</h2>
       <Timeline items={history} />
     </div>
   </ProseFill>
   <Prose>
-    <div class="ProseFill-inner">
+    <div class="section -skill-tag">
       <h2 class="heading">Skill Tag</h2>
       <TagsList />
     </div>
@@ -102,9 +102,13 @@ const history = [
 </DefaultPageLayout>
 
 <style>
-  .ProseFill-inner {
+  .section {
     font-size: 1.125rem;
     padding-inline: calc(2vw * 2.5);
+  }
+  :is(.-history, .-skill-tag) {
+    display: grid;
+    gap: 3rem;
   }
   .Image-wrapper {
     width: fit-content;
