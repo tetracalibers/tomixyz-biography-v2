@@ -1,0 +1,8 @@
+<svg width="250" height="250" viewBox="0 0 250 250" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="blur-in-alpha">
+      <feGaussianBlur stdDeviation="4" in="SourceAlpha" />
+    </filter>
+  </defs>
+  <rect fill="#D2E0FB" filter="url(#blur-in-alpha)" x="25" y="25" width="200" height="200" />
+</svg>

@@ -1,0 +1,11 @@
+<svg width="520" height="240" viewBox="0 0 520 240" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="half-opacity">
+      <feComponentTransfer in="SourceGraphic">
+        <feFuncA type="table" tableValues="0 0.5" />
+      </feComponentTransfer>
+    </filter>
+  </defs>
+  <rect fill="#D2E0FB" x="20" y="20" width="200" height="200" />
+  <rect fill="#D2E0FB" filter="url(#half-opacity)" x="280" y="20" width="200" height="200" />
+</svg>
