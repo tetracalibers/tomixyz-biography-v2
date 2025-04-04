@@ -1,16 +1,22 @@
 <script lang="ts">
   import { onMount } from "svelte"
 
-  export let as: keyof HTMLElementTagNameMap = "span"
-  export let text: string
-  export let backgroundColor = "rgb(241,245,249)"
+  interface Props {
+    as?: keyof HTMLElementTagNameMap
+    text: string
+    backgroundColor?: string
+    [key: string]: any
+  }
+
+  let { as = "span", text, backgroundColor = "rgb(241,245,249)", ...rest }: Props = $props()
 
   let el: HTMLElement
   let wrapperEl: HTMLSpanElement
-  let isOverflowRight = false
-  let isOverflowLeft = false
+  let isOverflowRight = $state(false)
+  let isOverflowLeft = $state(false)
 
   onMount(() => {
+    console.log(el)
     const intersectionObserver = new IntersectionObserver(
       ([entry]) => {
         const element = entry.target as HTMLElement
@@ -37,7 +43,7 @@
   style:--background={backgroundColor}
 >
   <div class="wrapper" bind:this={wrapperEl}>
-    <svelte:element this={as} bind:this={el} class="text" {...$$restProps}>
+    <svelte:element this={as} bind:this={el} class="text" {...rest}>
       {text}
     </svelte:element>
   </div>
