@@ -1,22 +1,17 @@
 ---
+import { getEntry } from "astro:content"
 import MediaPreview from "./WritingPreview.astro"
 
-interface Post {
-  title: string
-  url: string
-  date: string
-  media?: string
-}
-
 interface Props {
-  list: Post[]
+  id: string
 }
 
-const { list } = Astro.props
+const { id } = Astro.props
+const list = await getEntry("writing", id)
 ---
 
 <div class="WritingPreviewList">
-  {list.map((obj) => <MediaPreview {...obj} />)}
+  {list?.data.map((item) => <MediaPreview item={item} />)}
 </div>
 
 <style>
