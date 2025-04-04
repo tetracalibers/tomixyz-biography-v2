@@ -1,0 +1,76 @@
+---
+import { Icon } from "astro-icon/components"
+---
+
+<button type="button" class="ThemeSwitch" id="ThemeSwitch">
+  <Icon name="lucide:sun-medium" size={30} class="to-light" aria-label="ライトテーマに切り替え" />
+  <Icon name="mdi:moon-and-stars" size={30} class="to-dark" aria-label="ダークテーマに切り替え" />
+</button>
+
+<style>
+  .ThemeSwitch {
+    appearance: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+    color: var(--gray-400);
+  }
+  .to-light {
+    display: none;
+  }
+  .to-dark {
+    display: block;
+  }
+  :global(.dark) .to-light {
+    display: block;
+  }
+  :global(.dark) .to-dark {
+    display: none;
+  }
+</style>
+
+<script is:inline>
+  const DARK_CLASS = "dark"
+  const LIGHT_CLASS = "light"
+
+  const $root = document.documentElement
+  const isDarkQuery = window.matchMedia("(prefers-color-scheme: dark)")
+
+  const prevTheme = localStorage?.getItem("theme")
+
+  const setDark = () => {
+    $root.classList.add(DARK_CLASS)
+    $root.classList.remove(LIGHT_CLASS)
+    localStorage.setItem("theme", "dark")
+  }
+  const setLight = () => {
+    $root.classList.add(LIGHT_CLASS)
+    $root.classList.remove(DARK_CLASS)
+    localStorage.setItem("theme", "light")
+  }
+
+  if (prevTheme === "dark" || (!prevTheme && isDarkQuery.matches)) {
+    setDark()
+  } else {
+    setLight()
+  }
+
+  isDarkQuery.addEventListener("change", (e) => {
+    if (e.matches) {
+      setDark()
+    } else {
+      setLight()
+    }
+  })
+
+  const $btn = document.getElementById("ThemeSwitch")
+  $btn.addEventListener("click", () => {
+    if ($root.classList.contains(DARK_CLASS)) {
+      setLight()
+    } else {
+      setDark()
+    }
+  })
+</script>

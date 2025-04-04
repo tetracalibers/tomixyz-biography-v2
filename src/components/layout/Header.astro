@@ -1,7 +1,7 @@
 ---
 import { SITE } from "$/config"
-import ModeSwitcherBtn from "$/components/mode-switcher/ModeSwitcherBtn.svelte"
 import { Icon } from "astro-icon/components"
+import ThemeSwitch from "./ThemeSwitch.astro"
 ---
 
 <header class="header">
@@ -33,7 +33,7 @@ import { Icon } from "astro-icon/components"
     </ul>
     <ul class="header__ref-list">
       <li>
-        <ModeSwitcherBtn client:visible />
+        <ThemeSwitch />
       </li>
     </ul>
   </nav>
