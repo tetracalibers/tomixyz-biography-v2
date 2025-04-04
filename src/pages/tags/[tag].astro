@@ -15,19 +15,23 @@ export const getStaticPaths: GetStaticPaths = async () => {
   const projects = await getCollection("project")
   const events = await getCollection("event")
   const recipes = await getCollection("recipe", filterPublic)
+  const writings = (await getCollection("writing")).flatMap((file) =>
+    file.data.map((data) => ({ data: { ...data }, collection: "writing" }))
+  )
 
-  const tags = collectTags(projects, events, recipes).sort((a, b) => a.localeCompare(b))
+  const tags = collectTags(projects, events, recipes, writings).sort((a, b) => a.localeCompare(b))
 
   return tags.flatMap((tag) => {
     const matchProjects = projects.filter(includeTag(tag)) ?? []
     const matchEvents = events.filter(includeTag(tag)) ?? []
     const matchRecipes = recipes.filter(includeTag(tag)) ?? []
+    const matchWritings = writings.filter(includeTag(tag)) ?? []
 
     return {
       params: { tag: tagToSlug(tag) },
       props: {
         tagName: tag,
-        articles: [...matchProjects, ...matchEvents, ...matchRecipes].sort(compareDateForSort)
+        articles: [...matchProjects, ...matchEvents, ...matchRecipes, ...matchWritings].sort(compareDateForSort)
       }
     }
   })

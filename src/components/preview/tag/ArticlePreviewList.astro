@@ -4,7 +4,11 @@ import PublishDate from "./PublishDate.astro"
 import type { CollectionEntry } from "astro:content"
 
 interface Props {
-  entries: CollectionEntry<"recipe" | "project" | "event">[]
+  entries: {
+    id: string
+    collection: "project" | "event" | "recipe" | "writing"
+    data: CollectionEntry<"project" | "event" | "recipe">["data"]
+  }[]
 }
 
 const { entries } = Astro.props
@@ -17,9 +21,15 @@ const { entries } = Astro.props
         <div class="inner">
           <div class="content">
             <h2 class="title">
-              <a href={`${SITE.base}/${entry.collection}s/${entry.id}`} title={entry.data.title}>
-                {entry.data.title}
-              </a>
+              {entry.collection === "writing" ? (
+                <a href={entry.data.url} target="_blank" rel="noopener noreferrer">
+                  {entry.data.title}
+                </a>
+              ) : (
+                <a href={`${SITE.base}/${entry.collection}s/${entry.id}`} title={entry.data.title}>
+                  {entry.data.title}
+                </a>
+              )}
             </h2>
             <p class="desc">{entry.data.description}</p>
           </div>

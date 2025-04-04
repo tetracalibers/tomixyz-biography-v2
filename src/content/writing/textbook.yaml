@@ -1,9 +1,15 @@
 - title: "HTML/CSS入門ノート"
   url: "https://tetracalibers.notion.site/tetracalibers/HTML-CSS-6c6891810c894831aea26d635f1424cb"
-  sublabel: "IT企業新人研修配布資料"
+  sublabel: "新人研修で配布した入門資料"
   date: "2022-05-01"
+  tags:
+    - "HTML"
+    - "CSS"
 
 - title: "VBA自習補助ノート"
   url: "https://tetracalibers.notion.site/tetracalibers/VBA-5e78e9e1f002474a8209d4def99bef00"
-  sublabel: "IT企業新人研修配布資料"
+  sublabel: "有志勉強会で使っていた備忘録"
   date: "2022-05-01"
+  tags:
+    - "VBA"
+    - "Excel"
