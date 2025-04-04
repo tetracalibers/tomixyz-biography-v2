@@ -12,6 +12,7 @@ import Body from "$components/layout/Body.astro"
 import ProseGridFill from "$components/prose/ProseGridFill.astro"
 import ArticleSummary from "$components/article-header/layout-1/ArticleSummary.astro"
 import ArticleTitle from "$components/article-header/layout-1/ArticleTitle.astro"
+import TagList from "$components/article-header/TagList.astro"
 
 interface Props {
   content: CollectionEntry<"event">["data"]
@@ -38,6 +39,7 @@ const { content, meta } = Astro.props
       <ArticleHeaderBlock>
         <ArticleHeaderContentBlock slot="content">
           <Fragment slot="heading">
+            <TagList tags={content.tags} />
             <ArticleTitle title={content.title} />
             <ArticleSummary summary={content.description} />
           </Fragment>

@@ -53,7 +53,8 @@ const event = defineCollection({
       slide: z.string().url().optional(),
       archive: z.string().url().optional(),
       youtube: z.string().url().optional(),
-      github: z.string().url().optional()
+      github: z.string().url().optional(),
+      tags: z.array(z.string()).default([])
     })
 })
 

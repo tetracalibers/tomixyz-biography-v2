@@ -4,7 +4,7 @@ import PublishDate from "./PublishDate.astro"
 import type { CollectionEntry } from "astro:content"
 
 interface Props {
-  entries: CollectionEntry<"recipe" | "project">[]
+  entries: CollectionEntry<"recipe" | "project" | "event">[]
 }
 
 const { entries } = Astro.props
