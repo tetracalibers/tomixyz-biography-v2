@@ -4,9 +4,15 @@
 
   type ThemeType = "dark" | "light"
 
+  interface Props {
+    children?: import("svelte").Snippet<[{ theme: ThemeType }]>
+  }
+
+  let { children }: Props = $props()
+
   const THEME_DARK: ThemeType = "dark"
   const THEME_LIGHT: ThemeType = "light"
-  let currTheme: ThemeType = THEME_DARK
+  let currTheme: ThemeType = $state(THEME_DARK)
 
   function toggleTheme() {
     window.document.documentElement.classList.toggle(THEME_DARK)
@@ -33,8 +39,8 @@
   })
 </script>
 
-<button class="mode-switcher" on:click={toggleTheme}>
-  <slot theme={currTheme} />
+<button class="mode-switcher" onclick={toggleTheme}>
+  {@render children?.({ theme: currTheme })}
 </button>
 
 <style>

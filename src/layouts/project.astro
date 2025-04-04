@@ -40,7 +40,7 @@ const { content, meta } = Astro.props
         <ArticleHeaderContentBlock slot="content">
           <Fragment slot="heading">
             <TagList tags={content.tags} />
-            <ArticleTitle title={content.title} overflow="fade" />
+            <ArticleTitle title={content.title} />
             <ArticleSummary summary={content.description} />
           </Fragment>
           <Fragment slot="meta">
