@@ -74,16 +74,3 @@ const ogimage = image ? `${SITE.url}${image}` : `${SITE.url}/og-image.png`
 {permalink && <meta property="twitter:url" content={permalink} />}
 {description && <meta property="twitter:description" content={description} />}
 <meta property="twitter:image" content={ogimage} />
-
-<script is:inline>
-  const root = document.documentElement
-  const isDarkQuery = window.matchMedia("(prefers-color-scheme: dark)")
-
-  if (isDarkQuery.matches) {
-    root.classList.add("dark")
-    root.classList.remove("light")
-  } else {
-    root.classList.add("light")
-    root.classList.remove("dark")
-  }
-</script>
