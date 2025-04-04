@@ -1,0 +1,44 @@
+- title: "Card Component Tutorial"
+  url: "https://tetracalibers.github.io/web-feature-note/demo/card-tutorial-step/1/"
+  sublabel: "CSS Container Queryチュートリアル"
+  date: "2023-01-01"
+
+- title: "CSS Animation Compare Patterns"
+  url: "https://tetracalibers.github.io/web-feature-note/demo/compare-pattern/"
+  sublabel: "パフォーマンス計測に使用したデモ"
+  date: "2023-01-01"
+
+- title: "CSS All Modules Note"
+  url: "https://tetracalibers.github.io/web-feature-note/"
+  sublabel: "自分用ノート"
+  date: "2023-01-01"
+
+- title: "ネットワークのお話"
+  url: "https://tetracalibers.notion.site/tetracalibers/8d529be3e99b4ad480983108349a67e0"
+  sublabel: "自分用ノート"
+  date: "2022-01-01"
+
+- title: "ハードウェアのお話"
+  url: "https://tetracalibers.notion.site/tetracalibers/1a131bcad8414a7093fce74f2c32c27a"
+  sublabel: "自分用ノート"
+  date: "2022-01-01"
+
+- title: "OSのお話"
+  url: "https://tetracalibers.notion.site/tetracalibers/OS-a610f4896d324d0b8971d684aac04a6d"
+  sublabel: "自分用ノート"
+  date: "2022-01-01"
+
+- title: "プログラムのお話"
+  url: "https://tetracalibers.notion.site/tetracalibers/fa109fa4142f4db1adf618fb3316ceb0"
+  sublabel: "自分用ノート"
+  date: "2022-01-01"
+
+- title: "JavaScriptからNode.jsへ"
+  url: "https://tetracalibers.notion.site/tetracalibers/JavaScript-Node-js-de7c77fe200a4504963f8217013b29f1"
+  sublabel: "自分用ノート"
+  date: "2021-12-01"
+
+- title: "Effective Java理解への道のり"
+  url: "https://tetracalibers.notion.site/tetracalibers/Effective-Java-ac6ba5f7178d4a4fa87620c86ff991a5"
+  sublabel: "自分用ノート"
+  date: "2021-12-01"

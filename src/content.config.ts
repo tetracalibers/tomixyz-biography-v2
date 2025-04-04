@@ -95,4 +95,22 @@ const recipe = defineCollection({
     })
 })
 
-export const collections = { page, project, event, blog, recipe }
+const writing = defineCollection({
+  loader: glob({
+    pattern: "*.yaml",
+    base: "./src/content/writing",
+    generateId: ({ entry }) => entry.replace(/\.yaml$/, "")
+  }),
+  schema: () =>
+    z
+      .object({
+        title: z.string(),
+        sublabel: z.string().optional(),
+        url: z.string().url(),
+        date: z.string(),
+        tags: z.array(z.string()).default([])
+      })
+      .array()
+})
+
+export const collections = { page, project, event, blog, recipe, writing }
