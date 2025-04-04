@@ -38,27 +38,39 @@ import { Icon } from "astro-icon/components"
   const $root = document.documentElement
   const isDarkQuery = window.matchMedia("(prefers-color-scheme: dark)")
 
-  if (isDarkQuery.matches) {
+  const prevTheme = localStorage?.getItem("theme")
+
+  const setDark = () => {
     $root.classList.add(DARK_CLASS)
     $root.classList.remove(LIGHT_CLASS)
-  } else {
+    localStorage.setItem("theme", "dark")
+  }
+  const setLight = () => {
     $root.classList.add(LIGHT_CLASS)
     $root.classList.remove(DARK_CLASS)
+    localStorage.setItem("theme", "light")
+  }
+
+  if (prevTheme === "dark" || (!prevTheme && isDarkQuery.matches)) {
+    setDark()
+  } else {
+    setLight()
   }
 
   isDarkQuery.addEventListener("change", (e) => {
     if (e.matches) {
-      $root.classList.add(DARK_CLASS)
-      $root.classList.remove(LIGHT_CLASS)
+      setDark()
     } else {
-      $root.classList.add(LIGHT_CLASS)
-      $root.classList.remove(DARK_CLASS)
+      setLight()
     }
   })
 
   const $btn = document.getElementById("ThemeSwitch")
   $btn.addEventListener("click", () => {
-    $root.classList.toggle(DARK_CLASS)
-    $root.classList.toggle(LIGHT_CLASS)
+    if ($root.classList.contains(DARK_CLASS)) {
+      setLight()
+    } else {
+      setDark()
+    }
   })
 </script>
