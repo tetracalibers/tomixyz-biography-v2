@@ -1,25 +1,27 @@
 ---
+import type { ArrayElement } from "$/types"
+import type { CollectionEntry } from "astro:content"
+
+type EntryData = CollectionEntry<"writing">["data"]
+
 interface Props {
-  title: string
-  url: string
-  date: string
-  media?: string
+  item: ArrayElement<EntryData>
 }
 
-const { title, url, date, media } = Astro.props
+const { item } = Astro.props
 
-const dateObj = new Date(date)
+const dateObj = new Date(item.date)
 const year = dateObj.getFullYear().toString()
 const month = (dateObj.getMonth() + 1).toString()
 ---
 
 <div class="WritingPreview">
-  <a class="link-container" href={url}>
+  <a class="link-container" href={item.url}>
     <div class="inner">
       <div class="background"></div>
       <div class="content">
-        <h2 class="title">{title}</h2>
-        <p class="desc">{media ?? ""}</p>
+        <h2 class="title">{item.title}</h2>
+        <p class="desc">{item.sublabel ?? ""}</p>
       </div>
       <div class="publish">
         <span class="year">{year}</span>
