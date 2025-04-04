@@ -12,30 +12,44 @@
 
   const THEME_DARK: ThemeType = "dark"
   const THEME_LIGHT: ThemeType = "light"
+
   let currTheme: ThemeType = $state(THEME_DARK)
 
+  function setDarkTheme() {
+    const root = window.document.documentElement
+    root.classList.add(THEME_DARK)
+    root.classList.remove(THEME_LIGHT)
+    currTheme = THEME_DARK
+  }
+  function setLightTheme() {
+    const root = window.document.documentElement
+    root.classList.add(THEME_LIGHT)
+    root.classList.remove(THEME_DARK)
+    currTheme = THEME_LIGHT
+  }
+
   function toggleTheme() {
-    window.document.documentElement.classList.toggle(THEME_DARK)
-    currTheme = localStorage.getItem("theme") === THEME_DARK ? THEME_LIGHT : THEME_DARK
-    // Update Storage
-    localStorage.setItem("theme", currTheme)
-    // Update Store
+    const root = window.document.documentElement
+    root.classList.toggle(THEME_DARK)
+    root.classList.toggle(THEME_LIGHT)
+    currTheme = currTheme === THEME_DARK ? THEME_LIGHT : THEME_DARK
     theme.set(currTheme)
   }
 
   onMount(() => {
-    if (
-      localStorage.getItem("theme") === THEME_DARK ||
-      (!("theme" in localStorage) && window.matchMedia(`(prefers-color-scheme: ${THEME_DARK})`).matches)
-    ) {
-      window.document.documentElement.classList.add(THEME_DARK)
-      currTheme = THEME_DARK
-    } else {
-      window.document.documentElement.classList.remove(THEME_DARK)
-      currTheme = THEME_LIGHT
-    }
-    // Update Store
+    const isDarkQuery = window.matchMedia("(prefers-color-scheme: dark)")
+
+    currTheme = isDarkQuery.matches ? THEME_DARK : THEME_LIGHT
     theme.set(currTheme)
+
+    isDarkQuery.addEventListener("change", (e) => {
+      if (e.matches) {
+        setDarkTheme()
+      } else {
+        setLightTheme()
+      }
+      theme.set(currTheme)
+    })
   })
 </script>
 

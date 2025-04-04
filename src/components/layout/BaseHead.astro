@@ -76,19 +76,14 @@ const ogimage = image ? `${SITE.url}${image}` : `${SITE.url}/og-image.png`
 <meta property="twitter:image" content={ogimage} />
 
 <script is:inline>
-  const theme = (() => {
-    if (typeof localStorage !== "undefined" && localStorage.getItem("theme")) {
-      return localStorage.getItem("theme")
-    }
-    if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      return "dark"
-    }
-    return "light"
-  })()
+  const root = document.documentElement
+  const isDarkQuery = window.matchMedia("(prefers-color-scheme: dark)")
 
-  if (theme === "light") {
-    document.documentElement.classList.remove("dark")
+  if (isDarkQuery.matches) {
+    root.classList.add("dark")
+    root.classList.remove("light")
   } else {
-    document.documentElement.classList.add("dark")
+    root.classList.add("light")
+    root.classList.remove("dark")
   }
 </script>
