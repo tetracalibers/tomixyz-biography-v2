@@ -13,20 +13,21 @@ export const getStaticPaths: GetStaticPaths = async () => {
   }
 
   const projects = await getCollection("project")
+  const events = await getCollection("event")
   const recipes = await getCollection("recipe", filterPublic)
 
-  const tags = collectTags(projects, recipes).sort((a, b) => a.localeCompare(b))
+  const tags = collectTags(projects, events, recipes).sort((a, b) => a.localeCompare(b))
 
   return tags.flatMap((tag) => {
-    const matchProjects = projects.filter(includeTag(tag)).sort(compareDateForSort) ?? []
-    const matchRecipes = recipes.filter(includeTag(tag)).sort(compareDateForSort) ?? []
+    const matchProjects = projects.filter(includeTag(tag)) ?? []
+    const matchEvents = events.filter(includeTag(tag)) ?? []
+    const matchRecipes = recipes.filter(includeTag(tag)) ?? []
 
     return {
       params: { tag: tagToSlug(tag) },
       props: {
         tagName: tag,
-        projects: matchProjects,
-        recipes: matchRecipes
+        articles: [...matchProjects, ...matchEvents, ...matchRecipes].sort(compareDateForSort)
       }
     }
   })
@@ -34,11 +35,10 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 interface Props {
   tagName: string
-  projects: CollectionEntry<"project">[]
-  recipes: CollectionEntry<"recipe">[]
+  articles: CollectionEntry<"project" | "event" | "recipe">[]
 }
 
-const { projects, recipes, tagName } = Astro.props
+const { articles, tagName } = Astro.props
 const { tag } = Astro.params
 
 const title = tagName
@@ -46,10 +46,8 @@ const description = `${tagName}を扱った作品や記事`
 const meta = {
   ogimage: `/og-image/tags/${tag}.png`
 }
-
-const entries = [...projects, ...recipes]
 ---
 
 <DefaultPageLayout content={{ title, description }} meta={{ ...meta }}>
-  <ArticlePreviewList entries={entries} />
+  <ArticlePreviewList entries={articles} />
 </DefaultPageLayout>

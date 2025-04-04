@@ -10,9 +10,10 @@ const filterPublic = (entry: CollectionEntry<"recipe">) => {
 }
 
 const projects = await getCollection("project")
+const events = await getCollection("event")
 const recipes = await getCollection("recipe", filterPublic)
 
-const tags = collectTags(projects, recipes).sort((a, b) => a.localeCompare(b))
+const tags = collectTags(projects, events, recipes).sort((a, b) => a.localeCompare(b))
 
 const pageUrlFromTagName = (tagName: string) => SITE.base + "/tags/" + tagToSlug(tagName)
 ---

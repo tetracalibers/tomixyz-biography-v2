@@ -12,6 +12,7 @@ import Body from "$components/layout/Body.astro"
 import ProseGridFill from "$components/prose/ProseGridFill.astro"
 import ArticleSummary from "$components/article-header/layout-1/ArticleSummary.astro"
 import ArticleTitle from "$components/article-header/layout-1/ArticleTitle.astro"
+import TagList from "$components/article-header/TagList.astro"
 
 interface Props {
   content: CollectionEntry<"event">["data"]
@@ -38,6 +39,7 @@ const { content, meta } = Astro.props
       <ArticleHeaderBlock>
         <ArticleHeaderContentBlock slot="content">
           <Fragment slot="heading">
+            <TagList tags={content.tags} />
             <ArticleTitle title={content.title} />
             <ArticleSummary summary={content.description} />
           </Fragment>
@@ -45,6 +47,7 @@ const { content, meta } = Astro.props
             <IconLinkList
               links={[
                 { url: content.url, icon: "line-md:external-link-rounded", label: "Info" },
+                { url: content.youtube, icon: "line-md:youtube", label: "YouTube" },
                 { url: content.slide, icon: "bx:slideshow", label: "Slide" },
                 { url: content.archive, icon: "majesticons:article-search", label: "Article" },
                 { url: content.github, icon: "lucide:github", label: "GitHub" }
