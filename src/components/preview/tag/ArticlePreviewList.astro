@@ -1,14 +1,17 @@
 ---
 import { SITE } from "$/config"
+import type { ArrayElement } from "$/types"
 import PublishDate from "./PublishDate.astro"
 import type { CollectionEntry } from "astro:content"
 
 interface Props {
-  entries: {
-    id: string
-    collection: "project" | "event" | "recipe" | "writing"
-    data: CollectionEntry<"project" | "event" | "recipe">["data"]
-  }[]
+  entries:
+    | CollectionEntry<"project" | "event" | "recipe">[]
+    | {
+        id: string
+        collection: "writing"
+        data: ArrayElement<CollectionEntry<"writing">["data"]>
+      }[]
 }
 
 const { entries } = Astro.props
@@ -31,7 +34,7 @@ const { entries } = Astro.props
                 </a>
               )}
             </h2>
-            <p class="desc">{entry.data.description}</p>
+            <p class="desc">{entry.collection === "writing" ? (entry.data.sublabel ?? "") : entry.data.description}</p>
           </div>
           <div class="meta">
             <div class="category">{entry.collection}</div>
