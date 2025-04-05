@@ -47,7 +47,8 @@ const { content, meta } = Astro.props
             <IconLinkList
               links={[
                 { url: content.url, icon: "line-md:external-link-rounded", label: "Visit Site" },
-                { url: content.github, icon: "lucide:github", label: "GitHub" }
+                { url: content.github, icon: "lucide:github", label: "GitHub" },
+                { url: content.pdf?.file, icon: "ph:file-pdf", label: content.pdf?.label ?? "PDF" }
               ]}
             />
           </Fragment>

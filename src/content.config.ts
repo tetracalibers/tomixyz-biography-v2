@@ -41,7 +41,13 @@ const project = defineCollection({
       date: z.string(),
       image: image(),
       url: z.string().url().optional(),
-      github: z.string().url().optional()
+      github: z.string().url().optional(),
+      pdf: z
+        .object({
+          file: z.string().endsWith(".pdf"),
+          label: z.string()
+        })
+        .optional()
     })
 })
 
