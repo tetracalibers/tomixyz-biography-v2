@@ -1,0 +1,83 @@
+---
+import Prose from "$components/prose/Prose.astro"
+import type { CollectionEntry } from "astro:content"
+import { render } from "astro:content"
+
+interface Props {
+  section: CollectionEntry<"like">
+}
+
+const { section } = Astro.props
+const { Content } = await render(section)
+---
+
+<Prose>
+  <h2 class="LikeSection-title">{section.data.title}</h2>
+  <div class="LikeSection-content"><Content /></div>
+</Prose>
+
+<style>
+  .LikeSection-title {
+    text-transform: capitalize;
+    text-align: center;
+    word-break: auto-phrase;
+  }
+  .LikeSection-content {
+    max-width: 44rem;
+    margin-inline: auto;
+  }
+  .LikeSection-content :global(p) {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    line-height: 2;
+  }
+  .LikeSection-content :global(:is(mark, a)) {
+    background: linear-gradient(rgba(255, 255, 255, 0) 80%, #bfe1fc91 20%);
+    font-weight: bold;
+    color: light-dark(var(--slate-500), var(--slate-200));
+  }
+  .LikeSection-content :global(a) {
+    text-decoration-style: dashed;
+    text-underline-offset: 0.25em;
+  }
+  .LikeSection-content :global(li > a) {
+    font-size: 1.25em;
+    background-image: linear-gradient(rgba(255, 255, 255, 0) 40%, #f9e0ec 70%);
+  }
+
+  .LikeSection-content :global(.small-note) {
+    padding: 1rem;
+    position: relative;
+  }
+  .LikeSection-content :global(.small-note)::before,
+  .LikeSection-content :global(.small-note)::after {
+    --border-color: #15adc1;
+
+    position: absolute;
+    top: 0;
+    content: "";
+    width: 10px;
+    height: 100%;
+    display: inline-block;
+    box-sizing: border-box;
+  }
+  .LikeSection-content :global(.small-note)::before {
+    border-left: dotted 2px var(--border-color);
+    border-top: dotted 2px var(--border-color);
+    border-bottom: dotted 2px var(--border-color);
+    left: 0;
+  }
+  .LikeSection-content :global(.small-note)::after {
+    border-top: dotted 2px var(--border-color);
+    border-right: dotted 2px var(--border-color);
+    border-bottom: dotted 2px var(--border-color);
+    right: 0;
+  }
+  .LikeSection-content :global(.small-note p) {
+    margin: 0;
+    padding: 0;
+    font-size: 0.875rem;
+    line-height: 1.5rem;
+    color: light-dark(var(--slate-500), var(--slate-200));
+  }
+</style>
