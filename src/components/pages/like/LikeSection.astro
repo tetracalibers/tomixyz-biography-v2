@@ -41,20 +41,19 @@ const { Content } = await render(section)
   }
   .LikeSection-content :global(a) {
     text-decoration: none;
-    display: inline-flex;
-    align-items: baseline;
     line-height: 1.3;
   }
   .LikeSection-content :global(a)::after {
     content: "";
     display: inline-block;
-    width: 0.75em;
-    height: 0.75em;
-    --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg fill='none' stroke='%23000' stroke-linecap='round' stroke-linejoin='round' stroke-width='1'%3E%3Cpath stroke-dasharray='48' stroke-dashoffset='48' d='M11 5h-6v14h14v-6'%3E%3Canimate fill='freeze' attributeName='stroke-dashoffset' dur='0.6s' values='48;0'/%3E%3C/path%3E%3Cpath stroke-dasharray='12' stroke-dashoffset='12' d='M13 11l7 -7'%3E%3Canimate fill='freeze' attributeName='stroke-dashoffset' begin='0.6s' dur='0.2s' values='12;0'/%3E%3C/path%3E%3Cpath stroke-dasharray='8' stroke-dashoffset='8' d='M21 3h-6M21 3v6'%3E%3Canimate fill='freeze' attributeName='stroke-dashoffset' begin='0.8s' dur='0.2s' values='8;0'/%3E%3C/path%3E%3C/g%3E%3C/svg%3E");
+    width: 0.9em;
+    height: 0.9em;
+    --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23000' stroke-dasharray='28' stroke-dashoffset='28' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M13 6l2 -2c1 -1 3 -1 4 0l1 1c1 1 1 3 0 4l-5 5c-1 1 -3 1 -4 0M11 18l-2 2c-1 1 -3 1 -4 0l-1 -1c-1 -1 -1 -3 0 -4l5 -5c1 -1 3 -1 4 0'%3E%3Canimate fill='freeze' attributeName='stroke-dashoffset' dur='0.6s' values='28;0'/%3E%3C/path%3E%3C/svg%3E");
     background-color: currentColor;
     mask-image: var(--svg);
     mask-repeat: no-repeat;
     mask-size: 100% 100%;
+    vertical-align: text-bottom;
   }
   .LikeSection-content :global(li > a) {
     font-size: 1.25em;
