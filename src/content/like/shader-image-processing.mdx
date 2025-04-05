@@ -10,15 +10,35 @@ keywords:
   - Rust
 ---
 
+import { Image } from "astro:assets"
+import FigureBox from "$/components/image-wrapper/FigureBox.astro"
+import GridGallery from "$/components/placement/GridGallery.astro"
+import VStack from "$/components/placement/VStack.astro"
+
+import img_EditorPreview1 from "../../assets/topics/imagl-editor/editor-preview-1.png"
+
+import img_Shrine from "../../assets/topics/imagl-editor/shrine.jpg"
+import img_ShrinePencil from "../../assets/topics/imagl-editor/shrine-pencil.png"
+
+import img_Cat from "../../assets/topics/imagl-editor/cat.jpg"
+import img_CatPencil from "../../assets/topics/imagl-editor/cat-pencil.png"
+
 手書き風画像を生成するレンダリング（_NPR：Non-photorealistic rendering_）のアルゴリズムに興味があります。
 
 論文から学んだり、自ら編み出したりして、==GLSL==をはじめとするシェーダ言語で、オリジナルの画像処理フィルタを実装するのが趣味です。
 
-> TODO: ここに比較UIとシェーダコードのスクショを貼る
+<GridGallery col={2}>
+  <Image alt="" src={img_Shrine} />
+  <Image alt="" src={img_ShrinePencil} />
+  <Image alt="" src={img_Cat} />
+  <Image alt="" src={img_CatPencil} />
+</GridGallery>
 
 以前、==GLSL==で実装した独自の画像加工フィルタを==WebGL==で描画する構成で、画像加工アプリを自作しました。
 
 - [ImaglEditor](/projects/imagl-editor)
+
+<FigureBox src={img_EditorPreview1} />
 
 現在は、==WebGPU==でさらに高度な画像加工フィルタを実装できないかと模索しています。
 
