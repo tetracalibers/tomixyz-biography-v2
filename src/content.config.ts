@@ -15,6 +15,16 @@ const page = defineCollection({
   })
 })
 
+const like = defineCollection({
+  loader: glob({ pattern: "**/*.mdx", base: "./src/content/like" }),
+  schema: () =>
+    z.object({
+      title: z.string().max(100, "The title length must be less than or equal to 100 chars"),
+      keywords: z.array(z.string()).default([]),
+      order: z.number()
+    })
+})
+
 const project = defineCollection({
   loader: glob({ pattern: "**/*.mdx", base: "./src/content/project" }),
   schema: ({ image }) =>
@@ -113,4 +123,4 @@ const writing = defineCollection({
       .array()
 })
 
-export const collections = { page, project, event, blog, recipe, writing }
+export const collections = { page, like, project, event, blog, recipe, writing }

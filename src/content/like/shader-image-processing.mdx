@@ -1,0 +1,53 @@
+---
+title: "シェーダによる画像処理"
+order: 1
+keywords:
+  - WebGL
+  - GLSL
+  - WebGPU
+  - wgpu
+  - WGSL
+  - Rust
+---
+
+import { Image } from "astro:assets"
+import FigureBox from "$/components/image-wrapper/FigureBox.astro"
+import GridGallery from "$/components/placement/GridGallery.astro"
+import CompareImage from "$/components/image-wrapper/CompareImage.svelte"
+
+import img_EditorPreview1 from "../../assets/topics/imagl-editor/editor-preview-1.png"
+
+import img_Shrine from "../../assets/topics/imagl-editor/shrine.jpg"
+import img_ShrinePencil from "../../assets/topics/imagl-editor/shrine-pencil.png"
+
+import img_Cat from "../../assets/topics/imagl-editor/cat.jpg"
+import img_CatPencil from "../../assets/topics/imagl-editor/cat-pencil.png"
+
+手書き風画像を生成するレンダリング（_NPR：Non-photorealistic rendering_）のアルゴリズムに興味があります。
+
+論文から学んだり、自ら編み出したりして、==GLSL==をはじめとするシェーダ言語で、オリジナルの画像処理フィルタを実装するのが趣味です。
+
+<GridGallery col={9}>
+  <div class="-c-span-4 -sp-c-span-1">
+    <CompareImage image1={img_Cat.src} image2={img_CatPencil.src} client:visible="svelte" />
+  </div>
+  <div class="-c-span-5 -sp-c-span-1">
+    <CompareImage image1={img_Shrine.src} image2={img_ShrinePencil.src} client:visible="svelte" />
+  </div>
+</GridGallery>
+
+以前、==GLSL==で実装した独自の画像加工フィルタを==WebGL==で描画する構成で、画像加工アプリを自作しました。色鉛筆画風加工以外にも、さまざまなフィルタを実装しています。
+
+- [ImaglEditor](/projects/imagl-editor)
+
+<FigureBox src={img_EditorPreview1} />
+
+現在は、==WebGPU==でさらに高度な画像加工フィルタを実装できないかと模索しています。
+
+<div class="small-note">
+  たとえば、ピクセルごとに呼び出されるフラグメントシェーダで近隣ピクセルを参照する処理を行うと、同じピクセルに何度もアクセスすることになってしまいますが、==WebGPU==でコンピュートシェーダをうまく制御することで、重複するピクセルフェッチを減らしてパフォーマンスを改善できないか？など…コンピュートシェーダの可能性に惹かれています。
+</div>
+
+==WebGPU==はまだサポートしていないブラウザが多いため、==WebGPU== APIの==Rust==実装である[wgpu](https://github.com/gfx-rs/wgpu)を使って実験することも多いです。
+
+いずれは、==機械学習==による一歩先の画像処理（画像認識）にも挑戦したいと考えています。

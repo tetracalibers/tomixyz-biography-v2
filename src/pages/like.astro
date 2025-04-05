@@ -1,0 +1,17 @@
+---
+import DefaultPageLayout from "$/layouts/default.astro"
+import LikeSection from "$components/pages/like/LikeSection.astro"
+import { getCollection } from "astro:content"
+
+const title = "Like"
+const description = "好きなことと展望"
+const meta = {
+  ogimage: "/og-image/like.png"
+}
+
+const sections = (await getCollection("like")).sort((a, b) => a.data.order - b.data.order)
+---
+
+<DefaultPageLayout content={{ title, description }} meta={{ ...meta }}>
+  {sections.map((section) => <LikeSection section={section} />)}
+</DefaultPageLayout>
