@@ -122,7 +122,7 @@ const writing = defineCollection({
       .object({
         title: z.string(),
         sublabel: z.string().optional(),
-        url: z.string().url(),
+        url: z.string(),
         date: z.string(),
         tags: z.array(z.string()).default([])
       })
