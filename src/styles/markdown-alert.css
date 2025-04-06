@@ -1,0 +1,62 @@
+.markdown-alert {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  margin-block: 1rem;
+  background-color: light-dark(rgb(249 251 255 / 45%), rgb(100 116 139 / 35%));
+  color: inherit;
+  border-inline-start-width: 3px;
+  border-inline-start-style: solid;
+}
+.markdown-alert p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.markdown-alert .markdown-alert-title {
+  align-items: center;
+  display: inline-flex;
+  font-size: 0.9rem;
+  line-height: 1;
+  font-weight: bold;
+  gap: 0.5rem;
+}
+.markdown-alert .markdown-alert-title svg {
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-inline-start-color: #61c8fe;
+}
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: #61c8fe;
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-inline-start-color: #ff70a6;
+}
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: #ff70a6;
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-inline-start-color: #68e2cb;
+}
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: #68e2cb;
+}
+
+.markdown-alert.markdown-alert-important {
+  border-inline-start-color: #a898ff;
+}
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: #a898ff;
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-inline-start-color: #ffc000;
+}
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: #ffc000;
+}

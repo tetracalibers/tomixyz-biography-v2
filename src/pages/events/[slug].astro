@@ -2,6 +2,8 @@
 import { getCollection, render, type CollectionEntry } from "astro:content"
 import EventLayout from "$/layouts/event.astro"
 
+import "$/styles/prose/use-marker.css"
+
 export async function getStaticPaths() {
   const collection = await getCollection("event")
   return collection.map((page) => {

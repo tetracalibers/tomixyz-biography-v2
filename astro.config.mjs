@@ -16,6 +16,7 @@ import { transformerNotationErrorLevel } from "@shikijs/transformers"
 import remarkBreaks from "remark-breaks"
 import remarkMath from "remark-math"
 import remarkFlexibleMarkers from "remark-flexible-markers"
+import { remarkAlert } from "remark-github-blockquote-alert"
 import rehypeKatex from "rehype-katex"
 
 /** @type {import("rehype-pretty-code").Options} */
@@ -49,7 +50,7 @@ export default defineConfig({
       [rehypeKatex, {}],
       [rehypePrettyCode, prettyCodeOptions]
     ],
-    remarkPlugins: [remarkMath, remarkBreaks, remarkFlexibleMarkers]
+    remarkPlugins: [remarkMath, remarkBreaks, remarkAlert, remarkFlexibleMarkers]
   },
   integrations: [icon(), svelte(), mdx()],
   vite: {
