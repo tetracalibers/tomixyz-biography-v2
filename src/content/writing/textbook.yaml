@@ -1,3 +1,11 @@
+- title: "GitとGitHub"
+  url: /pdf/git-and-github.pdf
+  sublabel: "有志勉強会用に制作した資料"
+  date: "2024-08-04"
+  tags:
+    - "Git"
+    - "GitHub"
+
 - title: "HTML/CSS入門ノート"
   url: "https://tetracalibers.notion.site/tetracalibers/HTML-CSS-6c6891810c894831aea26d635f1424cb"
   sublabel: "新人研修で配布した入門資料"

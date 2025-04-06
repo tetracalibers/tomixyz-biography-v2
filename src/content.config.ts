@@ -41,7 +41,13 @@ const project = defineCollection({
       date: z.string(),
       image: image(),
       url: z.string().url().optional(),
-      github: z.string().url().optional()
+      github: z.string().url().optional(),
+      pdf: z
+        .object({
+          file: z.string().endsWith(".pdf"),
+          label: z.string()
+        })
+        .optional()
     })
 })
 
@@ -60,7 +66,7 @@ const event = defineCollection({
       date: z.string(),
       image: image(),
       url: z.string().url().optional(),
-      slide: z.string().url().optional(),
+      slide: z.string().optional(),
       archive: z.string().url().optional(),
       youtube: z.string().url().optional(),
       github: z.string().url().optional(),
@@ -116,7 +122,7 @@ const writing = defineCollection({
       .object({
         title: z.string(),
         sublabel: z.string().optional(),
-        url: z.string().url(),
+        url: z.string(),
         date: z.string(),
         tags: z.array(z.string()).default([])
       })

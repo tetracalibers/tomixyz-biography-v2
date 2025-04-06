@@ -52,6 +52,9 @@ const { col, sp_col = 1 } = Astro.props
   .GridGallery :global(.-c-span-2-5) {
     grid-column: span 2 / 5;
   }
+  .GridGallery :global(.-c-span-2-6) {
+    grid-column: span 2 / 6;
+  }
 
   @media screen and (max-width: 768px) {
     .GridGallery {
@@ -71,8 +74,14 @@ const { col, sp_col = 1 } = Astro.props
       grid-column: span 4 / auto;
     }
 
+    .GridGallery :global(.-sp-c-span-2-3) {
+      grid-column: span 2 / 3;
+    }
     .GridGallery :global(.-sp-c-span-2-4) {
       grid-column: span 2 / 4;
+    }
+    .GridGallery :global(.-sp-c-span-2-5) {
+      grid-column: span 2 / 5;
     }
   }
 </style>

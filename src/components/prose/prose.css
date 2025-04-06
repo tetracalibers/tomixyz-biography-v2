@@ -14,7 +14,7 @@
 }
 
 :where(.prose strong) {
-  color: #64748b;
+  color: light-dark(var(--slate-500), var(--slate-200));
   font-weight: 600;
 }
 
@@ -96,4 +96,39 @@
 
 :where(.prose > :first-child) {
   margin-block-start: 0;
+}
+
+.Note {
+  padding: 1rem;
+  position: relative;
+}
+.Note::before,
+.Note::after {
+  --border-color: light-dark(#bfc9fa, #5e719d);
+  position: absolute;
+  top: 0;
+  content: "";
+  width: 1rem;
+  height: 100%;
+  display: inline-block;
+  box-sizing: border-box;
+}
+.Note::before {
+  border-left: dashed 2px var(--border-color);
+  border-top: dashed 2px var(--border-color);
+  border-bottom: dashed 2px var(--border-color);
+  left: 0;
+}
+.Note::after {
+  border-top: dashed 2px var(--border-color);
+  border-right: dashed 2px var(--border-color);
+  border-bottom: dashed 2px var(--border-color);
+  right: 0;
+}
+.Note p {
+  margin: 0;
+  padding: 0;
+  font-size: 0.875em;
+  line-height: 1.5rem;
+  color: light-dark(var(--slate-600), var(--slate-200));
 }
