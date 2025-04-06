@@ -66,7 +66,7 @@ const event = defineCollection({
       date: z.string(),
       image: image(),
       url: z.string().url().optional(),
-      slide: z.string().url().optional(),
+      slide: z.string().optional(),
       archive: z.string().url().optional(),
       youtube: z.string().url().optional(),
       github: z.string().url().optional(),
