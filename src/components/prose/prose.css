@@ -58,8 +58,10 @@
   color: light-dark(#64748b, #cbd5e1);
 }
 
-:where(.prose ul) {
+:where(.prose :is(ul, ol)) {
   color: light-dark(#374151, #e5e7eb);
+}
+:where(.prose ul) {
   padding-inline-start: 1.625em;
   list-style-type: disc;
 }
