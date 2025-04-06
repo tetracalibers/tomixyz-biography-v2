@@ -62,40 +62,4 @@ const { Content } = await render(section)
   :global(.dark) .LikeSection-content :global(li > a) {
     background: linear-gradient(rgba(255, 255, 255, 0) 70%, rgb(242 137 188 / 34%) 30%);
   }
-
-  .LikeSection-content :global(.small-note) {
-    padding: 1rem;
-    position: relative;
-  }
-  .LikeSection-content :global(.small-note)::before,
-  .LikeSection-content :global(.small-note)::after {
-    --border-color: #6bbeff;
-
-    position: absolute;
-    top: 0;
-    content: "";
-    width: 10px;
-    height: 100%;
-    display: inline-block;
-    box-sizing: border-box;
-  }
-  .LikeSection-content :global(.small-note)::before {
-    border-left: dotted 2px var(--border-color);
-    border-top: dotted 2px var(--border-color);
-    border-bottom: dotted 2px var(--border-color);
-    left: 0;
-  }
-  .LikeSection-content :global(.small-note)::after {
-    border-top: dotted 2px var(--border-color);
-    border-right: dotted 2px var(--border-color);
-    border-bottom: dotted 2px var(--border-color);
-    right: 0;
-  }
-  .LikeSection-content :global(.small-note p) {
-    margin: 0;
-    padding: 0;
-    font-size: 0.875rem;
-    line-height: 1.5rem;
-    color: light-dark(var(--slate-500), var(--slate-200));
-  }
 </style>
