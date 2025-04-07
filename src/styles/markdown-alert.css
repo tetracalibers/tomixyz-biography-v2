@@ -1,12 +1,13 @@
 .markdown-alert {
+  --alert-theme-color: inherit;
+
   display: grid;
   gap: 1rem;
   padding: 1rem;
   margin-block: 1rem;
   background-color: light-dark(rgb(249 251 255 / 45%), rgb(100 116 139 / 35%));
   color: inherit;
-  border-inline-start-width: 3px;
-  border-inline-start-style: solid;
+  border-inline-start: 3px double var(--alert-theme-color);
 }
 .markdown-alert p {
   margin: 0;
@@ -21,42 +22,24 @@
   line-height: 1;
   font-weight: bold;
   gap: 0.5rem;
+  color: var(--alert-theme-color);
 }
 .markdown-alert .markdown-alert-title svg {
   fill: currentColor;
 }
 
 .markdown-alert.markdown-alert-note {
-  border-inline-start-color: #61c8fe;
+  --alert-theme-color: #61c8fe;
 }
-.markdown-alert.markdown-alert-note .markdown-alert-title {
-  color: #61c8fe;
-}
-
 .markdown-alert.markdown-alert-caution {
-  border-inline-start-color: #ff70a6;
+  --alert-theme-color: #ff70a6;
 }
-.markdown-alert.markdown-alert-caution .markdown-alert-title {
-  color: #ff70a6;
-}
-
 .markdown-alert.markdown-alert-tip {
-  border-inline-start-color: #68e2cb;
+  --alert-theme-color: #68e2cb;
 }
-.markdown-alert.markdown-alert-tip .markdown-alert-title {
-  color: #68e2cb;
-}
-
 .markdown-alert.markdown-alert-important {
-  border-inline-start-color: #a898ff;
+  --alert-theme-color: #a898ff;
 }
-.markdown-alert.markdown-alert-important .markdown-alert-title {
-  color: #a898ff;
-}
-
 .markdown-alert.markdown-alert-warning {
-  border-inline-start-color: #ffc000;
-}
-.markdown-alert.markdown-alert-warning .markdown-alert-title {
-  color: #ffc000;
+  --alert-theme-color: #ffc000;
 }
