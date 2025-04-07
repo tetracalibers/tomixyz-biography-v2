@@ -38,8 +38,7 @@ export const SITE = {
   url: "https://tetracalibers.github.io/tomixyz-biography",
   base: "",
   githubUrl: "https://github.com/tetracalibers",
-  author: "tomixy",
-  authorTwitter: "tetracalibers"
+  author: "tomixy"
 }
 
 export const PAGE_SIZE = 8
