@@ -11,23 +11,18 @@ import ThemeSwitch from "./ThemeSwitch.astro"
   <nav class="header__ref">
     <ul class="header__ref-list">
       <li>
+        <a href={SITE.githubUrl} title="GitHub">
+          <Icon name="grommet-icons:github" size={28} />
+        </a>
+      </li>
+      <li>
         <a href="https://www.npmjs.com/~tomixy" title="npm">
           <Icon name="ri:npmjs-line" size={28} />
         </a>
       </li>
       <li>
-        <a href={SITE.githubUrl} title="GitHub">
-          <Icon name="mingcute:github-line" size={28} />
-        </a>
-      </li>
-      <li>
         <a href="https://bsky.app/profile/tetracalibers.bsky.social" title="Bluesky">
           <Icon name="mingcute:bluesky-social-line" size={28} />
-        </a>
-      </li>
-      <li>
-        <a href={"https://twitter.com/" + SITE.authorTwitter} title="X（Twitter）">
-          <Icon name="ri:twitter-x-line" size={28} />
         </a>
       </li>
     </ul>

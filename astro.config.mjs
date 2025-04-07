@@ -34,7 +34,7 @@ const prettyCodeOptions = {
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://tomixyz-biography.com",
+  site: "https://tomixyz-biography.net",
   base: "",
   trailingSlash: "ignore",
   scopedStyleStrategy: "where",

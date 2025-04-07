@@ -1,9 +1,9 @@
 <script lang="ts">
-  let { image1, image2 } = $props()
+  let { image1, image2, pos = 50 } = $props()
 
   let container: HTMLDivElement | null = null
 
-  let persentage = $state(50)
+  let persentage = $state(pos)
 </script>
 
 <div bind:this={container} class="c-compare" style={`--value: ${persentage}%;`}>
@@ -14,7 +14,7 @@
     class="c-rng c-compare__range"
     min="0"
     max="100"
-    value="50"
+    value={pos}
     oninput={(e: Event) => {
       const target = e.target as HTMLInputElement
       persentage = target.valueAsNumber

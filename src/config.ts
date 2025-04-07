@@ -35,11 +35,10 @@ export const SITE = {
   name: "tomixy's biography",
   title: "tomixy's biography",
   description: "",
-  url: "https://tetracalibers.github.io/tomixyz-biography",
+  url: "https://tomixyz-biography.net",
   base: "",
   githubUrl: "https://github.com/tetracalibers",
-  author: "tomixy",
-  authorTwitter: "tetracalibers"
+  author: "tomixy"
 }
 
 export const PAGE_SIZE = 8

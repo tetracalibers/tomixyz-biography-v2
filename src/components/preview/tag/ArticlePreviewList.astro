@@ -31,9 +31,7 @@ const { entries } = Astro.props
                   <Icon name="iconamoon:link-external-thin" width={16} stroke-width={1.5} />
                 </a>
               ) : (
-                <a href={`${SITE.base}/${entry.collection}s/${entry.id}`} title={entry.data.title}>
-                  {entry.data.title}
-                </a>
+                <a href={`${SITE.base}/${entry.collection}s/${entry.id}`}>{entry.data.title}</a>
               )}
             </h2>
             <p class="desc">{entry.collection === "writing" ? (entry.data.sublabel ?? "") : entry.data.description}</p>

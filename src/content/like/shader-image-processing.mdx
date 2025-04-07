@@ -23,16 +23,16 @@ import img_ShrinePencil from "../../assets/topics/imagl-editor/shrine-pencil.png
 import img_Cat from "../../assets/topics/imagl-editor/cat.jpg"
 import img_CatPencil from "../../assets/topics/imagl-editor/cat-pencil.png"
 
-手書き風画像を生成するレンダリング（_NPR：Non-photorealistic rendering_）のアルゴリズムに興味があります。
+==GLSL==をはじめとするシェーダ言語で、オリジナルの画像処理フィルタを実装するのが趣味です。
 
-論文から学んだり、自ら編み出したりして、==GLSL==をはじめとするシェーダ言語で、オリジナルの画像処理フィルタを実装するのが趣味です。
+特に、手書き風画像を生成するレンダリング（_NPR：Non-photorealistic rendering_）のアルゴリズムに興味があります。
 
 <GridGallery col={9}>
   <div class="-c-span-4 -sp-c-span-1">
-    <CompareImage image1={img_Cat.src} image2={img_CatPencil.src} client:visible="svelte" />
+    <CompareImage pos={15} image1={img_Cat.src} image2={img_CatPencil.src} client:visible="svelte" />
   </div>
   <div class="-c-span-5 -sp-c-span-1">
-    <CompareImage image1={img_Shrine.src} image2={img_ShrinePencil.src} client:visible="svelte" />
+    <CompareImage pos={50} image1={img_Shrine.src} image2={img_ShrinePencil.src} client:visible="svelte" />
   </div>
 </GridGallery>
 

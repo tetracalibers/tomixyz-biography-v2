@@ -21,7 +21,7 @@ const navItems = Object.keys(NAV_ITEMS).map((navItemKey) => {
     {
       navItems.map((item) => (
         <li>
-          <a class:list={[{ current: item.isCurrent }]} href={item.path} title={item.title}>
+          <a class:list={[{ current: item.isCurrent }]} href={item.path}>
             {toTitleCase(item.title)}
           </a>
         </li>
