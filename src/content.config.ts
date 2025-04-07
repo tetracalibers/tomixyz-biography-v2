@@ -1,5 +1,5 @@
 import { defineCollection, reference, z } from "astro:content"
-import { glob } from "astro/loaders"
+import { file, glob } from "astro/loaders"
 
 const page = defineCollection({
   loader: glob({ pattern: "**/*.mdx", base: "./src/content/page" }),
@@ -129,4 +129,16 @@ const writing = defineCollection({
       .array()
 })
 
-export const collections = { page, like, project, event, blog, recipe, writing }
+const tag = defineCollection({
+  loader: file("./src/content/tag.json"),
+  schema: () =>
+    z
+      .object({
+        id: z.string(),
+        name: z.string(),
+        url: z.string().url()
+      })
+      .array()
+})
+
+export const collections = { page, like, project, event, blog, recipe, writing, tag }

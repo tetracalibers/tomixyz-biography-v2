@@ -1,0 +1,197 @@
+[
+  {
+    "id": "astro",
+    "name": "Astro",
+    "url": "https://astro.build/"
+  },
+  {
+    "id": "shellscript",
+    "name": "Shell Script",
+    "url": "https://ja.wikipedia.org/wiki/%E3%82%B7%E3%82%A7%E3%83%AB%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%97%E3%83%88"
+  },
+  {
+    "id": "css",
+    "name": "CSS",
+    "url": "https://developer.mozilla.org/ja/docs/Web/CSS"
+  },
+  {
+    "id": "devtools",
+    "name": "DevTools",
+    "url": "https://developer.chrome.com/docs/devtools?hl=ja"
+  },
+  {
+    "id": "excel",
+    "name": "Excel",
+    "url": "https://www.microsoft.com/ja-jp/microsoft-365/excel"
+  },
+  {
+    "id": "git",
+    "name": "Git",
+    "url": "https://git-scm.com/"
+  },
+  {
+    "id": "github",
+    "name": "GitHub",
+    "url": "https://github.co.jp/"
+  },
+  {
+    "id": "glsl",
+    "name": "GLSL",
+    "url": "https://ja.wikipedia.org/wiki/GLSL"
+  },
+  {
+    "id": "graphql",
+    "name": "GraphQL",
+    "url": "https://graphql.org/"
+  },
+  {
+    "id": "html",
+    "name": "HTML",
+    "url": "https://developer.mozilla.org/ja/docs/Web/HTML"
+  },
+  {
+    "id": "javascript",
+    "name": "JavaScript",
+    "url": "https://developer.mozilla.org/ja/docs/Web/JavaScript"
+  },
+  {
+    "id": "jquery",
+    "name": "jQuery",
+    "url": "https://jquery.com/"
+  },
+  {
+    "id": "laravel",
+    "name": "Laravel",
+    "url": "https://laravel.com/"
+  },
+  {
+    "id": "latex",
+    "name": "LaTeX",
+    "url": "https://ja.wikipedia.org/wiki/LaTeX"
+  },
+  {
+    "id": "mdx",
+    "name": "MDX",
+    "url": "https://mdxjs.com/"
+  },
+  {
+    "id": "mysql",
+    "name": "MySQL",
+    "url": "https://www.mysql.com/jp/"
+  },
+  {
+    "id": "postgresql",
+    "name": "PostgreSQL",
+    "url": "https://www.postgresql.org/"
+  },
+  {
+    "id": "python",
+    "name": "Python",
+    "url": "https://www.python.org/"
+  },
+  {
+    "id": "react",
+    "name": "React",
+    "url": "https://ja.react.dev/"
+  },
+  {
+    "id": "rehypejs",
+    "name": "rehypejs",
+    "url": "https://github.com/rehypejs/rehype"
+  },
+  {
+    "id": "remarkjs",
+    "name": "remarkjs",
+    "url": "https://github.com/remarkjs/remark"
+  },
+  {
+    "id": "remotion",
+    "name": "Remotion",
+    "url": "https://www.remotion.dev/"
+  },
+  {
+    "id": "ruby",
+    "name": "Ruby",
+    "url": "https://www.ruby-lang.org/ja/"
+  },
+  {
+    "id": "rust",
+    "name": "Rust",
+    "url": "https://www.rust-lang.org/ja"
+  },
+  {
+    "id": "slidev",
+    "name": "Slidev",
+    "url": "https://sli.dev/"
+  },
+  {
+    "id": "svelte",
+    "name": "Svelte",
+    "url": "https://svelte.jp/"
+  },
+  {
+    "id": "sveltekit",
+    "name": "SvelteKit",
+    "url": "https://svelte.jp/docs/kit/introduction"
+  },
+  {
+    "id": "svg",
+    "name": "SVG",
+    "url": "https://developer.mozilla.org/ja/docs/Web/SVG"
+  },
+  {
+    "id": "svg-filter",
+    "name": "SVG Filter",
+    "url": "https://developer.mozilla.org/ja/docs/Web/SVG/Tutorials/SVG_from_scratch/Filter_effects"
+  },
+  {
+    "id": "typescript",
+    "name": "TypeScript",
+    "url": "https://www.typescriptlang.org/"
+  },
+  {
+    "id": "vba",
+    "name": "VBA",
+    "url": "https://ja.wikipedia.org/wiki/Visual_Basic_for_Applications"
+  },
+  {
+    "id": "vscode",
+    "name": "VS Code",
+    "url": "https://code.visualstudio.com/"
+  },
+  {
+    "id": "vuejs",
+    "name": "Vue.js",
+    "url": "https://ja.vuejs.org/"
+  },
+  {
+    "id": "webgl",
+    "name": "WebGL",
+    "url": "https://developer.mozilla.org/ja/docs/Web/API/WebGL_API"
+  },
+  {
+    "id": "webgpu",
+    "name": "WebGPU",
+    "url": "https://developer.mozilla.org/ja/docs/Web/API/WebGPU_API"
+  },
+  {
+    "id": "wgpu",
+    "name": "wgpu",
+    "url": "https://wgpu.rs/"
+  },
+  {
+    "id": "wgsl",
+    "name": "WGSL",
+    "url": "https://www.w3.org/TR/WGSL/"
+  },
+  {
+    "id": "wordpress",
+    "name": "WordPress",
+    "url": "https://wordpress.com/ja/"
+  },
+  {
+    "id": "zod",
+    "name": "Zod",
+    "url": "https://zod.dev/"
+  }
+]
