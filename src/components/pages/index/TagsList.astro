@@ -14,18 +14,15 @@ const writings = (await getCollection("writing")).flatMap((file) => file.data.ma
 
 const targetCollection = [...projects, ...events, ...recipes, ...writings]
 
-const tagIdCountMap = targetCollection.reduce(
-  (acc, entry) => {
-    const tags = entry.data.tags ?? []
-    tags.forEach((tag) => {
-      acc[tag.id] = (acc[tag.id] || 0) + 1
-    })
-    return acc
-  },
-  {} as Record<string, number>
-)
+const tagIdCountMap = targetCollection.reduce((acc, entry) => {
+  const tags = entry.data.tags ?? []
+  tags.forEach((tag) => {
+    acc.set(tag.id, (acc.get(tag.id) ?? 0) + 1)
+  })
+  return acc
+}, new Map<string, number>())
 
-const tagIds = Object.entries(tagIdCountMap)
+const tagIds = [...tagIdCountMap.entries()]
   .filter(([_, count]) => count > 0)
   .sort(([idA], [idB]) => idA.localeCompare(idB))
   .sort(([, countA], [, countB]) => countB - countA)
