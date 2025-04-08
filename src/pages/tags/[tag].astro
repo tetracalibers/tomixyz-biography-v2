@@ -5,6 +5,7 @@ import { compareDateForSort } from "$/utils"
 import type { GetStaticPaths } from "astro"
 import ArticlePreviewList from "$components/preview/tag/ArticlePreviewList.astro"
 import type { ReferenceDataEntry } from "astro:content"
+import { marked } from "marked"
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const filterPublic = (entry: CollectionEntry<"recipe">) => {
@@ -54,7 +55,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
     return {
       params: { tag: tagId },
       props: {
-        tagName: tag!.data.name,
+        tag: tag!.data,
         articles: [...matchProjects, ...matchEvents, ...matchRecipes, ...matchWritings].sort(compareDateForSort)
       }
     }
@@ -62,20 +63,23 @@ export const getStaticPaths: GetStaticPaths = async () => {
 }
 
 interface Props {
-  tagName: string
+  tag: CollectionEntry<"tag">["data"]
   articles: CollectionEntry<"project" | "event" | "recipe">[]
 }
 
-const { articles, tagName } = Astro.props
-const { tag } = Astro.params
+const { articles, tag } = Astro.props
+const { tag: tagId } = Astro.params
 
-const title = tagName
-const description = `${tagName}を扱った作品や記事`
+const title = tag.name
+const description = `${tag.name}を扱った作品や記事`
 const meta = {
-  ogimage: `/og-image/tags/${tag}.png`
+  ogimage: `/og-image/tags/${tagId}.png`
 }
+
+const subtitle = `[${tag.name}](${tag.url})を扱った作品や記事`
 ---
 
 <DefaultPageLayout content={{ title, description }} meta={{ ...meta }}>
+  <Fragment slot="subtitle" set:html={marked.parseInline(subtitle)} />
   <ArticlePreviewList entries={articles} />
 </DefaultPageLayout>
