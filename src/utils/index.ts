@@ -1,10 +1,5 @@
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
-export const toTitleCase = (str: string) =>
-  str.replace(/\w\S*/g, function (txt) {
-    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
-  })
-
 export const getMonthName = (date: string | Date) => MONTHS[new Date(date).getMonth()]
 
 export const compareDateForSort = <T extends { data: { date: string } }>(a: T, b: T) => {
