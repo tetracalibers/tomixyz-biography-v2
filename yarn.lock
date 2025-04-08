@@ -382,6 +382,13 @@
   resolved "https://registry.yarnpkg.com/@esbuild/win32-x64/-/win32-x64-0.25.1.tgz#7d79922cb2d88f9048f06393dbf62d2e4accb584"
   integrity sha512-Y1EQdcfwMSeQN/ujR5VayLOJ1BHaK+ssyk0AEzPjC+t1lITgsnccPqFjb6V+LsTp/9Iov4ysfjxLaGJ9RPtkVg==
 
+"@iconify-json/arcticons@^1.2.22":
+  version "1.2.22"
+  resolved "https://registry.yarnpkg.com/@iconify-json/arcticons/-/arcticons-1.2.22.tgz#d045155f5f5865150a74362bb475ad35fc2f1781"
+  integrity sha512-JAKb0d1UWhRlYp3+S/fRA0+m/AwcKtWYVYAvEkFnNgpoD9D12k7GPbNcYwal1QC5oK11hdWFzyPEY4x5zbcWWw==
+  dependencies:
+    "@iconify/types" "*"
+
 "@iconify-json/bx@^1.2.2":
   version "1.2.2"
   resolved "https://registry.npmjs.org/@iconify-json/bx/-/bx-1.2.2.tgz"

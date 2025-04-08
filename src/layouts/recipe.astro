@@ -7,16 +7,17 @@ import ProseGridFill from "$/components/prose/ProseGridFill.astro"
 import AvatarImage from "$components/article-header/layout-2/AvatarImage.astro"
 import PublishDate from "$components/article-header/PublishDate.astro"
 import type { MarkdownHeading } from "astro"
-import BlogToc from "$components/toc/BlogToc.astro"
 import Body from "$components/layout/Body.astro"
 import ArticleTitle from "$components/article-header/layout-2/ArticleTitle.astro"
 import ArticleSummary from "$components/article-header/layout-2/ArticleSummary.astro"
 import ArticleHeaderBlock from "$components/article-header/layout-2/ArticleHeaderBlock.astro"
 import ArticleTocBlock from "$components/article-header/layout-2/ArticleTocBlock.astro"
 import TagList from "$components/article-header/TagList.astro"
+import { collectSeriesArticles } from "$/lib/series"
+import RecipeToc from "$components/toc/RecipeToc.astro"
 
 interface Props {
-  content: CollectionEntry<"recipe">["data"]
+  entry: CollectionEntry<"recipe">
   headings: MarkdownHeading[]
   meta?: {
     description?: string
@@ -24,9 +25,13 @@ interface Props {
   }
 }
 
-const { content, headings, meta } = Astro.props
+const { entry, headings, meta } = Astro.props
+const { data: content } = entry
+const { series: seriesOrNone } = content
 
 const AUTHOR_NAME = SITE.author
+
+const series = seriesOrNone ? await collectSeriesArticles(seriesOrNone.id) : null
 ---
 
 <!doctype html>
@@ -52,7 +57,7 @@ const AUTHOR_NAME = SITE.author
           <Fragment slot="publish"><PublishDate date={content.date} /></Fragment>
         </ArticleHeaderBlock>
         <ArticleTocBlock>
-          <BlogToc headings={headings} />
+          <RecipeToc headings={headings} current={entry.id} series={series} />
         </ArticleTocBlock>
         <ProseGridFill>
           <div class="main-content"><slot /></div>

@@ -34,6 +34,6 @@ const { Content, headings } = await render(page)
 const ogimage = `/og-image/recipes/${slug}.png`
 ---
 
-<RecipeLayout content={page.data} meta={{ ogimage, ...meta }} headings={headings}>
+<RecipeLayout entry={page} meta={{ ogimage, ...meta }} headings={headings}>
   <Content />
 </RecipeLayout>
