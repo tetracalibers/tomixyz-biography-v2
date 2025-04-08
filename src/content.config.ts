@@ -8,8 +8,7 @@ const page = defineCollection({
     description: z.string(),
     meta: z
       .object({
-        title: z.string().optional(),
-        description: z.string().optional()
+        description: z.string()
       })
       .optional()
   })
@@ -20,7 +19,6 @@ const like = defineCollection({
   schema: () =>
     z.object({
       title: z.string().max(100, "The title length must be less than or equal to 100 chars"),
-      keywords: z.array(z.string()).default([]),
       order: z.number()
     })
 })
@@ -33,8 +31,7 @@ const project = defineCollection({
       description: z.string(),
       meta: z
         .object({
-          title: z.string().optional(),
-          description: z.string().optional()
+          description: z.string()
         })
         .optional(),
       tags: z.array(reference("tag")).default([]),
@@ -59,8 +56,7 @@ const event = defineCollection({
       description: z.string(),
       meta: z
         .object({
-          title: z.string().optional(),
-          description: z.string().optional()
+          description: z.string()
         })
         .optional(),
       date: z.string(),
@@ -82,12 +78,10 @@ const blog = defineCollection({
       description: z.string(),
       meta: z
         .object({
-          title: z.string().optional(),
-          description: z.string().optional()
+          description: z.string()
         })
         .optional(),
-      date: z.string(),
-      category: z.enum(["essay", "tech"])
+      date: z.string()
     })
 })
 
@@ -99,8 +93,7 @@ const recipe = defineCollection({
       description: z.string(),
       meta: z
         .object({
-          title: z.string().optional(),
-          description: z.string().optional()
+          description: z.string()
         })
         .optional(),
       tags: z.array(reference("tag")).default([]),

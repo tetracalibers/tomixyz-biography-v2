@@ -1,5 +1,4 @@
 ---
-import { toTitleCase } from "$/utils"
 import { NAV_ITEMS, SITE } from "$/config"
 
 const createRoot = (path: string) => path.split("/").slice(0, 2).join("/")
@@ -22,7 +21,7 @@ const navItems = Object.keys(NAV_ITEMS).map((navItemKey) => {
       navItems.map((item) => (
         <li>
           <a class:list={[{ current: item.isCurrent }]} href={item.path}>
-            {toTitleCase(item.title)}
+            {item.title}
           </a>
         </li>
       ))
@@ -50,6 +49,7 @@ const navItems = Object.keys(NAV_ITEMS).map((navItemKey) => {
     color: light-dark(var(--slate-600), var(--slate-300));
     text-decoration: none;
     padding-block-end: 0.25rem;
+    text-transform: capitalize;
   }
   .nav-list a.current {
     border-block-end-style: solid;
