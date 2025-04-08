@@ -19,7 +19,6 @@ interface Props {
   content: CollectionEntry<"recipe">["data"]
   headings: MarkdownHeading[]
   meta?: {
-    title?: string
     description?: string
     ogimage?: string
   }
@@ -35,7 +34,7 @@ const AUTHOR_NAME = SITE.author
   <head>
     <BaseHead
       image={meta?.ogimage ?? "/og-image.png"}
-      title={meta?.title ? `${SITE.title} | ${meta.title}` : `${SITE.title} | ${content.title}`}
+      title={content.title}
       description={meta?.description ?? content.description}
     />
   </head>

@@ -1,5 +1,4 @@
 ---
-import { SITE } from "$/config"
 import BaseHead from "$/components/layout/BaseHead.astro"
 import MainLayout from "$/components/layout/MainLayout.astro"
 import PageHeader from "$/components/pages/index/PageHeader.astro"
@@ -11,7 +10,6 @@ interface Props {
     description: string
   }
   meta?: {
-    title?: string
     description?: string
     ogimage?: string
   }
@@ -24,7 +22,7 @@ const { content, meta } = Astro.props
 <html lang="ja">
   <head>
     <BaseHead
-      title={meta?.title ? `${SITE.title} | ${meta.title}` : SITE.title}
+      title={content.title}
       description={meta?.description ?? content.description}
       image={meta?.ogimage ?? "/og-image.png"}
     />

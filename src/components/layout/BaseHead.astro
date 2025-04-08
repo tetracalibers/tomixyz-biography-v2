@@ -7,6 +7,7 @@ import "$/styles/pretty-code.css"
 import "$/styles/markdown-alert.css"
 import "katex/dist/katex.min.css"
 import "$/styles/custom-katex.css"
+import { judgeIsTopPage } from "$/lib/url"
 
 export type Props = {
   title: string
@@ -16,8 +17,11 @@ export type Props = {
   noindex?: boolean
 }
 
-const { title = SITE.title, description, permalink, image, noindex } = Astro.props
+const { title: _title, description, permalink, image, noindex } = Astro.props
 const ogimage = image ? `${SITE.url}${image}` : `${SITE.url}/og-image.png`
+
+const isTopPage = judgeIsTopPage(Astro.url.pathname)
+const title = isTopPage ? SITE.title : `${_title} | ${SITE.title}`
 ---
 
 <meta charset="UTF-8" />

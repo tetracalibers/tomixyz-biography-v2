@@ -8,8 +8,7 @@ const page = defineCollection({
     description: z.string(),
     meta: z
       .object({
-        title: z.string().optional(),
-        description: z.string().optional()
+        description: z.string()
       })
       .optional()
   })
@@ -32,8 +31,7 @@ const project = defineCollection({
       description: z.string(),
       meta: z
         .object({
-          title: z.string().optional(),
-          description: z.string().optional()
+          description: z.string()
         })
         .optional(),
       tags: z.array(reference("tag")).default([]),
@@ -58,8 +56,7 @@ const event = defineCollection({
       description: z.string(),
       meta: z
         .object({
-          title: z.string().optional(),
-          description: z.string().optional()
+          description: z.string()
         })
         .optional(),
       date: z.string(),
@@ -81,8 +78,7 @@ const blog = defineCollection({
       description: z.string(),
       meta: z
         .object({
-          title: z.string().optional(),
-          description: z.string().optional()
+          description: z.string()
         })
         .optional(),
       date: z.string()
@@ -97,8 +93,7 @@ const recipe = defineCollection({
       description: z.string(),
       meta: z
         .object({
-          title: z.string().optional(),
-          description: z.string().optional()
+          description: z.string()
         })
         .optional(),
       tags: z.array(reference("tag")).default([]),

@@ -1,6 +1,5 @@
 ---
 import type { CollectionEntry } from "astro:content"
-import { SITE } from "$/config"
 import MainLayout from "$/components/layout/MainLayout.astro"
 import BaseHead from "$/components/layout/BaseHead.astro"
 import PublishDate from "$components/article-header/PublishDate.astro"
@@ -17,7 +16,6 @@ import TagList from "$components/article-header/TagList.astro"
 interface Props {
   content: CollectionEntry<"event">["data"]
   meta?: {
-    title?: string
     description?: string
     ogimage?: string
   }
@@ -30,7 +28,7 @@ const { content, meta } = Astro.props
   <head>
     <BaseHead
       image={meta?.ogimage ?? "/og-image.png"}
-      title={meta?.title ? `${SITE.title} | ${meta.title}` : `${SITE.title} | ${content.title}`}
+      title={content.title}
       description={meta?.description ?? content.description}
     />
   </head>
