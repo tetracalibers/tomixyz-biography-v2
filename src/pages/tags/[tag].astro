@@ -6,6 +6,7 @@ import type { GetStaticPaths } from "astro"
 import ArticlePreviewList from "$components/preview/tag/ArticlePreviewList.astro"
 import { marked } from "marked"
 import { collectTagIds, getRefTagCollection, getAllTagMap, filterByTag } from "$/lib/tag"
+import { setExternalLinkRenderer } from "$/lib/marked"
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const targets = await getRefTagCollection()
@@ -41,10 +42,14 @@ const meta = {
   ogimage: `/og-image/tags/${tagId}.png`
 }
 
-const subtitle = `[${tag.name}](${tag.url})を扱った作品や記事`
+const renderer = new marked.Renderer()
+setExternalLinkRenderer(renderer)
+
+const subtitleMd = `[${tag.name}](${tag.url})を扱った作品や記事`
+const subtitleHtml = marked.parseInline(subtitleMd, { renderer })
 ---
 
 <DefaultPageLayout content={{ title, description }} meta={{ ...meta }}>
-  <Fragment slot="subtitle" set:html={marked.parseInline(subtitle)} />
+  <Fragment slot="subtitle" set:html={subtitleHtml} />
   <ArticlePreviewList entries={articles} />
 </DefaultPageLayout>
