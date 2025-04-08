@@ -37,7 +37,7 @@ const project = defineCollection({
           description: z.string().optional()
         })
         .optional(),
-      tags: z.array(z.string()).default([]),
+      tags: z.array(reference("tag")).default([]),
       date: z.string(),
       image: image(),
       url: z.string().url().optional(),
@@ -70,7 +70,7 @@ const event = defineCollection({
       archive: z.string().url().optional(),
       youtube: z.string().url().optional(),
       github: z.string().url().optional(),
-      tags: z.array(z.string()).default([])
+      tags: z.array(reference("tag")).default([])
     })
 })
 
@@ -103,7 +103,7 @@ const recipe = defineCollection({
           description: z.string().optional()
         })
         .optional(),
-      tags: z.array(z.string()).default([]),
+      tags: z.array(reference("tag")).default([]),
       date: z.string(),
       series: reference("series").optional(),
       draft: z.boolean().default(false),
@@ -124,21 +124,18 @@ const writing = defineCollection({
         sublabel: z.string().optional(),
         url: z.string(),
         date: z.string(),
-        tags: z.array(z.string()).default([])
+        tags: z.array(reference("tag")).default([])
       })
       .array()
 })
 
 const tag = defineCollection({
-  loader: file("./src/content/tag.json"),
+  loader: file("./src/content/tag.yaml"),
   schema: () =>
-    z
-      .object({
-        id: z.string(),
-        name: z.string(),
-        url: z.string().url()
-      })
-      .array()
+    z.object({
+      name: z.string(),
+      url: z.string().url()
+    })
 })
 
 export const collections = { page, like, project, event, blog, recipe, writing, tag }

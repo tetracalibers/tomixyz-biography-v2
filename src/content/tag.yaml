@@ -1,0 +1,155 @@
+astro:
+  name: Astro
+  url: https://astro.build/
+
+bash:
+  name: Bash
+  url: https://ja.wikipedia.org/wiki/Bash
+
+css:
+  name: CSS
+  url: https://developer.mozilla.org/ja/docs/Web/CSS
+
+devtools:
+  name: DevTools
+  url: https://developer.chrome.com/docs/devtools?hl=ja
+
+excel:
+  name: Excel
+  url: https://www.microsoft.com/ja-jp/microsoft-365/excel
+
+git:
+  name: Git
+  url: https://git-scm.com/
+
+github:
+  name: GitHub
+  url: https://github.co.jp/
+
+glsl:
+  name: GLSL
+  url: https://ja.wikipedia.org/wiki/GLSL
+
+graphql:
+  name: GraphQL
+  url: https://graphql.org/
+
+html:
+  name: HTML
+  url: https://developer.mozilla.org/ja/docs/Web/HTML
+
+javascript:
+  name: JavaScript
+  url: https://developer.mozilla.org/ja/docs/Web/JavaScript
+
+jquery:
+  name: jQuery
+  url: https://jquery.com/
+
+laravel:
+  name: Laravel
+  url: https://laravel.com/
+
+latex:
+  name: LaTeX
+  url: https://ja.wikipedia.org/wiki/LaTeX
+
+mdx:
+  name: MDX
+  url: https://mdxjs.com/
+
+mysql:
+  name: MySQL
+  url: https://www.mysql.com/jp/
+
+postgresql:
+  name: PostgreSQL
+  url: https://www.postgresql.org/
+
+python:
+  name: Python
+  url: https://www.python.org/
+
+react:
+  name: React
+  url: https://ja.react.dev/
+
+rehypejs:
+  name: rehypejs
+  url: https://github.com/rehypejs/rehype
+
+remarkjs:
+  name: remarkjs
+  url: https://github.com/remarkjs/remark
+
+remotion:
+  name: Remotion
+  url: https://www.remotion.dev/
+
+ruby:
+  name: Ruby
+  url: https://www.ruby-lang.org/ja/
+
+rust:
+  name: Rust
+  url: https://www.rust-lang.org/ja
+
+slidev:
+  name: Slidev
+  url: https://sli.dev/
+
+svelte:
+  name: Svelte
+  url: https://svelte.jp/
+
+sveltekit:
+  name: SvelteKit
+  url: https://svelte.jp/docs/kit/introduction
+
+svg:
+  name: SVG
+  url: https://developer.mozilla.org/ja/docs/Web/SVG
+
+svg-filter:
+  name: SVG Filter
+  url: https://developer.mozilla.org/ja/docs/Web/SVG/Tutorials/SVG_from_scratch/Filter_effects
+
+typescript:
+  name: TypeScript
+  url: https://www.typescriptlang.org/
+
+vba:
+  name: VBA
+  url: https://ja.wikipedia.org/wiki/Visual_Basic_for_Applications
+
+vscode:
+  name: VS Code
+  url: https://code.visualstudio.com/
+
+vuejs:
+  name: Vue.js
+  url: https://ja.vuejs.org/
+
+webgl:
+  name: WebGL
+  url: https://developer.mozilla.org/ja/docs/Web/API/WebGL_API
+
+webgpu:
+  name: WebGPU
+  url: https://developer.mozilla.org/ja/docs/Web/API/WebGPU_API
+
+wgpu:
+  name: wgpu
+  url: https://wgpu.rs/
+
+wgsl:
+  name: WGSL
+  url: https://www.w3.org/TR/WGSL/
+
+wordpress:
+  name: WordPress
+  url: https://wordpress.com/ja/
+
+zod:
+  name: Zod
+  url: https://zod.dev/
