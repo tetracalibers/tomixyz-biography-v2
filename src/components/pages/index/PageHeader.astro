@@ -3,24 +3,39 @@ import PageTitle from "./PageTitle.astro"
 
 interface Props {
   title: string
-  subtitle: string
 }
 
-const { title, subtitle } = Astro.props
+const { title } = Astro.props
 ---
 
 <div class="PageHeader">
   <PageTitle title={title} />
-  <p class="subtitle">{subtitle}</p>
+  <p class="subtitle">
+    <slot />
+  </p>
 </div>
 
 <style>
   .PageHeader {
     display: grid;
+    gap: 0.5rem;
     text-align: center;
   }
   .subtitle {
     margin: 0;
     color: light-dark(var(--slate-500), var(--slate-200));
+  }
+
+  .subtitle :global(a) {
+    color: light-dark(#475569, #e2e8f0);
+    text-decoration: underline;
+    font-weight: 500;
+
+    text-underline-offset: 0.25rem;
+    text-decoration-thickness: 1px;
+    text-decoration-style: dotted;
+  }
+  .subtitle :global(a:hover) {
+    color: light-dark(#64748b, #cbd5e1);
   }
 </style>

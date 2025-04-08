@@ -32,7 +32,11 @@ const { content, meta } = Astro.props
   <Body>
     <MainLayout>
       <div class="MainLayout-inner">
-        <PageHeader title={content.title} subtitle={content.description} />
+        <PageHeader title={content.title}>
+          <slot name="subtitle">
+            {content.description}
+          </slot>
+        </PageHeader>
         <div class="slot-wrapper"><slot /></div>
       </div>
     </MainLayout>
