@@ -20,7 +20,6 @@ const like = defineCollection({
   schema: () =>
     z.object({
       title: z.string().max(100, "The title length must be less than or equal to 100 chars"),
-      keywords: z.array(z.string()).default([]),
       order: z.number()
     })
 })
