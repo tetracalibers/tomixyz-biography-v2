@@ -1,5 +1,5 @@
 import { defineCollection, reference, z } from "astro:content"
-import { glob } from "astro/loaders"
+import { file, glob } from "astro/loaders"
 
 const page = defineCollection({
   loader: glob({ pattern: "**/*.mdx", base: "./src/content/page" }),
@@ -37,7 +37,7 @@ const project = defineCollection({
           description: z.string().optional()
         })
         .optional(),
-      tags: z.array(z.string()).default([]),
+      tags: z.array(reference("tag")).default([]),
       date: z.string(),
       image: image(),
       url: z.string().url().optional(),
@@ -70,7 +70,7 @@ const event = defineCollection({
       archive: z.string().url().optional(),
       youtube: z.string().url().optional(),
       github: z.string().url().optional(),
-      tags: z.array(z.string()).default([])
+      tags: z.array(reference("tag")).default([])
     })
 })
 
@@ -103,7 +103,7 @@ const recipe = defineCollection({
           description: z.string().optional()
         })
         .optional(),
-      tags: z.array(z.string()).default([]),
+      tags: z.array(reference("tag")).default([]),
       date: z.string(),
       series: reference("series").optional(),
       draft: z.boolean().default(false),
@@ -124,9 +124,18 @@ const writing = defineCollection({
         sublabel: z.string().optional(),
         url: z.string(),
         date: z.string(),
-        tags: z.array(z.string()).default([])
+        tags: z.array(reference("tag")).default([])
       })
       .array()
 })
 
-export const collections = { page, like, project, event, blog, recipe, writing }
+const tag = defineCollection({
+  loader: file("./src/content/tag.yaml"),
+  schema: () =>
+    z.object({
+      name: z.string(),
+      url: z.string().url()
+    })
+})
+
+export const collections = { page, like, project, event, blog, recipe, writing, tag }

@@ -1,29 +1,16 @@
 ---
-import { getCollection, type CollectionEntry } from "astro:content"
-import { collectTags, tagToSlug } from "$/utils/tag"
-import { SITE } from "$/config"
 import TagLink from "$components/tag/TagLink.astro"
+import { collectTagIds, getRefTagCollection } from "$/lib/tag"
 
-const filterPublic = (entry: CollectionEntry<"recipe">) => {
-  if (import.meta.env.DEV) return true
-  return !entry.data.draft && !entry.data.private
-}
-
-const projects = await getCollection("project")
-const events = await getCollection("event")
-const recipes = await getCollection("recipe", filterPublic)
-const writings = (await getCollection("writing")).flatMap((file) => file.data.map((data) => ({ data: { ...data } })))
-
-const tags = collectTags(projects, events, recipes, writings).sort((a, b) => a.localeCompare(b))
-
-const pageUrlFromTagName = (tagName: string) => SITE.base + "/tags/" + tagToSlug(tagName)
+const targets = await getRefTagCollection()
+const tagIds = collectTagIds(targets).sort((a, b) => a.localeCompare(b))
 ---
 
 <ul class="TagsList">
   {
-    tags.map((tag) => (
+    tagIds.map((tagId) => (
       <li>
-        <TagLink href={pageUrlFromTagName(tag)}>{tag}</TagLink>
+        <TagLink tagId={tagId} />
       </li>
     ))
   }

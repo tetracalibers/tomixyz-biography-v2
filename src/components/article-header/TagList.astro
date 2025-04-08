@@ -1,9 +1,9 @@
 ---
-import { tagToSlug } from "$/utils/tag"
 import TagLink from "$components/tag/TagLink.astro"
+import type { ReferenceDataEntry } from "astro:content"
 
 interface Props {
-  tags: string[]
+  tags: ReferenceDataEntry<"tag">[]
 }
 
 const { tags } = Astro.props
@@ -13,7 +13,7 @@ const { tags } = Astro.props
   {
     tags.length > 0 &&
       tags.map((tag) => (
-        <TagLink href={`/tags/${tagToSlug(tag)}`} small>
+        <TagLink tagId={tag.id} small>
           {tag}
         </TagLink>
       ))

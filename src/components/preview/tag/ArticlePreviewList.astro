@@ -3,7 +3,6 @@ import { SITE } from "$/config"
 import type { ArrayElement } from "$/types"
 import PublishDate from "./PublishDate.astro"
 import type { CollectionEntry } from "astro:content"
-import { Icon } from "astro-icon/components"
 
 interface Props {
   entries:
@@ -28,7 +27,6 @@ const { entries } = Astro.props
               {entry.collection === "writing" ? (
                 <a href={entry.data.url} target="_blank" rel="noopener noreferrer">
                   {entry.data.title}
-                  <Icon name="iconamoon:link-external-thin" width={16} stroke-width={1.5} />
                 </a>
               ) : (
                 <a href={`${SITE.base}/${entry.collection}s/${entry.id}`}>{entry.data.title}</a>

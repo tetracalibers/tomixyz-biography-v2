@@ -1,16 +1,21 @@
 ---
+import { SITE } from "$/config"
+import { getEntry } from "astro:content"
+
 interface Props {
-  href: string
+  tagId: string
   small?: boolean
 }
 
-const { href, small } = Astro.props
+const { tagId, small } = Astro.props
 
 const hue = Math.floor(Math.random() * 360) + "deg"
+const href = SITE.base + "/tags/" + tagId
+const tag = await getEntry("tag", tagId)
 ---
 
 <a href={href} class:list={["Tag", { "-small": small }]}>
-  <slot />
+  {tag!.data.name}
 </a>
 
 <style define:vars={{ hue, "dark-twinkle-width": small ? "0.5rem" : "1rem" }}>

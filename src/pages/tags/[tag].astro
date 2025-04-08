@@ -1,57 +1,55 @@
 ---
-import { getCollection, type CollectionEntry } from "astro:content"
+import { type CollectionEntry } from "astro:content"
 import DefaultPageLayout from "$/layouts/default.astro"
-import { collectTags, includeTag, tagToSlug } from "$/utils/tag"
 import { compareDateForSort } from "$/utils"
 import type { GetStaticPaths } from "astro"
 import ArticlePreviewList from "$components/preview/tag/ArticlePreviewList.astro"
+import { marked } from "marked"
+import { collectTagIds, getRefTagCollection, getAllTagMap, filterByTag } from "$/lib/tag"
+import { setExternalLinkRenderer } from "$/lib/marked"
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const filterPublic = (entry: CollectionEntry<"recipe">) => {
-    if (import.meta.env.DEV) return true
-    return !entry.data.draft && !entry.data.private
-  }
+  const targets = await getRefTagCollection()
+  const tagIds = collectTagIds(targets)
 
-  const projects = await getCollection("project")
-  const events = await getCollection("event")
-  const recipes = await getCollection("recipe", filterPublic)
-  const writings = (await getCollection("writing")).flatMap((file) =>
-    file.data.map((data) => ({ data: { ...data }, collection: "writing" }))
-  )
+  const allTagMap = await getAllTagMap()
 
-  const tags = collectTags(projects, events, recipes, writings).sort((a, b) => a.localeCompare(b))
-
-  return tags.flatMap((tag) => {
-    const matchProjects = projects.filter(includeTag(tag)) ?? []
-    const matchEvents = events.filter(includeTag(tag)) ?? []
-    const matchRecipes = recipes.filter(includeTag(tag)) ?? []
-    const matchWritings = writings.filter(includeTag(tag)) ?? []
+  return tagIds.flatMap((tagId) => {
+    const matched = filterByTag(tagId, targets)
+    const tag = allTagMap.get(tagId)
 
     return {
-      params: { tag: tagToSlug(tag) },
+      params: { tag: tagId },
       props: {
-        tagName: tag,
-        articles: [...matchProjects, ...matchEvents, ...matchRecipes, ...matchWritings].sort(compareDateForSort)
+        tag: tag!.data,
+        articles: matched.sort(compareDateForSort)
       }
     }
   })
 }
 
 interface Props {
-  tagName: string
+  tag: CollectionEntry<"tag">["data"]
   articles: CollectionEntry<"project" | "event" | "recipe">[]
 }
 
-const { articles, tagName } = Astro.props
-const { tag } = Astro.params
+const { articles, tag } = Astro.props
+const { tag: tagId } = Astro.params
 
-const title = tagName
-const description = `${tagName}を扱った作品や記事`
+const title = tag.name
+const description = `${tag.name}を扱った作品や記事`
 const meta = {
-  ogimage: `/og-image/tags/${tag}.png`
+  ogimage: `/og-image/tags/${tagId}.png`
 }
+
+const renderer = new marked.Renderer()
+setExternalLinkRenderer(renderer)
+
+const subtitleMd = `[${tag.name}](${tag.url})を扱った作品や記事`
+const subtitleHtml = marked.parseInline(subtitleMd, { renderer })
 ---
 
 <DefaultPageLayout content={{ title, description }} meta={{ ...meta }}>
+  <Fragment slot="subtitle" set:html={subtitleHtml} />
   <ArticlePreviewList entries={articles} />
 </DefaultPageLayout>
