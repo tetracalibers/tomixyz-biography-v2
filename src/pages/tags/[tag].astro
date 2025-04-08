@@ -1,10 +1,10 @@
 ---
 import { getCollection, type CollectionEntry } from "astro:content"
 import DefaultPageLayout from "$/layouts/default.astro"
-import { collectTags, includeTag, tagToSlug } from "$/utils/tag"
 import { compareDateForSort } from "$/utils"
 import type { GetStaticPaths } from "astro"
 import ArticlePreviewList from "$components/preview/tag/ArticlePreviewList.astro"
+import type { ReferenceDataEntry } from "astro:content"
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const filterPublic = (entry: CollectionEntry<"recipe">) => {
@@ -19,18 +19,42 @@ export const getStaticPaths: GetStaticPaths = async () => {
     file.data.map((data) => ({ data: { ...data }, collection: "writing" }))
   )
 
-  const tags = collectTags(projects, events, recipes, writings).sort((a, b) => a.localeCompare(b))
+  const targetCollection = [...projects, ...events, ...recipes, ...writings]
 
-  return tags.flatMap((tag) => {
-    const matchProjects = projects.filter(includeTag(tag)) ?? []
-    const matchEvents = events.filter(includeTag(tag)) ?? []
-    const matchRecipes = recipes.filter(includeTag(tag)) ?? []
-    const matchWritings = writings.filter(includeTag(tag)) ?? []
+  const tagIdCountMap = targetCollection.reduce((acc, entry) => {
+    const tags = entry.data.tags ?? []
+    tags.forEach((tag) => {
+      acc.set(tag.id, (acc.get(tag.id) ?? 0) + 1)
+    })
+    return acc
+  }, new Map<string, number>())
+
+  const tagIds = [...tagIdCountMap.entries()].filter(([_, count]) => count > 0).map(([id]) => id)
+
+  const includeTag = (tagId: string) => {
+    return (entry: { data: { tags: ReferenceDataEntry<"tag">[] } }) => {
+      const tags = entry.data.tags ?? []
+      return tags.some((tag) => tag.id === tagId)
+    }
+  }
+
+  const allTagsMap = (await getCollection("tag")).reduce((acc, tag) => {
+    acc.set(tag.id, tag)
+    return acc
+  }, new Map<string, CollectionEntry<"tag">>())
+
+  return tagIds.flatMap((tagId) => {
+    const matchProjects = projects.filter(includeTag(tagId)) ?? []
+    const matchEvents = events.filter(includeTag(tagId)) ?? []
+    const matchRecipes = recipes.filter(includeTag(tagId)) ?? []
+    const matchWritings = writings.filter(includeTag(tagId)) ?? []
+
+    const tag = allTagsMap.get(tagId)
 
     return {
-      params: { tag: tagToSlug(tag) },
+      params: { tag: tagId },
       props: {
-        tagName: tag,
+        tagName: tag!.data.name,
         articles: [...matchProjects, ...matchEvents, ...matchRecipes, ...matchWritings].sort(compareDateForSort)
       }
     }
