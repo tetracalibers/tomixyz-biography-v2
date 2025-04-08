@@ -1,7 +1,6 @@
 ---
 title: ブラウザを作りたい
 date: "2024-01-06"
-category: tech
 description: Rustでレンダリングエンジンを書いてみる、まずは大まかな方針
 ---
 

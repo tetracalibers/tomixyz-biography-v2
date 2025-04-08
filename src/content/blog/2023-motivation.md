@@ -1,7 +1,6 @@
 ---
 title: 2023年の変化とモチベーション
 date: "2023-12-31"
-category: essay
 description: 2023年に学んだ、状況を変えるペース
 ---
 

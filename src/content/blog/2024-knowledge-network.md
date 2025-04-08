@@ -1,7 +1,6 @@
 ---
 title: 知識の構造化を目指す
 date: "2024-12-31"
-category: essay
 description: 知識を整理する必要性に駆られて、Obsidianに辿り着いた話
 ---
 

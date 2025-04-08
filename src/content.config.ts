@@ -85,8 +85,7 @@ const blog = defineCollection({
           description: z.string().optional()
         })
         .optional(),
-      date: z.string(),
-      category: z.enum(["essay", "tech"])
+      date: z.string()
     })
 })
 
