@@ -1,7 +1,5 @@
 ---
 import { getCollection, type CollectionEntry } from "astro:content"
-import { collectTags, tagToSlug } from "$/utils/tag"
-import { SITE } from "$/config"
 import TagLink from "$components/tag/TagLink.astro"
 
 const filterPublic = (entry: CollectionEntry<"recipe">) => {
@@ -14,16 +12,31 @@ const events = await getCollection("event")
 const recipes = await getCollection("recipe", filterPublic)
 const writings = (await getCollection("writing")).flatMap((file) => file.data.map((data) => ({ data: { ...data } })))
 
-const tags = collectTags(projects, events, recipes, writings).sort((a, b) => a.localeCompare(b))
+const targetCollection = [...projects, ...events, ...recipes, ...writings]
 
-const pageUrlFromTagName = (tagName: string) => SITE.base + "/tags/" + tagToSlug(tagName)
+const tagIdCountMap = targetCollection.reduce(
+  (acc, entry) => {
+    const tags = entry.data.tags ?? []
+    tags.forEach((tag) => {
+      acc[tag.id] = (acc[tag.id] || 0) + 1
+    })
+    return acc
+  },
+  {} as Record<string, number>
+)
+
+const tagIds = Object.entries(tagIdCountMap)
+  .filter(([_, count]) => count > 0)
+  .sort(([idA], [idB]) => idA.localeCompare(idB))
+  .sort(([, countA], [, countB]) => countB - countA)
+  .map(([id]) => id)
 ---
 
 <ul class="TagsList">
   {
-    tags.map((tag) => (
+    tagIds.map((tagId) => (
       <li>
-        <TagLink href={pageUrlFromTagName(tag)}>{tag}</TagLink>
+        <TagLink tagId={tagId} />
       </li>
     ))
   }

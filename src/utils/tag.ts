@@ -1,8 +1,10 @@
+import type { ReferenceDataEntry } from "astro:content"
+
 export const tagToSlug = (tag: string) => {
   return tag.toLowerCase().replaceAll(/\s/g, "-")
 }
 
-export const collectTags = (...collections: { data: { tags: string[] } }[][]) => {
+export const collectTags = (...collections: { data: { tags: ReferenceDataEntry<"tag", string>[] } }[][]) => {
   const tags = collections
     .flat()
     .map((entry) => entry.data.tags)
