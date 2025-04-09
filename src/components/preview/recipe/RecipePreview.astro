@@ -3,6 +3,7 @@ import type { CollectionEntry } from "astro:content"
 import PublishDate from "./PublishDate.astro"
 import { SITE } from "$/config"
 import { getEntry } from "astro:content"
+import { Icon } from "astro-icon/components"
 
 interface Props {
   entry: CollectionEntry<"recipe">
@@ -14,13 +15,21 @@ const {
 
 const pageUrl = SITE.base + "/recipes/" + id
 const series = recipe.series ? await getEntry("series", recipe.series.id) : null
+const indexInSeries = series && series.data.articles.findIndex((article) => article.id === id)
 ---
 
 <div class="RecipePreview">
   <div class="inner">
     <div class="date"><PublishDate date={recipe.date} /></div>
-    <div class="content" class:list={[{ "-series-article": series }]}>
-      {series && <div class="series-title">{series.data.title}</div>}
+    <div class="content" class:list={[{ "-series-article": series, "-series-first-article": indexInSeries === 0 }]}>
+      {
+        series && (
+          <div class="series-title">
+            <Icon name="arcticons:pocketbook" size={16} stroke-width={2} />
+            {series.data.title} <span class="num-decorate series-vol">Part {indexInSeries! + 1}</span>
+          </div>
+        )
+      }
       <h2 class="title">
         <a href={pageUrl}>{recipe.title}</a>
       </h2>
@@ -90,23 +99,23 @@ const series = recipe.series ? await getEntry("series", recipe.series.id) : null
     position: relative;
     z-index: 2;
   }
-  .content.-series-article {
+  .content.-series-first-article {
     background-image: none;
   }
-  .content.-series-article::before {
+  .content.-series-first-article::before {
     content: "";
     position: absolute;
     inset: 0;
     border: 2px solid rgb(46 147 240 / 40%);
-    box-shadow:
-      rgb(46 147 240 / 40%) 5px 5px,
-      rgb(240 46 170 / 30%) 10px 10px;
     box-shadow:
       rgb(170 213 252 / 40%) 5px 5px,
       rgb(255 179 228 / 30%) 10px 10px;
   }
 
   .series-title {
+    display: flex;
+    gap: 0.25em;
+    align-items: center;
     width: fit-content;
     font-size: 0.8rem;
     font-weight: bold;
@@ -114,9 +123,13 @@ const series = recipe.series ? await getEntry("series", recipe.series.id) : null
     background: #d2e0fb;
     border-top-right-radius: 3px;
     border-bottom-right-radius: 3px;
-    margin-inline-start: calc(-1rem + 1px);
+    margin-inline-start: -1rem;
     margin-block-start: -0.5rem;
     color: var(--slate-500);
+  }
+
+  .series-vol {
+    font-size: 0.9em;
   }
 
   @media (min-width: 500px) {
