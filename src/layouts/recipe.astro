@@ -56,9 +56,7 @@ const series = seriesOrNone ? await collectSeriesArticles(seriesOrNone.id) : nul
           <Fragment slot="author">{AUTHOR_NAME}</Fragment>
           <Fragment slot="publish"><PublishDate date={content.date} /></Fragment>
         </ArticleHeaderBlock>
-        <ArticleTocBlock>
-          <RecipeToc headings={headings} current={entry.id} series={series} />
-        </ArticleTocBlock>
+        <RecipeToc headings={headings} current={entry.id} series={series} />
         <ProseGridFill>
           <div class="main-content"><slot /></div>
         </ProseGridFill>

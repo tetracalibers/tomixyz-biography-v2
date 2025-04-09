@@ -5,6 +5,7 @@ import type { SeriesArticles } from "$/lib/series"
 import { Icon } from "astro-icon/components"
 import TocList from "./TocList.astro"
 import { SITE } from "$/config"
+import Prose from "$components/prose/Prose.astro"
 
 interface Props {
   headings: MarkdownHeading[]
@@ -17,37 +18,35 @@ const { headings, current, series } = Astro.props
 const getRecipePageUrl = (articleId: string) => SITE.base + `/recipes/${articleId}`
 ---
 
-<nav class="_toc flex flex-col gap-6 items-start p-6 sm:p-8 sm:mx-6 text-slate-600 dark:text-slate-100">
-  <h2 class="text-xl uppercase text-slate-500 dark:text-slate-200">Contents</h2>
+<nav class="RecipeToc">
+  <h2 class="toc-title">Contents</h2>
   {
     series ? (
       <>
-        <details open={series.isFirstArticle(current)} class="w-full">
+        <details open={series.isFirstArticle(current)} class="closure">
           <summary>このシリーズについて</summary>
-          <div class="prose text-slate-600 dark:text-slate-100 prose-a:text-slate-600 prose-a:dark:text-slate-100 text-sm md:text-base leading-loose max-w-none mt-4 pb-4 prose-a:underline-offset-4 prose-a:decoration-1 prose-a:decoration-dotted border-b border-t-0 border-dotted w-full border-slate-300 dark:border-slate-400">
-            <series.Summary />
-          </div>
+          <Prose>
+            <div class="series-summary">
+              <series.Summary />
+            </div>
+          </Prose>
         </details>
-        <hr />
-        <ul class="flex flex-col gap-4">
+        <ul class="toc-list-with-series">
           {series.articles.map((article) =>
             article.id === current ? (
-              <li class="flex flex-col gap-4">
-                <h3 class="_current font-bold">
-                  <Icon class="_icon" name="arcticons:current-activity" size={20} aria-hidden="true" />
+              <li class="toc-item -current">
+                <h3 class="toc-item-heading -current">
+                  <Icon class="current-icon" name="current-activity" size={20} aria-hidden="true" />
                   {article.data.title}
                 </h3>
-                <div class="pl-3 ml-1 border-l border-slate-300 dark:border-slate-400">
+                <div class="toc-item-children -current">
                   <TocList headings={headings} />
                 </div>
               </li>
             ) : (
-              <li>
-                <h3>
-                  <a
-                    href={getRecipePageUrl(article.id)}
-                    class="underline underline-offset-4 decoration-1 decoration-dotted"
-                  >
+              <li class="toc-item">
+                <h3 class="toc-item-heading">
+                  <a class="toc-item-link" href={getRecipePageUrl(article.id)}>
                     {article.data.title}
                   </a>
                 </h3>
@@ -63,23 +62,105 @@ const getRecipePageUrl = (articleId: string) => SITE.base + `/recipes/${articleI
 </nav>
 
 <style>
-  ._toc {
+  .RecipeToc {
+    display: grid;
+    gap: 1.5rem;
+    margin-inline: 0;
+    padding: 1.5rem;
+    color: light-dark(var(--slate-500), var(--slate-200));
     backdrop-filter: saturate(200%);
     background-color: rgba(255, 255, 255, 0.6);
     border-radius: 12px;
     border: 1px solid rgba(209, 213, 219, 0.3);
   }
-  :global(.dark) ._toc {
+  @media (width >= 40rem) {
+    .RecipeToc {
+      padding: 2rem;
+      margin-inline: 1.5rem;
+    }
+  }
+  :global(.dark) .RecipeToc {
     background-color: rgba(255, 255, 255, 0.2);
   }
 
-  ._current {
+  .toc-title {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    text-transform: uppercase;
+    margin: 0;
+  }
+
+  .closure {
+    width: 100%;
+  }
+
+  .series-summary {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin-block-start: 1rem;
+    max-width: none;
+    padding-block-end: 1rem;
+    width: 100%;
+    border-block-end-width: 1px;
+    border-block-end-style: dotted;
+    border-block-end-color: light-dark(var(--slate-300), var(--slate-400));
+    color: light-dark(var(--slate-600), var(--slate-100));
+  }
+  @media (width >= 48rem) {
+    .series-summary {
+      font-size: 1rem;
+      line-height: 1.5rem;
+    }
+  }
+  .series-summary :global(*) {
+    margin-block: 0;
+  }
+  .series-summary :global(a) {
+    text-decoration-style: dotted;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
+    color: light-dark(var(--slate-600), var(--slate-100));
+  }
+
+  .toc-list-with-series {
+    display: grid;
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+  }
+
+  .toc-item.-current {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .toc-item-heading {
+    font-size: 1rem;
+  }
+  .toc-item-heading.-current {
+    font-weight: bold;
+    margin: 0;
     position: relative;
   }
-  ._current > ._icon {
+  .current-icon {
     position: absolute;
     top: 0;
     left: calc(0.75rem * -0.5);
     opacity: 0.4;
+  }
+
+  .toc-item-children.-current {
+    margin-inline-start: calc(0.75rem * 0.5);
+    padding-inline-start: 0.75rem;
+    border-inline-start-style: solid;
+    border-inline-start-width: 1px;
+    border-inline-start-color: light-dark(var(--slate-300), var(--slate-400));
+  }
+
+  .toc-item-link {
+    text-decoration-line: underline;
+    text-decoration-style: dotted;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
   }
 </style>
