@@ -42,6 +42,9 @@ const year = dateObj.getFullYear().toString()
       right: 0;
     }
   }
+  :global(.dark) .PublishDate {
+    filter: saturate(2);
+  }
   :is(.background, .text) {
     grid-column: 1 / -1;
     grid-row: 1 / -1;

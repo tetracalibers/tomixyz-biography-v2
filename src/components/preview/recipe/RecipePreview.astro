@@ -111,6 +111,12 @@ const indexInSeries = series && series.data.articles.findIndex((article) => arti
       rgb(170 213 252 / 40%) 5px 5px,
       rgb(255 179 228 / 30%) 10px 10px;
   }
+  :global(.dark) .content.-series-first-article::before {
+    border: 2px solid rgb(148 162 236 / 60%);
+    box-shadow:
+      rgb(255 154 218 / 25%) 5px 5px,
+      rgb(133 88 251 / 30%) 10px 10px;
+  }
 
   .series-title {
     display: flex;
@@ -120,12 +126,12 @@ const indexInSeries = series && series.data.articles.findIndex((article) => arti
     font-size: 0.8rem;
     font-weight: bold;
     padding: 0.25em 0.5em;
-    background: #d2e0fb;
+    background: light-dark(rgb(210 224 251 / 85%), rgb(246 103 198 / 30%));
     border-top-right-radius: 3px;
     border-bottom-right-radius: 3px;
     margin-inline-start: -1rem;
     margin-block-start: -0.5rem;
-    color: var(--slate-500);
+    color: light-dark(var(--slate-500), var(--slate-200));
   }
 
   .series-vol {
