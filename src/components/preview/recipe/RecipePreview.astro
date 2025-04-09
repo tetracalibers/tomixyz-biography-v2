@@ -69,6 +69,9 @@ const indexInSeries = series && series.data.articles.findIndex((article) => arti
       grid-row: 1;
     }
   }
+  :global(.dark) .date {
+    filter: saturate(2);
+  }
   .content {
     --bd-color: light-dark(var(--slate-300), var(--slate-400));
 
