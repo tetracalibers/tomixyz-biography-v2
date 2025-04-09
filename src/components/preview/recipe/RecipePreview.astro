@@ -98,6 +98,12 @@ const series = recipe.series ? await getEntry("series", recipe.series.id) : null
     position: relative;
     z-index: 2;
   }
+  @media (max-width: 500px) {
+    .content {
+      align-items: center;
+      text-align: center;
+    }
+  }
 
   .series-title {
     display: flex;
@@ -107,14 +113,12 @@ const series = recipe.series ? await getEntry("series", recipe.series.id) : null
     font-size: 0.8rem;
     font-weight: bold;
     padding: 0.25em 0.5em;
-    --base-color: #d2daff;
-    --dark-color: oklch(from var(--base-color) calc(l - 0.27) calc(c + 0.03) h);
-    background: light-dark(var(--base-color), var(--dark-color));
-    border-top-right-radius: 3px;
-    border-bottom-right-radius: 3px;
-    margin-inline-start: -1rem;
-    margin-block-start: -0.25rem;
+    --base-color: #d0c3ffb3;
+    --light-color: oklch(from var(--base-color) calc(l * 1.06) c h);
+    --dark-color: oklch(from var(--light-color) calc(l - 0.27) calc(c + 0.03) calc(h - 330));
+    background: light-dark(var(--light-color), var(--dark-color));
     color: light-dark(var(--slate-500), var(--slate-200));
+    border-radius: 3rem;
   }
 
   @media (min-width: 500px) {
@@ -148,6 +152,7 @@ const series = recipe.series ? await getEntry("series", recipe.series.id) : null
     margin: 0;
     line-height: 1.5rem;
     hyphens: auto;
+    word-break: auto-phrase;
     color: light-dark(var(--slate-800), white);
   }
 
