@@ -129,13 +129,19 @@ const getRecipePageUrl = (articleId: string) => SITE.base + `/recipes/${articleI
     padding: 0;
   }
 
+  .toc-item {
+    list-style: none;
+    margin: 0;
+  }
   .toc-item.-current {
     display: grid;
     gap: 1rem;
   }
 
   .toc-item-heading {
+    margin: 0;
     font-size: 1rem;
+    font-weight: normal;
   }
   .toc-item-heading.-current {
     font-weight: bold;
@@ -158,6 +164,7 @@ const getRecipePageUrl = (articleId: string) => SITE.base + `/recipes/${articleI
   }
 
   .toc-item-link {
+    color: inherit;
     text-decoration-line: underline;
     text-decoration-style: dotted;
     text-decoration-thickness: 1px;
