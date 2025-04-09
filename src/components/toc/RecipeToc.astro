@@ -24,7 +24,7 @@ const getRecipePageUrl = (articleId: string) => SITE.base + `/recipes/${articleI
     series ? (
       <>
         <details open={series.isFirstArticle(current)} class="closure">
-          <summary>このシリーズについて</summary>
+          <summary>「{series.data.title}」シリーズについて</summary>
           <Prose>
             <div class="series-summary">
               <series.Summary />
