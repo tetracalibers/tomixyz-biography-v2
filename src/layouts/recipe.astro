@@ -14,6 +14,7 @@ import ArticleHeaderBlock from "$components/article-header/layout-2/ArticleHeade
 import TagList from "$components/article-header/TagList.astro"
 import { collectSeriesArticles } from "$/lib/series"
 import RecipeToc from "$components/toc/RecipeToc.astro"
+import NextArticles from "$components/series/NextArticles.astro"
 
 interface Props {
   entry: CollectionEntry<"recipe">
@@ -57,7 +58,10 @@ const series = seriesOrNone ? await collectSeriesArticles(seriesOrNone.id) : nul
         </ArticleHeaderBlock>
         <RecipeToc headings={headings} current={entry.id} series={series} />
         <ProseGridFill>
-          <div class="main-content"><slot /></div>
+          <div class="main-content">
+            <slot />
+            {series && <NextArticles current={entry.id} series={series} />}
+          </div>
         </ProseGridFill>
       </div>
     </MainLayout>

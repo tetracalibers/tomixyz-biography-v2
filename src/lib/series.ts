@@ -2,7 +2,7 @@ import type { AstroComponentFactory } from "astro/runtime/server/index.js"
 import { getEntries, getEntry, render, type CollectionEntry } from "astro:content"
 
 type SeriesArticle = CollectionEntry<"recipe">
-type SeriesArticleSlug = SeriesArticle["id"]
+export type SeriesArticleSlug = SeriesArticle["id"]
 
 export interface SeriesArticles {
   data: CollectionEntry<"series">["data"]
