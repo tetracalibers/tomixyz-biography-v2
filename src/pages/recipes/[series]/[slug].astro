@@ -1,0 +1,44 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content"
+import RecipeLayout from "$/layouts/recipe.astro"
+import { and } from "$/lib/filter"
+import { getLastSlug } from "$/lib/url"
+
+import "$/styles/prose/use-marker.css"
+
+export async function getStaticPaths() {
+  const filterPublic = (entry: CollectionEntry<"recipe">) => {
+    if (import.meta.env.DEV) return true
+    return !entry.data.draft
+  }
+  const filterSeries = (entry: CollectionEntry<"recipe">) => {
+    return !!entry.data.series
+  }
+
+  const collection = await getCollection("recipe", and(filterPublic, filterSeries))
+  return collection.map((page) => {
+    return {
+      params: { series: page.data.series!.id, slug: getLastSlug(page.id) },
+      props: { page }
+    }
+  })
+}
+
+interface Props {
+  page: CollectionEntry<"recipe">
+}
+
+const { page } = Astro.props
+const { slug, series } = Astro.params
+
+const { data } = page
+const { meta } = data
+
+const { Content, headings } = await render(page)
+
+const ogimage = `/og-image/recipes/${series}/${slug}.png`
+---
+
+<RecipeLayout entry={page} meta={{ ogimage, ...meta }} headings={headings}>
+  <Content />
+</RecipeLayout>
