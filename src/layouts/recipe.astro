@@ -15,6 +15,7 @@ import TagList from "$components/article-header/TagList.astro"
 import { collectSeriesArticles } from "$/lib/series"
 import RecipeToc from "$components/toc/RecipeToc.astro"
 import NextArticles from "$components/series/NextArticles.astro"
+import SeriesTitle from "$components/series/SeriesTitle.astro"
 
 interface Props {
   entry: CollectionEntry<"recipe">
@@ -32,6 +33,7 @@ const { series: seriesOrNone } = content
 const AUTHOR_NAME = SITE.author
 
 const series = seriesOrNone ? await collectSeriesArticles(seriesOrNone.id) : null
+const indexInSeries = series && series.data.articles.findIndex((article) => article.id === entry.id)
 ---
 
 <!doctype html>
@@ -48,6 +50,7 @@ const series = seriesOrNone ? await collectSeriesArticles(seriesOrNone.id) : nul
       <div class="MainLayout-inner">
         <ArticleHeaderBlock>
           <Fragment slot="content">
+            {series && <SeriesTitle title={series.data.title} indexInSeries={indexInSeries!} />}
             <ArticleTitle title={content.title} />
             <ArticleSummary summary={content.description} />
             <TagList tags={content.tags} />
