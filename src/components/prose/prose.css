@@ -69,6 +69,13 @@
   color: #d1d5db;
 }
 
+:where(.prose hr) {
+  border-color: light-dark(var(--gray-200), var(--gray-600));
+  border-block-start-width: 1px;
+  border-block-start-style: solid;
+  margin-block: 2em;
+}
+
 :where(.prose blockquote) {
   background-color: light-dark(rgb(239, 246, 255, 0.9), rgb(100, 116, 139, 0.5));
   font-style: normal;
