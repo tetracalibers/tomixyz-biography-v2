@@ -26,7 +26,7 @@ const indexInSeries = series && series.data.articles.findIndex((article) => arti
         series && (
           <div class="series-title">
             <Icon name="arcticons:pocketbook" size={16} stroke-width={2} />
-            {series.data.title} <span class="num-decorate series-vol">Part {indexInSeries! + 1}</span>
+            {series.data.title}
           </div>
         )
       }
@@ -135,10 +135,6 @@ const indexInSeries = series && series.data.articles.findIndex((article) => arti
     margin-inline-start: -1rem;
     margin-block-start: -0.5rem;
     color: light-dark(var(--slate-500), var(--slate-200));
-  }
-
-  .series-vol {
-    font-size: 0.9em;
   }
 
   @media (min-width: 500px) {
