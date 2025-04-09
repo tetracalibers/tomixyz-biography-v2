@@ -69,9 +69,6 @@ const indexInSeries = series && series.data.articles.findIndex((article) => arti
       grid-row: 1;
     }
   }
-  :global(.dark) .date {
-    filter: saturate(2);
-  }
   .content {
     --bd-color: light-dark(var(--slate-300), var(--slate-400));
 
@@ -171,22 +168,26 @@ const indexInSeries = series && series.data.articles.findIndex((article) => arti
     color: light-dark(var(--slate-800), white);
   }
 
+  .RecipePreview {
+    --theme-base: #fcd888;
+  }
+  .RecipePreview:nth-child(2n) {
+    --theme-base: #b8f1f8;
+  }
+  .RecipePreview:nth-child(3n) {
+    --theme-base: #fcdce0;
+  }
+  .RecipePreview:nth-child(4n) {
+    --theme-base: #c6d9fd;
+  }
+  .RecipePreview:nth-child(5n) {
+    --theme-base: #ccf5e6;
+  }
+  .RecipePreview:nth-child(6n) {
+    --theme-base: #f9c0e7;
+  }
   .RecipePreview :global(.PublishDate svg) {
-    color: #fcd888;
-  }
-  .RecipePreview:nth-child(2n) :global(.PublishDate svg) {
-    color: #b8f1f8;
-  }
-  .RecipePreview:nth-child(3n) :global(.PublishDate svg) {
-    color: #fcdce0;
-  }
-  .RecipePreview:nth-child(4n) :global(.PublishDate svg) {
-    color: #c6d9fd;
-  }
-  .RecipePreview:nth-child(5n) :global(.PublishDate svg) {
-    color: #ccf5e6;
-  }
-  .RecipePreview:nth-child(6n) :global(.PublishDate svg) {
-    color: #f9c0e7;
+    --dark-color: oklch(from var(--theme-base) l calc(c + 0.05) h);
+    color: light-dark(var(--theme-base), var(--dark-color));
   }
 </style>

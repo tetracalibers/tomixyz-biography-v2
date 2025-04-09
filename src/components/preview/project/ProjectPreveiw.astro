@@ -103,25 +103,27 @@ const pageUrl = SITE.base + "/projects/" + id
     border-radius: 0.375rem;
   }
 
+  .ProjectPreview {
+    --theme-base: #fcd888;
+  }
+  .ProjectPreview:nth-child(2n) {
+    --theme-base: #b8f1f8;
+  }
+  .ProjectPreview:nth-child(3n) {
+    --theme-base: #fcdce0;
+  }
+  .ProjectPreview:nth-child(4n) {
+    --theme-base: #c6d9fd;
+  }
+  .ProjectPreview:nth-child(5n) {
+    --theme-base: #ccf5e6;
+  }
+  .ProjectPreview:nth-child(6n) {
+    --theme-base: #f9c0e7;
+  }
   .ProjectPreview :global(.PublishDate svg) {
-    color: #fcd888;
-  }
-  .ProjectPreview:nth-child(2n) :global(.PublishDate svg) {
-    color: #b8f1f8;
-  }
-  .ProjectPreview:nth-child(3n) :global(.PublishDate svg) {
-    color: #fcdce0;
-  }
-  .ProjectPreview:nth-child(4n) :global(.PublishDate svg) {
-    color: #c6d9fd;
-  }
-  .ProjectPreview:nth-child(5n) :global(.PublishDate svg) {
-    color: #ccf5e6;
-  }
-  .ProjectPreview:nth-child(6n) :global(.PublishDate svg) {
-    color: #f9c0e7;
-  }
-  .ProjectPreview :global(.PublishDate svg) {
+    --dark-color: oklch(from var(--theme-base) l calc(c + 0.05) h);
+    color: light-dark(var(--theme-base), var(--dark-color));
     opacity: 0.6;
   }
   :global(.dark) .ProjectPreview :global(.PublishDate svg) {
