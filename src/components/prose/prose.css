@@ -103,7 +103,7 @@
   background-color: rgba(100, 116, 139, 0.5);
 }
 
-:where(.prose :has(> table)) {
+:where(.prose .markdown-table-wrapper) {
   overflow-x: auto;
 }
 :where(.prose table) {
