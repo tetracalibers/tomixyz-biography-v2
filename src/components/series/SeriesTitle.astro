@@ -17,7 +17,6 @@ const { title, indexInSeries } = Astro.props
 
 <style define:vars={{ vol: indexInSeries + 1 }}>
   .SeriesTitle {
-    --bg: #ffff;
     --highlight1: light-dark(rgb(245 176 252 / 80%), rgb(145 112 255 / 80%));
     --highlight2: light-dark(rgb(188 249 255 / 85%), rgb(188 249 255));
     display: flex;
@@ -42,7 +41,7 @@ const { title, indexInSeries } = Astro.props
   .vol-in-series {
     width: 1.5em;
     height: 1.5em;
-    color: var(--bg);
+    color: #fff;
     background: var(--highlight1) linear-gradient(to bottom left, var(--highlight1) 25%, var(--highlight2));
     border-radius: 30%;
     display: inline-flex;
