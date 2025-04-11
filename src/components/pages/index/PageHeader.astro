@@ -3,13 +3,16 @@ import PageTitle from "./PageTitle.astro"
 
 interface Props {
   title: string
+  style?: {
+    title_small?: boolean
+  }
 }
 
-const { title } = Astro.props
+const { title, style } = Astro.props
 ---
 
 <div class="PageHeader">
-  <PageTitle title={title} />
+  <PageTitle title={title} small={style?.title_small} />
   <p class="subtitle">
     <slot />
   </p>

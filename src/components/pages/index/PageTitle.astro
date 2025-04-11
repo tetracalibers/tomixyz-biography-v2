@@ -3,12 +3,13 @@ import LeadingTrimText from "$components/text/LeadingTrimText.astro"
 
 interface Props {
   title: string
+  small?: boolean
 }
 
-const { title } = Astro.props
+const { title, small = false } = Astro.props
 ---
 
-<LeadingTrimText tag="h1" trim="start" className="PageTitle">
+<LeadingTrimText tag="h1" trim="start" classList={["PageTitle", { "-small": small }]}>
   {title}
 </LeadingTrimText>
 
@@ -19,5 +20,8 @@ const { title } = Astro.props
     font-weight: 800;
     margin: 0;
     color: light-dark(var(--slate-500), var(--slate-200));
+  }
+  .PageTitle.-small {
+    font-size: 2rem;
   }
 </style>

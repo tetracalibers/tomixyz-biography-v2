@@ -3,16 +3,16 @@ import type { HTMLTag } from "astro/types"
 
 interface Props {
   tag: HTMLTag
-  className?: string
+  classList?: (string | Record<string, boolean>)[]
   trim?: "start" | "end" | "both"
 }
 
-const { tag, className = "", trim = "both", ...attributes } = Astro.props
+const { tag, classList = [], trim = "both", ...attributes } = Astro.props
 
 const Element = tag
 ---
 
-<Element {...attributes} class={className.concat(` _leading-trim _--${trim}`)}>
+<Element {...attributes} class:list={["_leading-trim", `_--${trim}`, ...classList]}>
   <slot />
 </Element>
 

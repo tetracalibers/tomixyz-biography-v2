@@ -13,9 +13,12 @@ interface Props {
     description?: string
     ogimage?: string
   }
+  style?: {
+    title_small?: boolean
+  }
 }
 
-const { content, meta } = Astro.props
+const { content, meta, style } = Astro.props
 ---
 
 <!doctype html>
@@ -29,8 +32,8 @@ const { content, meta } = Astro.props
   </head>
   <Body>
     <MainLayout>
-      <div class="MainLayout-inner">
-        <PageHeader title={content.title}>
+      <div class="MainLayout-inner" class:list={[{ "-title-small": style?.title_small }]}>
+        <PageHeader title={content.title} style={style}>
           <slot name="subtitle">
             {content.description}
           </slot>
@@ -45,6 +48,9 @@ const { content, meta } = Astro.props
   .MainLayout-inner {
     display: grid;
     gap: 3.5rem;
+  }
+  .MainLayout-inner.-title-small {
+    gap: 3rem;
   }
   .slot-wrapper {
     display: contents;
