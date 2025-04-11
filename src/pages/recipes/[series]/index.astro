@@ -3,7 +3,7 @@ import { getCollection, type CollectionEntry } from "astro:content"
 import DefaultPageLayout from "$/layouts/default.astro"
 import { compareDateForSortAsc } from "$/lib/sort"
 import type { GetStaticPaths } from "astro"
-import RecipePreviewList from "$components/preview/recipe/RecipePreviewList.astro"
+import RecipePreviewList from "$components/preview/recipe/series/RecipePreviewList.astro"
 import { and } from "$/lib/filter"
 import { render } from "astro:content"
 import Prose from "$components/prose/Prose.astro"
@@ -50,16 +50,20 @@ const meta = {
 ---
 
 <DefaultPageLayout content={{ title, description }} meta={{ ...meta }} style={{ title_small: true }}>
-  <Prose>
-    <div class="series-summary"><Content /></div>
-  </Prose>
-  <RecipePreviewList entries={recipes} />
+  <div class="Layout-inner">
+    <Prose>
+      <div class="series-summary"><Content /></div>
+    </Prose>
+    <RecipePreviewList entries={recipes} />
+  </div>
 </DefaultPageLayout>
 
 <style>
-  .series-summary {
-    padding-inline: clamp(0rem, -2.817rem + 12.019vw, 8rem);
+  .Layout-inner {
+    max-width: 44rem;
     margin-inline: auto;
+    display: grid;
+    gap: 2rem;
   }
   .series-summary :global(:first-child) {
     margin-block-start: 0;

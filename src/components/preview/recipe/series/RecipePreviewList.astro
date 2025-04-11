@@ -1,0 +1,21 @@
+---
+import type { CollectionEntry } from "astro:content"
+import RecipePreview from "./RecipePreview.astro"
+
+interface Props {
+  entries: CollectionEntry<"recipe">[]
+}
+
+const { entries } = Astro.props
+---
+
+<div class="RecipePreviewList">
+  {entries.map((entry, i) => <RecipePreview entry={entry} indexOfList={i} />)}
+</div>
+
+<style>
+  .RecipePreviewList {
+    display: grid;
+    gap: 1rem;
+  }
+</style>

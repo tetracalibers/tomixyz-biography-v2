@@ -1,0 +1,137 @@
+---
+import type { CollectionEntry } from "astro:content"
+import { SITE } from "$/config"
+import { Icon } from "astro-icon/components"
+
+interface Props {
+  entry: CollectionEntry<"recipe">
+  indexOfList: number
+}
+
+const {
+  entry: { data: recipe, id },
+  indexOfList
+} = Astro.props
+
+const pageUrl = SITE.base + "/recipes/" + id
+
+const formatDate = (date: string) => date.replaceAll("-", ".")
+---
+
+<div class="RecipePreview">
+  <div class="header">
+    <div class="series-title">
+      <Icon name="arcticons:pocketbook" size={16} stroke-width={2} />
+      <span>第{indexOfList + 1}回</span>
+    </div>
+    <time class="date" datetime={recipe.date}>{formatDate(recipe.date)}</time>
+  </div>
+  <div class="content">
+    <h2 class="title">
+      <a href={pageUrl}>{recipe.title}</a>
+    </h2>
+    <p class="desc">
+      {recipe.description}
+    </p>
+  </div>
+</div>
+
+<style>
+  .RecipePreview {
+    --bd-color: light-dark(var(--slate-300), var(--slate-400));
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    border-radius: 3px;
+    width: 100%;
+    box-sizing: border-box;
+    background-image:
+      repeating-linear-gradient(90deg, var(--bd-color), var(--bd-color) 12px, transparent 12px, transparent 16px),
+      repeating-linear-gradient(180deg, var(--bd-color), var(--bd-color) 12px, transparent 12px, transparent 16px),
+      repeating-linear-gradient(90deg, var(--bd-color), var(--bd-color) 12px, transparent 12px, transparent 16px),
+      repeating-linear-gradient(180deg, var(--bd-color), var(--bd-color) 12px, transparent 12px, transparent 16px);
+    background-position:
+      left top,
+      right top,
+      left bottom,
+      left top;
+    background-repeat: repeat-x, repeat-y, repeat-x, repeat-y;
+    background-size:
+      100% 2px,
+      2px 100%,
+      100% 2px,
+      2px 100%;
+  }
+  @media (max-width: 500px) {
+    .RecipePreview {
+      text-align: center;
+    }
+  }
+
+  .header {
+    --txt-color: light-dark(var(--slate-500), var(--slate-200));
+
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: var(--txt-color);
+  }
+
+  .series-title {
+    --base-color: #d0c3ffb3;
+
+    --light-bg-color: oklch(from var(--base-color) calc(l * 1.06) c h);
+    --dark-bg-color: oklch(from var(--light-bg-color) calc(l - 0.27) calc(c + 0.03) calc(h - 330));
+    --bg-color: light-dark(var(--light-bg-color), var(--dark-bg-color));
+
+    display: flex;
+    gap: 0.25em;
+    align-items: center;
+    width: fit-content;
+    min-width: calc(16px + 2em + 2ch); /** icon + 第 + 回 + index */
+    padding: 0.25em 0.75em;
+    background: var(--bg-color);
+    border-radius: 3rem;
+  }
+
+  .content {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .title {
+    margin: 0;
+    text-align: center;
+    display: inline-block;
+    word-break: auto-phrase;
+    z-index: 2;
+  }
+  @media (min-width: 500px) {
+    .title {
+      text-align: left;
+    }
+  }
+  .title a {
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 600;
+    color: light-dark(var(--slate-500), var(--slate-200));
+    text-decoration: none;
+  }
+  .title a:hover {
+    text-decoration: underline;
+  }
+
+  .desc {
+    margin: 0;
+    line-height: 1.5rem;
+    hyphens: auto;
+    word-break: auto-phrase;
+    color: light-dark(var(--slate-800), white);
+  }
+</style>
