@@ -12,6 +12,8 @@ interface Props {
 }
 
 const { items } = Astro.props
+
+const formatDate = (date: string) => date.replace("-", ".")
 ---
 
 <ul class="Timeline">
@@ -20,7 +22,9 @@ const { items } = Astro.props
       <li class="timeline-event">
         <span class="timeline-event-icon" />
         <div class="timeline-event-copy">
-          <h3 class="timeline-event-thumbnail">{item.date}</h3>
+          <h3 class="timeline-event-thumbnail">
+            <time datetime={item.date}>{formatDate(item.date)}</time>
+          </h3>
           <h4 class="timeline-event-title">{item.title}</h4>
           <div class="timeline-event-detail">
             <Fragment set:html={marked.parse(item.details)} />
@@ -33,6 +37,9 @@ const { items } = Astro.props
 
 <style>
   .Timeline {
+    --highlight1: light-dark(#f489ff, #f270ff);
+    --highlight2: #bcf9ff;
+
     list-style: none;
     display: grid;
     grid-template-columns: 1.5rem 1fr;
@@ -57,7 +64,7 @@ const { items } = Astro.props
   }
   .timeline-event-icon {
     grid-column: 1;
-    background-color: #ea8fea;
+    background: linear-gradient(135deg, var(--highlight1) 25%, var(--highlight2));
     width: 1em;
     height: 1em;
     transform: rotate(45deg);

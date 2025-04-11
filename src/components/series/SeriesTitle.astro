@@ -1,0 +1,64 @@
+---
+import { Icon } from "astro-icon/components"
+
+interface Props {
+  title: string
+  indexInSeries: number
+}
+
+const { title, indexInSeries } = Astro.props
+---
+
+<div class="SeriesTitle">
+  <Icon name="arcticons:pocketbook" size={24} stroke-width={2} />
+  {title}
+  <span class="vol-in-series">{indexInSeries + 1}</span>
+</div>
+
+<style define:vars={{ vol: indexInSeries + 1 }}>
+  .SeriesTitle {
+    --highlight1: light-dark(rgb(245 176 252 / 80%), rgb(145 112 255 / 80%));
+    --highlight2: light-dark(rgb(188 249 255 / 85%), rgb(188 249 255));
+    display: flex;
+    gap: 0.25em;
+    align-items: center;
+    font-weight: bold;
+    color: light-dark(var(--slate-500), var(--slate-200));
+    position: relative;
+    font-size: 1.1rem;
+    border-image-source: linear-gradient(to bottom left, var(--highlight1) 25%, var(--highlight2));
+    border-image-slice: 20;
+    border-image-width: 2px;
+    border-image-outset: 5px;
+    width: fit-content;
+  }
+  @media (max-width: 768px) {
+    .SeriesTitle {
+      margin-inline: auto;
+    }
+  }
+
+  .vol-in-series {
+    width: 1.5em;
+    height: 1.5em;
+    color: #fff;
+    background: var(--highlight1) linear-gradient(to bottom left, var(--highlight1) 25%, var(--highlight2));
+    border-radius: 30%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    position: relative;
+  }
+  .vol-in-series::before {
+    width: 0.75em;
+    height: 0.75em;
+    position: absolute;
+    top: 0;
+    right: 0;
+    content: "";
+    background: linear-gradient(to bottom left, rgb(from var(--highlight1) r g b / 100%) 25%, rgba(255, 255, 255, 0));
+    z-index: -1;
+    border-top-right-radius: 2px;
+  }
+</style>

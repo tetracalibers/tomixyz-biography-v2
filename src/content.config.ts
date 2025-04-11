@@ -104,6 +104,15 @@ const recipe = defineCollection({
     })
 })
 
+const series = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: "./src/content/series" }),
+  schema: () =>
+    z.object({
+      title: z.string(),
+      articles: z.array(reference("recipe"))
+    })
+})
+
 const writing = defineCollection({
   loader: glob({
     pattern: "*.yaml",
@@ -131,4 +140,4 @@ const tag = defineCollection({
     })
 })
 
-export const collections = { page, like, project, event, blog, recipe, writing, tag }
+export const collections = { page, like, project, event, blog, recipe, series, writing, tag }

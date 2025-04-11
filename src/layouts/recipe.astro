@@ -7,16 +7,18 @@ import ProseGridFill from "$/components/prose/ProseGridFill.astro"
 import AvatarImage from "$components/article-header/layout-2/AvatarImage.astro"
 import PublishDate from "$components/article-header/PublishDate.astro"
 import type { MarkdownHeading } from "astro"
-import BlogToc from "$components/toc/BlogToc.astro"
 import Body from "$components/layout/Body.astro"
 import ArticleTitle from "$components/article-header/layout-2/ArticleTitle.astro"
 import ArticleSummary from "$components/article-header/layout-2/ArticleSummary.astro"
 import ArticleHeaderBlock from "$components/article-header/layout-2/ArticleHeaderBlock.astro"
-import ArticleTocBlock from "$components/article-header/layout-2/ArticleTocBlock.astro"
 import TagList from "$components/article-header/TagList.astro"
+import { collectSeriesArticles } from "$/lib/series"
+import RecipeToc from "$components/toc/RecipeToc.astro"
+import NextArticles from "$components/series/NextArticles.astro"
+import SeriesTitle from "$components/series/SeriesTitle.astro"
 
 interface Props {
-  content: CollectionEntry<"recipe">["data"]
+  entry: CollectionEntry<"recipe">
   headings: MarkdownHeading[]
   meta?: {
     description?: string
@@ -24,9 +26,14 @@ interface Props {
   }
 }
 
-const { content, headings, meta } = Astro.props
+const { entry, headings, meta } = Astro.props
+const { data: content } = entry
+const { series: seriesOrNone } = content
 
 const AUTHOR_NAME = SITE.author
+
+const series = seriesOrNone ? await collectSeriesArticles(seriesOrNone.id) : null
+const indexInSeries = series && series.data.articles.findIndex((article) => article.id === entry.id)
 ---
 
 <!doctype html>
@@ -43,6 +50,7 @@ const AUTHOR_NAME = SITE.author
       <div class="MainLayout-inner">
         <ArticleHeaderBlock>
           <Fragment slot="content">
+            {series && <SeriesTitle title={series.data.title} indexInSeries={indexInSeries!} />}
             <ArticleTitle title={content.title} />
             <ArticleSummary summary={content.description} />
             <TagList tags={content.tags} />
@@ -51,11 +59,12 @@ const AUTHOR_NAME = SITE.author
           <Fragment slot="author">{AUTHOR_NAME}</Fragment>
           <Fragment slot="publish"><PublishDate date={content.date} /></Fragment>
         </ArticleHeaderBlock>
-        <ArticleTocBlock>
-          <BlogToc headings={headings} />
-        </ArticleTocBlock>
+        <RecipeToc headings={headings} current={entry.id} series={series} />
         <ProseGridFill>
-          <div class="main-content"><slot /></div>
+          <div class="main-content">
+            <slot />
+            {series && <NextArticles current={entry.id} series={series} />}
+          </div>
         </ProseGridFill>
       </div>
     </MainLayout>

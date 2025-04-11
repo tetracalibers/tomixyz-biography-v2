@@ -104,23 +104,27 @@ const pageUrl = SITE.base + "/events/" + id
     border-radius: 0.375rem;
   }
 
+  .EventPreview {
+    --theme-base: #fcd888;
+  }
+  .EventPreview:nth-child(2n) {
+    --theme-base: #b8f1f8;
+  }
+  .EventPreview:nth-child(3n) {
+    --theme-base: #fcdce0;
+  }
+  .EventPreview:nth-child(4n) {
+    --theme-base: #c6d9fd;
+  }
+  .EventPreview:nth-child(5n) {
+    --theme-base: #ccf5e6;
+  }
+  .EventPreview:nth-child(6n) {
+    --theme-base: #f9c0e7;
+  }
   .EventPreview :global(.PublishDate svg) {
-    color: #fcd888;
-  }
-  .EventPreview:nth-child(2n) :global(.PublishDate svg) {
-    color: #b8f1f8;
-  }
-  .EventPreview:nth-child(3n) :global(.PublishDate svg) {
-    color: #fcdce0;
-  }
-  .EventPreview:nth-child(4n) :global(.PublishDate svg) {
-    color: #c6d9fd;
-  }
-  .EventPreview:nth-child(5n) :global(.PublishDate svg) {
-    color: #ccf5e6;
-  }
-  .EventPreview:nth-child(6n) :global(.PublishDate svg) {
-    color: #f9c0e7;
+    --dark-color: oklch(from var(--theme-base) l calc(c + 0.075) h);
+    color: light-dark(var(--theme-base), var(--dark-color));
   }
   :global(.dark) .EventPreview :global(.PublishDate svg) {
     opacity: 0.6;

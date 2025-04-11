@@ -1,0 +1,29 @@
+---
+import { SITE } from "$/config"
+import type { SeriesArticleSlug, SeriesArticles } from "$/lib/series"
+
+interface Props {
+  current: SeriesArticleSlug
+  series: SeriesArticles
+}
+
+const { series, current } = Astro.props
+
+const nextArticles = series.getNextArticles(current)
+const getRecipePageUrl = (articleId: string) => SITE.base + `/recipes/${articleId}`
+---
+
+{
+  nextArticles.length > 0 && (
+    <>
+      <h2>Next Step</h2>
+      <ul>
+        {nextArticles.map((page) => (
+          <li>
+            <a href={getRecipePageUrl(page.id)}>{page.data.title}</a>
+          </li>
+        ))}
+      </ul>
+    </>
+  )
+}

@@ -1,10 +1,27 @@
 .prose :is(mark, a) {
-  background: linear-gradient(rgba(255, 255, 255, 0) 80%, #bfe1fc91 20%);
+  --marker-color: rgba(191, 225, 252, 0.5);
+  background: linear-gradient(rgba(255, 255, 255, 0) 80%, var(--marker-color) 20%);
   font-weight: bold;
   color: light-dark(var(--slate-500), var(--slate-200));
 }
 .dark .prose :is(mark, a) {
-  background: linear-gradient(rgba(255, 255, 255, 0) 90%, rgb(191 225 252 / 50%) 10%);
+  background: linear-gradient(rgba(255, 255, 255, 0) 90%, var(--marker-color) 10%);
+}
+
+.prose mark.flexible-marker-yellow {
+  --marker-color: rgba(251, 243, 185, 0.6);
+}
+.prose mark.flexible-marker-green {
+  --marker-color: rgb(141 223 203 / 50%);
+}
+.prose mark.flexible-marker-purple {
+  --marker-color: rgb(202 184 255 / 60%);
+  background: none;
+  text-decoration: underline;
+  text-decoration-color: var(--marker-color);
+  text-decoration-style: wavy;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.2em;
 }
 
 .prose a {
@@ -26,7 +43,7 @@
 
 .prose li > a {
   font-size: 1em;
-  background: linear-gradient(rgba(255, 255, 255, 0) 70%, #f9e0ec 30%);
+  background: linear-gradient(rgba(255, 255, 255, 0) 80%, #f9e0ec 20%);
 }
 .dark .prose li > a {
   background: linear-gradient(rgba(255, 255, 255, 0) 70%, rgb(242 137 188 / 34%) 30%);

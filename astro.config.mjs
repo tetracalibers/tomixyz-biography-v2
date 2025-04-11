@@ -18,6 +18,7 @@ import remarkMath from "remark-math"
 import remarkFlexibleMarkers from "remark-flexible-markers"
 import { remarkAlert } from "remark-github-blockquote-alert"
 import rehypeKatex from "rehype-katex"
+import rehypeWrapTable from "./plugins/rehype-wrap-table"
 
 /** @type {import("rehype-pretty-code").Options} */
 const prettyCodeOptions = {
@@ -48,7 +49,8 @@ export default defineConfig({
     syntaxHighlight: false, // Disable syntax built-in syntax hightlighting from astro
     rehypePlugins: [
       [rehypeKatex, {}],
-      [rehypePrettyCode, prettyCodeOptions]
+      [rehypePrettyCode, prettyCodeOptions],
+      [rehypeWrapTable, {}]
     ],
     remarkPlugins: [remarkMath, remarkBreaks, remarkAlert, remarkFlexibleMarkers]
   },

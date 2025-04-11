@@ -7,12 +7,12 @@ import ProseGridFill from "$/components/prose/ProseGridFill.astro"
 import AvatarImage from "$components/article-header/layout-2/AvatarImage.astro"
 import PublishDate from "$components/article-header/PublishDate.astro"
 import type { MarkdownHeading } from "astro"
-import BlogToc from "$components/toc/BlogToc.astro"
 import Body from "$components/layout/Body.astro"
 import ArticleTitle from "$components/article-header/layout-2/ArticleTitle.astro"
 import ArticleSummary from "$components/article-header/layout-2/ArticleSummary.astro"
 import ArticleHeaderBlock from "$components/article-header/layout-2/ArticleHeaderBlock.astro"
 import ArticleTocBlock from "$components/article-header/layout-2/ArticleTocBlock.astro"
+import TocList from "$components/toc/TocList.astro"
 
 interface Props {
   content: CollectionEntry<"blog">["data"]
@@ -50,7 +50,7 @@ const AUTHOR_NAME = SITE.author
           <Fragment slot="publish"><PublishDate date={content.date} /></Fragment>
         </ArticleHeaderBlock>
         <ArticleTocBlock>
-          <BlogToc headings={headings} />
+          <TocList headings={headings} />
         </ArticleTocBlock>
         <ProseGridFill>
           <div class="main-content"><slot /></div>

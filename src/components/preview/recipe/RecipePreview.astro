@@ -2,6 +2,8 @@
 import type { CollectionEntry } from "astro:content"
 import PublishDate from "./PublishDate.astro"
 import { SITE } from "$/config"
+import { getEntry } from "astro:content"
+import { Icon } from "astro-icon/components"
 
 interface Props {
   entry: CollectionEntry<"recipe">
@@ -12,12 +14,21 @@ const {
 } = Astro.props
 
 const pageUrl = SITE.base + "/recipes/" + id
+const series = recipe.series ? await getEntry("series", recipe.series.id) : null
 ---
 
 <div class="RecipePreview">
   <div class="inner">
     <div class="date"><PublishDate date={recipe.date} /></div>
-    <div class="content">
+    <div class="content" class:list={[{ "-series-article": series }]}>
+      {
+        series && (
+          <div class="series-title">
+            <Icon name="arcticons:pocketbook" size={16} stroke-width={2} />
+            {series.data.title}
+          </div>
+        )
+      }
       <h2 class="title">
         <a href={pageUrl}>{recipe.title}</a>
       </h2>
@@ -84,7 +95,32 @@ const pageUrl = SITE.base + "/recipes/" + id
       2px 100%,
       100% 2px,
       2px 100%;
+    position: relative;
+    z-index: 2;
   }
+  @media (max-width: 500px) {
+    .content {
+      align-items: center;
+      text-align: center;
+    }
+  }
+
+  .series-title {
+    display: flex;
+    gap: 0.25em;
+    align-items: center;
+    width: fit-content;
+    font-size: 0.8rem;
+    font-weight: bold;
+    padding: 0.25em 0.5em;
+    --base-color: #d0c3ffb3;
+    --light-color: oklch(from var(--base-color) calc(l * 1.06) c h);
+    --dark-color: oklch(from var(--light-color) calc(l - 0.27) calc(c + 0.03) calc(h - 330));
+    background: light-dark(var(--light-color), var(--dark-color));
+    color: light-dark(var(--slate-500), var(--slate-200));
+    border-radius: 3rem;
+  }
+
   @media (min-width: 500px) {
     .inner {
       grid-template-columns: auto 1fr;
@@ -94,6 +130,8 @@ const pageUrl = SITE.base + "/recipes/" + id
     margin: 0;
     text-align: center;
     display: inline-block;
+    word-break: auto-phrase;
+    z-index: 2;
   }
   @media (min-width: 500px) {
     .title {
@@ -114,25 +152,30 @@ const pageUrl = SITE.base + "/recipes/" + id
     margin: 0;
     line-height: 1.5rem;
     hyphens: auto;
+    word-break: auto-phrase;
     color: light-dark(var(--slate-800), white);
   }
 
+  .RecipePreview {
+    --theme-base: #fcd888;
+  }
+  .RecipePreview:nth-child(2n) {
+    --theme-base: #b8f1f8;
+  }
+  .RecipePreview:nth-child(3n) {
+    --theme-base: #fcdce0;
+  }
+  .RecipePreview:nth-child(4n) {
+    --theme-base: #c6d9fd;
+  }
+  .RecipePreview:nth-child(5n) {
+    --theme-base: #ccf5e6;
+  }
+  .RecipePreview:nth-child(6n) {
+    --theme-base: #f9c0e7;
+  }
   .RecipePreview :global(.PublishDate svg) {
-    color: #fcd888;
-  }
-  .RecipePreview:nth-child(2n) :global(.PublishDate svg) {
-    color: #b8f1f8;
-  }
-  .RecipePreview:nth-child(3n) :global(.PublishDate svg) {
-    color: #fcdce0;
-  }
-  .RecipePreview:nth-child(4n) :global(.PublishDate svg) {
-    color: #c6d9fd;
-  }
-  .RecipePreview:nth-child(5n) :global(.PublishDate svg) {
-    color: #ccf5e6;
-  }
-  .RecipePreview:nth-child(6n) :global(.PublishDate svg) {
-    color: #f9c0e7;
+    --dark-color: oklch(from var(--theme-base) l calc(c + 0.05) h);
+    color: light-dark(var(--theme-base), var(--dark-color));
   }
 </style>
