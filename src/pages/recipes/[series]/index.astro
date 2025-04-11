@@ -1,0 +1,50 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content"
+import DefaultPageLayout from "$/layouts/default.astro"
+import { compareDateForSortAsc } from "$/lib/sort"
+import type { GetStaticPaths } from "astro"
+import RecipePreviewList from "$components/preview/recipe/RecipePreviewList.astro"
+import { and } from "$/lib/filter"
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const filterPublic = (entry: CollectionEntry<"recipe">) => {
+    if (import.meta.env.DEV) return true
+    return !entry.data.draft && !entry.data.private
+  }
+  const filterSeries = (entry: CollectionEntry<"recipe">) => {
+    return !!entry.data.series
+  }
+
+  const recipes = await getCollection("recipe", and(filterPublic, filterSeries))
+  const series = await getCollection("series")
+
+  return series.map((series) => {
+    const matched = recipes.filter((entry) => entry.data.series!.id === series.id)
+
+    return {
+      params: { series: series.id },
+      props: {
+        recipes: matched.sort(compareDateForSortAsc),
+        series
+      }
+    }
+  })
+}
+
+interface Props {
+  recipes: CollectionEntry<"recipe">[]
+  series: CollectionEntry<"series">
+}
+
+const { recipes, series } = Astro.props
+
+const title = series.data.title
+const description = "シリーズ記事一覧"
+const meta = {
+  ogimage: `/og-image/recipes/${series}.png`
+}
+---
+
+<DefaultPageLayout content={{ title, description }} meta={{ ...meta }}>
+  <RecipePreviewList entries={recipes} />
+</DefaultPageLayout>
