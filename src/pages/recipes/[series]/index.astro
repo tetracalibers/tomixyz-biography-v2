@@ -5,6 +5,8 @@ import { compareDateForSortAsc } from "$/lib/sort"
 import type { GetStaticPaths } from "astro"
 import RecipePreviewList from "$components/preview/recipe/RecipePreviewList.astro"
 import { and } from "$/lib/filter"
+import { render } from "astro:content"
+import Prose from "$components/prose/Prose.astro"
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const filterPublic = (entry: CollectionEntry<"recipe">) => {
@@ -38,6 +40,8 @@ interface Props {
 
 const { recipes, series } = Astro.props
 
+const { Content } = await render(series)
+
 const title = series.data.title
 const description = "シリーズ記事一覧"
 const meta = {
@@ -46,5 +50,21 @@ const meta = {
 ---
 
 <DefaultPageLayout content={{ title, description }} meta={{ ...meta }} style={{ title_small: true }}>
+  <Prose>
+    <div class="series-summary"><Content /></div>
+  </Prose>
   <RecipePreviewList entries={recipes} />
 </DefaultPageLayout>
+
+<style>
+  .series-summary {
+    padding-inline: clamp(0rem, -2.817rem + 12.019vw, 8rem);
+    margin-inline: auto;
+  }
+  .series-summary :global(:first-child) {
+    margin-block-start: 0;
+  }
+  .series-summary :global(:last-child) {
+    margin-block-end: 0;
+  }
+</style>
