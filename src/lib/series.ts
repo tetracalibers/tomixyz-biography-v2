@@ -5,6 +5,7 @@ type SeriesArticle = CollectionEntry<"recipe">
 export type SeriesArticleSlug = SeriesArticle["id"]
 
 export interface SeriesArticles {
+  id: string
   data: CollectionEntry<"series">["data"]
   slugs: SeriesArticleSlug[]
   articles: SeriesArticle[]
@@ -32,6 +33,7 @@ export const collectSeriesArticles = async (seriesId: string): Promise<SeriesArt
   const getNextArticles = (slug: SeriesArticleSlug) => articleEntries.slice(findIndex(slug) + 1)
 
   return {
+    id: seriesId,
     data: series.data,
     slugs,
     articles: articleEntries,

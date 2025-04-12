@@ -37,14 +37,6 @@ export const includeTag = (tagId: string) => {
   }
 }
 
-export const getAllTagMap = async () => {
-  const tags = await getCollection("tag")
-  return tags.reduce((acc, tag) => {
-    acc.set(tag.id, tag)
-    return acc
-  }, new Map<string, CollectionEntry<"tag">>())
-}
-
 export const filterByTag = (tagId: string, targets: RefTagEntry[]) => {
   return targets.filter(includeTag(tagId))
 }

@@ -153,3 +153,7 @@
 :where(.prose :is(th, td)) {
   padding: 0.5em 1em;
 }
+
+:where(.prose > :first-child) {
+  margin-block-start: 0;
+}

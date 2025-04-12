@@ -5,14 +5,16 @@ import { compareDateForSort } from "$/lib/sort"
 import type { GetStaticPaths } from "astro"
 import ArticlePreviewList from "$components/preview/tag/ArticlePreviewList.astro"
 import { marked } from "marked"
-import { collectTagIds, getRefTagCollection, getAllTagMap, filterByTag } from "$/lib/tag"
+import { collectTagIds, getRefTagCollection, filterByTag } from "$/lib/tag"
 import { setExternalLinkRenderer } from "$/lib/marked"
+import { getCollection } from "astro:content"
+import { makeEntryMap } from "$/lib/collection"
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const targets = await getRefTagCollection()
   const tagIds = collectTagIds(targets)
 
-  const allTagMap = await getAllTagMap()
+  const allTagMap = makeEntryMap(await getCollection("tag"))
 
   return tagIds.flatMap((tagId) => {
     const matched = filterByTag(tagId, targets)
