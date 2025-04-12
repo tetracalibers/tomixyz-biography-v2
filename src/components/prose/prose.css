@@ -104,7 +104,7 @@
 }
 
 .prose {
-  --table-shadow-color: oklch(0.785 0.115 274.713 / 0.2);
+  --table-shadow-color: light-dark(rgb(from var(--slate-300) r g b / 0.3), rgb(from var(--slate-900) r g b / 0.5));
   --table-shadow-size: 0.5rem;
   --table-shadow-spread: calc(var(--table-shadow-size) * -0.5);
 }
