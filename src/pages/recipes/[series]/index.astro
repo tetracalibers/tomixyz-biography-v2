@@ -1,36 +1,28 @@
 ---
 import { getCollection, type CollectionEntry } from "astro:content"
 import DefaultPageLayout from "$/layouts/default.astro"
-import { compareDateForSortAsc } from "$/lib/sort"
 import type { GetStaticPaths } from "astro"
 import RecipePreviewList from "$components/preview/recipe/series/RecipePreviewList.astro"
-import { and } from "$/lib/filter"
 import { render } from "astro:content"
 import Prose from "$components/prose/Prose.astro"
+import { getEntries } from "astro:content"
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const filterPublic = (entry: CollectionEntry<"recipe">) => {
-    if (import.meta.env.DEV) return true
-    return !entry.data.draft && !entry.data.private
-  }
-  const filterSeries = (entry: CollectionEntry<"recipe">) => {
-    return !!entry.data.series
-  }
-
-  const recipes = await getCollection("recipe", and(filterPublic, filterSeries))
   const series = await getCollection("series")
 
-  return series.map((series) => {
-    const matched = recipes.filter((entry) => entry.data.series!.id === series.id)
+  return Promise.all(
+    series.map(async (series) => {
+      const recipes = await getEntries(series.data.articles)
 
-    return {
-      params: { series: series.id },
-      props: {
-        recipes: matched.sort(compareDateForSortAsc),
-        series
+      return {
+        params: { series: series.id },
+        props: {
+          recipes,
+          series
+        }
       }
-    }
-  })
+    })
+  )
 }
 
 interface Props {
