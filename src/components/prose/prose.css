@@ -153,6 +153,9 @@
 :where(.prose :is(th, td)) {
   padding: 0.5em 1em;
 }
+:where(.prose th) {
+  color: light-dark(var(--slate-500), var(--slate-200));
+}
 
 :where(.prose > :first-child) {
   margin-block-start: 0;
