@@ -8,6 +8,7 @@
       "$components/*": ["./src/components/*"],
       "$/*": ["./src/*"]
     },
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "types": ["@webgpu/types"]
   }
 }
