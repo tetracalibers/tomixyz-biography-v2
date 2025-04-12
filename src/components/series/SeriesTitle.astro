@@ -1,36 +1,41 @@
 ---
+import { SITE } from "$/config"
 import { Icon } from "astro-icon/components"
 
 interface Props {
   title: string
+  seriesId: string
   indexInSeries: number
 }
 
-const { title, indexInSeries } = Astro.props
+const { title, indexInSeries, seriesId } = Astro.props
+
+const seriesTopUrl = SITE.base + "/recipes/" + seriesId
 ---
 
-<div class="SeriesTitle">
+<a class="SeriesTitle" href={seriesTopUrl}>
   <Icon name="arcticons:pocketbook" size={24} stroke-width={2} />
   {title}
   <span class="vol-in-series">{indexInSeries + 1}</span>
-</div>
+</a>
 
 <style define:vars={{ vol: indexInSeries + 1 }}>
   .SeriesTitle {
     --highlight1: light-dark(rgb(245 176 252 / 80%), rgb(145 112 255 / 80%));
     --highlight2: light-dark(rgb(188 249 255 / 85%), rgb(188 249 255));
+
     display: flex;
     gap: 0.25em;
     align-items: center;
     font-weight: bold;
     color: light-dark(var(--slate-500), var(--slate-200));
     position: relative;
-    font-size: 1.1rem;
     border-image-source: linear-gradient(to bottom left, var(--highlight1) 25%, var(--highlight2));
     border-image-slice: 20;
     border-image-width: 2px;
     border-image-outset: 5px;
     width: fit-content;
+    text-decoration: none;
   }
   @media (max-width: 768px) {
     .SeriesTitle {

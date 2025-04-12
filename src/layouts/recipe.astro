@@ -50,7 +50,7 @@ const indexInSeries = series && series.data.articles.findIndex((article) => arti
       <div class="MainLayout-inner">
         <ArticleHeaderBlock>
           <Fragment slot="content">
-            {series && <SeriesTitle title={series.data.title} indexInSeries={indexInSeries!} />}
+            {series && <SeriesTitle title={series.data.title} seriesId={series.id} indexInSeries={indexInSeries!} />}
             <ArticleTitle title={content.title} />
             <ArticleSummary summary={content.description} />
             <TagList tags={content.tags} />
