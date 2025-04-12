@@ -4,7 +4,7 @@
   font-weight: bold;
   color: light-dark(var(--slate-500), var(--slate-200));
 }
-.dark .prose :is(mark, a:not(.no-marker)) {
+:where(.dark .prose :is(mark, a:not(.no-marker))) {
   background: linear-gradient(rgba(255, 255, 255, 0) 90%, var(--marker-color) 10%);
 }
 
