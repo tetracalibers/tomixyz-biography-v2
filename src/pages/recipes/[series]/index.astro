@@ -8,11 +8,16 @@ import Prose from "$components/prose/Prose.astro"
 import { getEntries } from "astro:content"
 
 export const getStaticPaths: GetStaticPaths = async () => {
+  const filterPublic = (entry: CollectionEntry<"recipe">) => {
+    if (import.meta.env.DEV) return true
+    return !entry.data.draft && !entry.data.private
+  }
+
   const series = await getCollection("series")
 
   return Promise.all(
     series.map(async (series) => {
-      const recipes = await getEntries(series.data.articles)
+      const recipes = (await getEntries(series.data.articles)).filter(filterPublic)
 
       return {
         params: { series: series.id },
