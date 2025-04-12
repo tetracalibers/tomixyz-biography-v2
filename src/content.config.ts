@@ -99,6 +99,13 @@ const recipe = defineCollection({
       tags: z.array(reference("tag")).default([]),
       date: z.string(),
       series: reference("series").optional(),
+      references: z
+        .object({
+          title: z.string(),
+          url: z.string().url()
+        })
+        .array()
+        .optional(),
       draft: z.boolean().default(false),
       private: z.boolean().default(false)
     })

@@ -16,6 +16,7 @@ import { collectSeriesArticles } from "$/lib/series"
 import RecipeToc from "$components/toc/RecipeToc.astro"
 import NextArticles from "$components/series/NextArticles.astro"
 import SeriesTitle from "$components/series/SeriesTitle.astro"
+import References from "$components/series/References.astro"
 
 interface Props {
   entry: CollectionEntry<"recipe">
@@ -28,7 +29,7 @@ interface Props {
 
 const { entry, headings, meta } = Astro.props
 const { data: content } = entry
-const { series: seriesOrNone } = content
+const { series: seriesOrNone, references } = content
 
 const AUTHOR_NAME = SITE.author
 
@@ -64,6 +65,14 @@ const indexInSeries = series && series.data.articles.findIndex((article) => arti
           <div class="main-content">
             <slot />
             {series && <NextArticles current={entry.id} series={series} />}
+            {
+              references && (
+                <>
+                  <hr />
+                  <References references={references} />
+                </>
+              )
+            }
           </div>
         </ProseGridFill>
       </div>
