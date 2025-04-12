@@ -70,10 +70,10 @@
 }
 
 :where(.prose hr) {
-  border-color: light-dark(var(--gray-200), var(--gray-600));
+  border-color: light-dark(var(--slate-200), var(--slate-500));
   border-block-start-width: 1px;
   border-block-start-style: solid;
-  margin-block: 2em;
+  margin-block: 3em;
 }
 
 :where(.prose blockquote) {
