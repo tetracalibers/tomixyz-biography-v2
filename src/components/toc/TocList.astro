@@ -7,12 +7,17 @@ interface Props {
 
 const { headings } = Astro.props
 const showHeadings = headings.filter((heading) => heading.depth < 4)
+
+// heading.textが[DRAFT]で始まる場合は、それ以降のheadingを表示しない
+const isDraft = (heading: MarkdownHeading) => heading.text.startsWith("[DRAFT]")
+const isDraftIndex = showHeadings.findIndex(isDraft)
+const notDraftHeadings = isDraftIndex === -1 ? showHeadings : showHeadings.slice(0, isDraftIndex)
 ---
 
 {
-  showHeadings.length > 0 && (
+  notDraftHeadings.length > 0 && (
     <ul class="BlogToc">
-      {showHeadings.map((heading) => (
+      {notDraftHeadings.map((heading) => (
         <li>
           <div class="toc-item" class:list={[`_depth-${heading.depth}`]}>
             <a href={`#${heading.slug}`} class="toc-link">
