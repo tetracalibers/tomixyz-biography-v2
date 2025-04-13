@@ -1,4 +1,4 @@
-{#if !navigator.gpu}
+{#if !window.navigator.gpu}
   <div class="NotSupportAlert">
     <p>このブラウザはまだWebGPUをサポートしていません</p>
   </div>
