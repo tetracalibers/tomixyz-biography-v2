@@ -73,7 +73,7 @@
   border-color: light-dark(var(--slate-200), var(--slate-500));
   border-block-start-width: 1px;
   border-block-start-style: solid;
-  margin-block: 3em;
+  margin-block: 2em;
 }
 
 :where(.prose blockquote) {
