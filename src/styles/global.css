@@ -68,7 +68,7 @@ img {
   height: auto;
 }
 
-a[target="_blank"]::after {
+:where(a[target="_blank"])::after {
   content: "";
   display: inline-block;
   width: 0.7em;
