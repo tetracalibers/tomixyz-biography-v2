@@ -47,3 +47,24 @@ export const collectSeriesArticles = async (seriesId: string): Promise<SeriesArt
     Summary: Content
   }
 }
+
+export const getPrev = async (seriesId: string, current: string) => {
+  const series = await getEntry("series", seriesId)
+  if (!series) return null
+
+  const seriesIds = series.data.articles.map((article) => article.id)
+  const currentIndex = seriesIds.indexOf(`${seriesId}/${current}`)
+  if (currentIndex === -1) return null
+
+  const previousIndex = currentIndex - 1
+  if (previousIndex < 0) return null
+
+  const previousId = seriesIds[previousIndex]
+  const previousEntry = await getEntry("recipe", previousId)
+  if (!previousEntry) return null
+
+  return {
+    id: previousEntry.id,
+    title: previousEntry.data.title
+  }
+}

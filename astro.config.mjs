@@ -44,6 +44,15 @@ const directives = {
         directiveLabel: "title"
       }
     }
+  ],
+  text: [
+    {
+      name: "SeriesPrevLink",
+      path: "src/components/directive/SeriesPrevLink.astro",
+      useAsProps: {
+        directiveLabel: "title"
+      }
+    }
   ]
 }
 
