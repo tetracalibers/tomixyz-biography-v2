@@ -1,0 +1,65 @@
+---
+import { Icon } from "astro-icon/components"
+
+interface Props {
+  url: string
+  title: string
+}
+
+const { url, title } = Astro.props
+---
+
+<a class="DemoLink" href={url} target="_blank" rel="noopener noreferrer">
+  <div class="demo-icon">
+    <Icon name="carbon:executable-program" size={50} />
+    <span class="label">demo</span>
+  </div>
+  <div class="title">{title}</div>
+  <Icon class="external-icon" name="iconamoon:arrow-top-right-3-square-thin" size={30} />
+</a>
+
+<style>
+  .DemoLink {
+    --theme-color: rgb(141 223 203);
+
+    display: flex;
+    gap: 0.5em;
+    align-items: center;
+    width: fit-content;
+    padding: 0.8em;
+    padding-inline-end: 30px;
+    margin-block: 2rem;
+    background: none;
+    position: relative;
+    border-radius: 1em;
+    border-top-right-radius: 0;
+    font-size: 0.8em;
+    border: 1px solid var(--theme-color);
+  }
+  .DemoLink::after {
+    display: none;
+  }
+
+  .demo-icon {
+    display: grid;
+    height: calc(50px + 0.7em);
+    color: var(--theme-color);
+    place-items: center;
+  }
+
+  .label {
+    translate: 0 -0.5em;
+  }
+
+  .external-icon {
+    position: absolute;
+    top: 0;
+    right: 0;
+    color: var(--theme-color);
+  }
+
+  .title {
+    word-break: auto-phrase;
+    text-align: center;
+  }
+</style>

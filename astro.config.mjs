@@ -2,6 +2,7 @@
 import { defineConfig } from "astro/config"
 import svelte from "@astrojs/svelte"
 import mdx from "@astrojs/mdx"
+import mdxDirective from "astro-mdx-directive"
 import icon from "astro-icon"
 
 import path, { dirname } from "node:path"
@@ -33,6 +34,19 @@ const prettyCodeOptions = {
   }
 }
 
+/** @type {import('astro-mdx-directive').DirectiveComponentList} */
+const directives = {
+  leaf: [
+    {
+      name: "DemoLink",
+      path: "src/components/directive/DemoLink.astro",
+      useAsProps: {
+        directiveLabel: "title"
+      }
+    }
+  ]
+}
+
 // https://astro.build/config
 export default defineConfig({
   site: "https://tomixyz-biography.net",
@@ -54,7 +68,7 @@ export default defineConfig({
     ],
     remarkPlugins: [remarkMath, remarkBreaks, remarkAlert, remarkFlexibleMarkers]
   },
-  integrations: [icon(), svelte(), mdx()],
+  integrations: [mdxDirective({ directives }), icon(), svelte(), mdx()],
   vite: {
     resolve: {
       alias: {
