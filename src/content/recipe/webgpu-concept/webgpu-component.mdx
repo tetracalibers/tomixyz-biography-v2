@@ -50,6 +50,8 @@ WebGPUでは、物理的なGPUに対応する概念が==アダプタ==で、論�
 パソコンやスマートフォンには、複数のGPU（たとえばCPU内蔵の省電力GPUと、外部の高性能GPU）があることがあります。WebGPUを使うには、まずその中からどのGPUを使うか選ぶ必要があります。
 
 WebGPUの==アダプタ==は、PCに搭載された=p=実際のGPU（物理的なGPU）==を表すものです。
+OSのネイティブなグラフィックスAPIをWebGPUに翻訳するためのレイヤーともいえます。
+
 アダプタを取得することで、物理的なGPUの名前や性能、対応している機能などがわかります。
 
 ### アダプタの取得
@@ -60,23 +62,21 @@ WebGPUの初期化ではまず、次のようにしてアダプタを取得し�
 const adapter = await navigator.gpu.requestAdapter()
 ```
 
-`requestAdapter()`は、ブラウザに「使えるGPUを教えて！」と依頼する処理です。
-結果として、使えるGPUに関する情報を持つ`GPUAdapter`オブジェクトが返ってきます。
+`requestAdapter(){:js}`は、ブラウザに「使えるGPUを教えて」と依頼する処理です。
+結果として、使えるGPUに関する情報を持つ`GPUAdapter{:js}`オブジェクトが返ってきます。
 
 ### アダプタが持つ情報
 
-取得したアダプタからは、たとえば以下の情報がわかります：
+取得したアダプタからは、そのGPUで処理できるリソースはどれくらいか、どんな機能が使えるか、などの情報がわかります。
 
-- `adapter.features` → サポートしている機能（例：depth-clamping、timestamp-queryなど）
-- `adapter.limits` → リソース制限（例：最大テクスチャサイズ、バインディング数など）
+- `adapter.features{:js}` → サポートしている機能（例：`depth-clamping`、`timestamp-query`など）
+- `adapter.limits{:js}` → リソース制限（例：最大テクスチャサイズ、バインディング数など）
 
-これを見れば、そのGPUがどれくらい性能があるか、どんな機能が使えるかがわかります。
-
-- [demo: WebGPUアダプタが持つ情報の確認](/demo/webgpu-adapter-info)
+::DemoLink[アダプタが持つ情報を一覧表示するデモ]{url="/demo/webgpu-adapter-info"}
 
 ### アダプタ取得時のオプション
 
-`requestAdapter()` にはオプションを渡すことができます：
+`requestAdapter(){:js}`には、オプションを渡すこともできます。
 
 ```js
 const adapter = await navigator.gpu.requestAdapter({
@@ -84,16 +84,10 @@ const adapter = await navigator.gpu.requestAdapter({
 })
 ```
 
-- `"high-performance"`：できれば外部GPUを使いたい（高性能）
-- `"low-power"`：バッテリー消費を抑えたい（内蔵GPU）
+- `"high-performance"{:js}`：できれば外部GPUを使いたい（高性能）
+- `"low-power"{:js}`：バッテリー消費を抑えたい（内蔵GPU）
 
-ただしこれは**希望を伝えるだけ**で、必ずその通りになるわけではありません。
-
----
-
-**アダプタ（Adapter）**は、**OSのネイティブなグラフィックスAPIをWebGPUに翻訳するためのレイヤー（層）**です。
-
-アダプタは「OSから見たGPU情報」と「WebGPUで使える形式」をつなぐ**橋渡し**のようなものです。
+ただしこれは=p=希望を伝えるだけ==で、必ずその通りになるわけではありません。
 
 ## 論理デバイス (Device)
 
