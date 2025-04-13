@@ -35,6 +35,7 @@
     "@webgpu/types": "^0.1.60",
     "astro-embed": "^0.9.0",
     "astro-icon": "^1.1.5",
+    "astro-mdx-directive": "^1.0.0",
     "marked": "^15.0.7",
     "prettier": "^3.5.3",
     "prettier-plugin-astro": "^0.14.1",
