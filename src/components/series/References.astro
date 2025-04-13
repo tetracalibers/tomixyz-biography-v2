@@ -1,0 +1,26 @@
+---
+interface Props {
+  references: { title: string; url: string }[]
+}
+
+const { references } = Astro.props
+---
+
+<h2 class="title">References</h2>
+<ul>
+  {
+    references.map((reference) => (
+      <li>
+        <a class="no-marker" href={reference.url} target="_blank" rel="noopener noreferrer">
+          {reference.title}
+        </a>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .title {
+    margin: 0;
+  }
+</style>

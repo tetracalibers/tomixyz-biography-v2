@@ -3,6 +3,7 @@ title: WebGPUのコンセプト
 articles:
   - webgpu-concept/graphics-api-history
   - webgpu-concept/webgpu-stateless
+  - webgpu-concept/webgpu-component
 ---
 
 WebGPUのコンセプトと構成要素について、WebGLと比較しながら解説します。

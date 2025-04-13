@@ -23,8 +23,13 @@ export const collectSeriesArticles = async (seriesId: string): Promise<SeriesArt
 
   const { Content } = await render(series)
 
+  const filterPublic = (entry: CollectionEntry<"recipe">) => {
+    if (import.meta.env.DEV) return true
+    return !entry.data.draft && !entry.data.private
+  }
+
   const seriesArticles = series.data.articles.map((article) => ({ collection: article.collection, id: article.id }))
-  const articleEntries = await getEntries(seriesArticles)
+  const articleEntries = (await getEntries(seriesArticles)).filter(filterPublic)
 
   const slugs = seriesArticles.map((article) => article.id)
 

@@ -70,7 +70,7 @@
 }
 
 :where(.prose hr) {
-  border-color: light-dark(var(--gray-200), var(--gray-600));
+  border-color: light-dark(var(--slate-200), var(--slate-500));
   border-block-start-width: 1px;
   border-block-start-style: solid;
   margin-block: 2em;
@@ -104,7 +104,7 @@
 }
 
 .prose {
-  --table-shadow-color: oklch(0.785 0.115 274.713 / 0.2);
+  --table-shadow-color: light-dark(rgb(from var(--slate-300) r g b / 0.3), rgb(from var(--slate-900) r g b / 0.5));
   --table-shadow-size: 0.5rem;
   --table-shadow-spread: calc(var(--table-shadow-size) * -0.5);
 }
@@ -152,6 +152,9 @@
 }
 :where(.prose :is(th, td)) {
   padding: 0.5em 1em;
+}
+:where(.prose th) {
+  color: light-dark(var(--slate-500), var(--slate-200));
 }
 
 :where(.prose > :first-child) {
