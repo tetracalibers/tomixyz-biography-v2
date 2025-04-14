@@ -1,0 +1,17 @@
+---
+import { getPrev } from "$/lib/series"
+
+interface Props {
+  current: string
+  series: string
+  title?: string
+}
+
+const { series, title, current } = Astro.props
+const prev = await getPrev(series, current)
+const getUrl = (id: string) => `/recipes/${id}`
+---
+
+<a class="SeriesPrevLink no-marker" href={getUrl(prev!.id)}>
+  {title ?? prev!.title}
+</a>

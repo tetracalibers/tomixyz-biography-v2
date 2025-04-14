@@ -1,0 +1,60 @@
+---
+title: WebGPUとキャンバス
+date: "2025-04-14"
+description: キャンバスの初期化とスワップチェーンの仕組み
+series: webgpu-concept
+tags:
+  - webgpu
+  - webgl
+draft: true
+---
+
+:SeriesPrevLink[前回]{series="webgpu-concept" current="webgpu-canvas"}は、WebGPUのアダプタとデバイスの初期化についてお話ししました。
+
+論理デバイスが取得できたら、「WebGPUでなにかする」準備は実はもう整っています。
+ここから先何をするか、ざっくり分ければ2通りの道があります。その1つがキャンバスへの描画です。一方、キャンバスとは無関係な計算処理をGPUに任せる方法を学ぶこともできます。
+
+ここではまず、キャンバスへの描画を目指して進んでいくことにしましょう。
+
+## デモ：キャンバスの色を初期化する
+
+今回は、キャンバスの色を初期化する（キャンバス全体を単色で塗りつぶす）だけの簡単なデモを作りながら、WebGPUとキャンバスの連携について解説します。
+
+::DemoLink[WebGPUでキャンバスの色を灰色に初期化するデモ]{url="/demo/webgpu-canvas-clear"}
+
+ちなみに、キャンバスの色を初期化する処理は、WebGLでは次のようなコードで実現できました。
+
+```js title="WebGLでキャンバスの色を初期化する"
+const canvas = document.querySelector("canvas")
+const gl = canvas.getContext("webgl2")
+
+gl.clearColor(0.5, 0.5, 0.5, 1)
+gl.clear(gl.COLOR_BUFFER_BIT)
+```
+
+WebGLでは、`gl{:js}`コンテキスト（`WebGL2RenderingContext{:js}`）を直接操作して、キャンバスの色を初期化しています。このように、`gl{:js}`コンテキストが持つグローバルな状態を書き換えながら描画処理を進めていくのが、WebGLのスタイルです。
+
+では、WebGPUの場合はどのようなアプローチになるのでしょうか。ここからは、WebGPUで書いた場合のコードを順に見ていきます。
+
+## Canvasコンテキストの取得
+
+アダプタと論理デバイスの取得は、WebGPU自体を初期化するためのものです。
+WebGPUでキャンバスに描画したい場合は、さらにキャンバスの初期化を行う必要があります。
+
+```js
+const canvas = document.querySelector("canvas")
+```
+
+キャンバスの初期化に使うのが、`GPUCanvasContext{:js}`というコンテキストです。
+これは、`canvas{:js}`要素から、次のように取得することができます。
+
+```js
+const context = canvas.getContext("webgpu")
+```
+
+## Canvasと論理デバイスの紐付け
+
+```js
+const format = navigator.gpu.getPreferredCanvasFormat()
+context.configure({ device, format })
+```
