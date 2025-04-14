@@ -14,14 +14,8 @@ const getUrl = (id: string) => `/recipes/${id}`
 
 {
   prev && (
-    <a class="SeriesPrevLink" href={getUrl(prev.id)}>
+    <a class="SeriesPrevLink no-marker" href={getUrl(prev.id)}>
       {title ?? prev.title}
     </a>
   )
 }
-
-<style>
-  .SeriesPrevLink {
-    text-decoration: none;
-  }
-</style>
