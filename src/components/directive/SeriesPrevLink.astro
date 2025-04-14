@@ -3,11 +3,11 @@ import { getPrev } from "$/lib/series"
 
 interface Props {
   series: string
-  current: string
   title?: string
 }
 
-const { series, current, title } = Astro.props
+const { series, title } = Astro.props
+const current = Astro.url.pathname.split("/").pop() ?? ""
 const prev = await getPrev(series, current)
 const getUrl = (id: string) => `/recipes/${id}`
 ---
