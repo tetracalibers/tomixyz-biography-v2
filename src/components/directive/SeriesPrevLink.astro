@@ -12,4 +12,16 @@ const prev = await getPrev(series, current)
 const getUrl = (id: string) => `/recipes/${id}`
 ---
 
-{prev && <a href={getUrl(prev.id)}>{title ?? prev.title}</a>}
+{
+  prev && (
+    <a class="SeriesPrevLink" href={getUrl(prev.id)}>
+      {title ?? prev.title}
+    </a>
+  )
+}
+
+<style>
+  .SeriesPrevLink {
+    text-decoration: none;
+  }
+</style>
