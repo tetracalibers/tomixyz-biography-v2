@@ -129,7 +129,7 @@ device.queue.submit([commandBuffer])
 
 そのため、コマンドバッファ（`finish(){:js}`の戻り値）はわざわざ変数にはせず、`queue.submit(){:js}`メソッドの引数内で`finish(){:js}`を呼び出してしまうコードが一般的です。
 
-```js title="今までのコード（コマンドバッファを変数にしてから渡す）"
+```js title="今までのコード"
 const commandBuffer = commandEncoder.finish()
 device.queue.submit([commandBuffer])
 ```
@@ -187,7 +187,7 @@ const renderPassDescriptor = {
       storeOp: "store", // 最終的に描いた内容を保存する
 
       // 画像を初期化するときの色
-      clearValue: { r: 0, g: 0, b: 0, a: 1 } // 背景を黒に
+      clearValue: { r: 0.5, g: 0.5, b: 0.5, a: 1 }
     }
   ]
 }
@@ -307,3 +307,12 @@ const renderPassDescriptor = {
 ```
 
 RGBAの値は、`0 ~ 255`の範囲の数値で指定するのが見慣れた形ですが、WebGPUでは、`0.0 ~ 1.0`の範囲の数値で指定する必要があります。
+
+| 色名   | CSSで馴染みの表記             | `clearValue{:js}`に指定する値           |
+| ------ | ----------------------------- | --------------------------------------- |
+| 白     | `rgba(255, 255, 255, 1){:js}` | `{ r: 1, g: 1, b: 1, a: 1 }{:js}`       |
+| 赤     | `rgba(255, 0, 0, 1){:js}`     | `{ r: 1, g: 0, b: 0, a: 1 }{:js}`       |
+| 緑     | `rgba(0, 255, 0, 1){:js}`     | `{ r: 0, g: 1, b: 0, a: 1 }{:js}`       |
+| 青     | `rgba(0, 0, 255, 1){:js}`     | `{ r: 0, g: 0, b: 1, a: 1 }{:js}`       |
+| 黒     | `rgba(0, 0, 0, 1){:js}`       | `{ r: 0, g: 0, b: 0, a: 1 }{:js}`       |
+| グレー | `rgba(128, 128, 128, 1){:js}` | `{ r: 0.5, g: 0.5, b: 0.5, a: 1 }{:js}` |
