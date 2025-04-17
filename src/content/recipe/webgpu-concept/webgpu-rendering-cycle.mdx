@@ -3,6 +3,11 @@ title: WebGPUでのキャンバス描画の裏側
 date: "2025-04-18"
 description: キャンバス描画時に作られるテクスチャとスワップチェーンの仕組み
 series: webgpu-concept
+references:
+  - title: Canvas Context and Swap Chain - Render a WebGPU Triangle | Video
+    url: https://carmencincotti.com/2022-12-19/how-to-render-a-webgpu-triangle-series-part-three-video/
+  - title: Learn WebGL - 7.8 - Screen Updates and Animation
+    url: https://learnwebgl.brown37.net/07_cameras/screen_updates_and_animation.html#double-buffering
 tags:
   - webgpu
   - webgl
@@ -19,6 +24,38 @@ draft: true
 > - VSyncとティアリング（スワップチェーンがなければどうなる？）
 > - WebGLでのスワップチェーン
 > - WebGPUでのスワップチェーン制御
+
+前回は、WebGPUを使ってキャンバスを初期化するデモを解説しました。
+
+```js showLineNumbers {7-8,14}
+const adapter = await navigator.gpu.requestAdapter()
+const device = await adapter.requestDevice()
+
+const canvas = document.querySelector("canvas")
+const context = canvas.getContext("webgpu")
+
+const format = navigator.gpu.getPreferredCanvasFormat()
+context.configure({ device, format })
+
+const commandEncoder = device.createCommandEncoder()
+const renderPassDescriptor = {
+  colorAttachments: [
+    {
+      view: context.getCurrentTexture().createView(),
+      loadOp: "clear",
+      clearValue: { r: 0.5, g: 0.5, b: 0.5, a: 1 },
+      storeOp: "store"
+    }
+  ]
+}
+
+const renderPass = commandEncoder.beginRenderPass(renderPassDescriptor)
+renderPass.end()
+
+device.queue.submit([commandEncoder.finish()])
+```
+
+今回は、WebGPUとキャンバスの関係について深掘りしていきます。
 
 ## WebGPUによるキャンバス描画の仕組み
 
