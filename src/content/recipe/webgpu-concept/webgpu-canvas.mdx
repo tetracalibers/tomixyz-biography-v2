@@ -1,30 +1,32 @@
 ---
-title: WebGPUとキャンバス
-date: "2025-04-14"
-description: キャンバスの初期化とスワップチェーンの仕組み
+title: WebGPUをキャンバスで動かす
+date: "2025-04-17"
+description: WebGPUのコマンドとレンダリングパスによるキャンバスの初期化
 series: webgpu-concept
 tags:
   - webgpu
   - webgl
-draft: true
 ---
 
-:SeriesPrevLink[前回]{series="webgpu-concept" current="webgpu-canvas"}は、WebGPUのアダプタとデバイスの初期化についてお話ししました。
+import FigureBox from "$/components/image-wrapper/FigureBox.astro"
+import DemoLinkWithResult from "$/components/demo/DemoLinkWithResult.astro"
+
+import img_WebGpuCanvasClear from "../../../assets/recipes/webgpu-concept/webgpu-canvas-clear.png"
+
+:SeriesPrevLink[前回]{series="webgpu-concept" current="webgpu-canvas"}は、WebGPUのアダプタと論理デバイスの初期化についてお話ししました。
 
 論理デバイスが取得できたら、「WebGPUでなにかする」準備は実はもう整っています。
 ここから先何をするか、ざっくり分ければ2通りの道があります。その1つがキャンバスへの描画です。一方、キャンバスとは無関係な計算処理をGPUに任せる方法を学ぶこともできます。
 
 ここではまず、キャンバスへの描画を目指して進んでいくことにしましょう。
 
-## デモ：キャンバスの色を初期化する
+## 目標：キャンバスの色を初期化する
 
-今回は、キャンバスの色を初期化する（キャンバス全体を単色で塗りつぶす）だけの簡単なデモを作りながら、WebGPUとキャンバスの連携について解説します。
+まずは、キャンバスの色を初期化する（キャンバス全体を単色で塗りつぶす）だけの簡単なデモの実装を目指します。
 
-::DemoLink[WebGPUでキャンバスの色を灰色に初期化するデモ]{url="/demo/webgpu-canvas-clear"}
+ちなみに、WebGLでは次のようなコードで実現できました。
 
-ちなみに、キャンバスの色を初期化する処理は、WebGLでは次のようなコードで実現できました。
-
-```js title="WebGLでキャンバスの色を初期化する"
+```js title="WebGLでキャンバスの色を初期化する" showLineNumbers
 const canvas = document.querySelector("canvas")
 const gl = canvas.getContext("webgl2")
 
@@ -32,11 +34,15 @@ gl.clearColor(0.5, 0.5, 0.5, 1)
 gl.clear(gl.COLOR_BUFFER_BIT)
 ```
 
+::DemoLink[WebGLでキャンバスの色を初期化するデモ]{url="/demo/webgl-canvas-clear"}
+
 WebGLでは、`gl{:js}`コンテキスト（`WebGL2RenderingContext{:js}`）を直接操作して、キャンバスの色を初期化しています。このように、`gl{:js}`コンテキストが持つグローバルな状態を書き換えながら描画処理を進めていくのが、WebGLのスタイルです。
 
-では、WebGPUの場合はどのようなアプローチになるのでしょうか。ここからは、WebGPUで書いた場合のコードを順に見ていきます。
+では、WebGPUの場合はどのようなアプローチになるのでしょうか。
 
-## Canvasコンテキストの取得
+## WebGPUとキャンバスの連携
+
+### Canvasコンテキストの取得
 
 アダプタと論理デバイスの取得は、WebGPU自体を初期化するためのものです。
 WebGPUでキャンバスに描画したい場合は、さらにキャンバスの初期化を行う必要があります。
@@ -52,9 +58,252 @@ const canvas = document.querySelector("canvas")
 const context = canvas.getContext("webgpu")
 ```
 
-## Canvasと論理デバイスの紐付け
+### Canvasと論理デバイスの紐付け
+
+続いて、キャンバスをWebGPUの描画先として設定するためのコードを書きます。
+この設定は`context.configure(){:js}`メソッドで行います。このメソッドの引数として指定するのは、主に次の2つの情報です。
+
+- このキャンバスに描画するには、どのGPUデバイスを使うのか？という情報（論理デバイス）
+- 描画結果を出力するときの色の表現方法（カラーフォーマット）
 
 ```js
 const format = navigator.gpu.getPreferredCanvasFormat()
 context.configure({ device, format })
 ```
+
+論理デバイス`device{:js}`は、実際のGPUに対する操作の窓口であり、バッファやテクスチャなどのGPUリソースの作成元でもあります。`device{:js}`に紐づいたリソースを使うためには、キャンバスの描画先も同じ`device{:js}`で管理されている必要があります。
+
+また、キャンバスと論理デバイスを明示的に紐づけることには、セキュリティ上の意味もあります。「使っていいGPUはこれだよ」と明示することで、リソースの誤使用を防ぐのです。
+
+> [!important] > `format{:js}`を取得している`getPreferredCanvasFormat(){:js}`メソッドについては、今後の記事で詳しく解説します。
+
+## GPUに仕事を依頼する
+
+これで、描画の対象となる場所は設定できました。
+実際の描画処理を書く前に、GPUに描画処理をお願いするための準備が必要になります。
+
+### コマンドのエンコード
+
+WebGPUでは、GPUに何か処理（描画や計算など）をしてもらうためには、CPU側で命令（==コマンド==）を用意して、それをまとめてGPUに渡す必要があります。  
+この=p=コマンドの準備・記録・構築作業==のことを==エンコード（encode）==と呼びます。GPUが理解できる形式で「やることリスト」を作るイメージです。
+
+さて、この「エンコード」の作業を担うのが、==コマンドエンコーダ==（`GPUCommandEncoder{:js}`）です。
+
+```js
+// コマンドエンコーダを作成する（「やることリスト」を作成開始）
+const commandEncoder = device.createCommandEncoder()
+```
+
+コマンドエンコーダを作成したら、コマンドエンコーダに対して描画や計算などの指示を出していきます。コマンドエンコーダは、これらの指示を順番に記録してくれます。
+
+実際にどのように指示を出すかは、WebGPUを描画に使うのか計算処理に使うのかで異なるため、実際のコード例は後述します。
+
+```js
+// コマンドを記録していく（「やることリスト」にタスクを積む）
+```
+
+指示を一通り書き終えたら、`finish(){:js}`メソッドを呼び出して、命令をGPUが送信できる形にまとめます。
+
+```js
+// GPUに送信できる形にまとめる
+const commandBuffer = commandEncoder.finish()
+```
+
+`finish(){:js}`メソッドから返ってくるコマンドバッファ（`GPUCommandBuffer{:js}`）は、実際にGPUに渡す命令書のようなものです。
+
+### コマンドの送信
+
+GPUが読める命令書であるコマンドバッファを作成したら、次はそれをGPUに送信します。
+GPUにコマンドを送信するための窓口が==キュー==（`GPUQueue{:js}`）です。
+
+```js
+// コマンドバッファをGPUに送信する
+device.queue.submit([commandBuffer])
+```
+
+`queue.submit(){:js}`メソッドを呼び出すと、GPUが命令書を受け取り、実行を開始します。
+
+### 補足：コマンドバッファは使い捨て
+
+ところで、コマンドバッファは一度GPUに送信（`submit(){:js}`）したら、再利用することはできません。GPUがコマンドバッファを消費してしまうからです。
+
+そのため、コマンドバッファ（`finish(){:js}`の戻り値）はわざわざ変数にはせず、`queue.submit(){:js}`メソッドの引数内で`finish(){:js}`を呼び出してしまうコードが一般的です。
+
+```js title="今までのコード（コマンドバッファを変数にしてから渡す）"
+const commandBuffer = commandEncoder.finish()
+device.queue.submit([commandBuffer])
+```
+
+```js title="👍 一般的な書き方"
+device.queue.submit([commandEncoder.finish()])
+```
+
+### 次のステップ：描画の指示を組み立てる
+
+ここまで、GPUにコマンドを送るまでの流れを見てきましたが、具体的にどんなコマンドを送るかについては保留していました。
+
+```js
+const commandEncoder = device.createCommandEncoder()
+
+//
+// TODO: 具体的な描画コマンドを記録する
+//
+
+device.queue.submit([commandEncoder.finish()])
+```
+
+ここからは、実際に描画するための具体的なコマンドの組み立て方を見ていきましょう。
+
+## 描画処理のグループ化
+
+WebGPUは、正確なメモリ制御のために、「どこに」「どう描くか」を明確に分けて管理する仕組みになっています。
+
+「どこに」「どう描くか」に応じて、それらの設定や描画に必要な作業をまとめたものが==レンダリングパス（RenderPass）==です。
+
+### レンダリングパスの設定
+
+レンダリングパスは、「どこに」「どう描くか」ごとに描画処理をグループ化するものです。
+
+1つのレンダリングパス（ひとまとまりの描画処理）を開始するときには、「どこに」「どう描くか」という設定をまとめたオブジェクト（`GPURenderPassDescriptor{:js}`）を与える必要があります。
+
+> [!tip]
+> WebGPUでは、`xxxDescriptor`というような名前がつけられたオブジェクトが多数登場します。
+> `description`は「説明」という意味を持つ英単語です。`descriptor`とは、こんなふうに動いてほしい！という意図をGPUに対して「説明してくれるもの」と解釈しておくと、イメージしやすいかもしれません。
+
+`GPURenderPassDescriptor{:js}`に最低限必要なのは、==アタッチメント==（描画対象とする画像）の設定です。
+
+アタッチメントの設定は`colorAttachments{:js}`プロパティに指定します。
+`colorAttachments{:js}`プロパティに指定するオブジェクトには、まさに「どこに」「どう描くか」という設定が集約されています。
+
+```js
+const renderPassDescriptor = {
+  colorAttachments: [
+    {
+      // 描画先の画像
+      view: context.getCurrentTexture().createView(), // キャンバスに描画する
+
+      // 画像をどのように更新するか
+      loadOp: "clear", // 毎回初期化する
+      storeOp: "store", // 最終的に描いた内容を保存する
+
+      // 画像を初期化するときの色
+      clearValue: { r: 0, g: 0, b: 0, a: 1 } // 背景を黒に
+    }
+  ]
+}
+```
+
+`colorAttachments.view{:js}`には、どの画像に描画するかを指定します。
+`context.getCurrentTexture().createView(){:js}`を指定することで、`canvas{:html}`要素に描画することができます。
+
+> [!important] > `getCurrentTexture(){:js}`、`createView(){:js}`については、今後の記事で詳しく解説します。
+
+`loadOp{:js}`はこのレンダリングパスでの描画前、`storeOp{:js}`は描画後に、画像データをどう扱うかを指定するものです。
+
+- `loadOp{:js}`: すでに描かれている内容をどうするか？ → `"clear"{:js}`で初期化、`"load"{:js}`で残す
+- `storeOp{:js}`: 今、描いた結果を保存するか？ → `"store"{:js}`で保存、`"discard"{:js}`で破棄
+
+`loadOp{:js}`が`"clear"{:js}`の場合は、`colorAttachments.clearValue{:js}`で指定した色で画像を初期化します。
+
+### レンダリングパスの実行
+
+レンダリングパスの設定オブジェクトを用意したら、いよいよレンダリングパスを使ってひとまとまりの描画処理を開始することができます。
+
+```js {3-7}
+const commandEncoder = device.createCommandEncoder()
+
+const renderPass = commandEncoder.beginRenderPass(renderPassDescriptor)
+
+// renderPass.draw(...) など
+
+renderPass.end() // 描画処理を終了
+
+device.queue.submit([commandEncoder.finish()])
+```
+
+`beginRenderPass(){:js}`は、GPUに「これからこの画像（`renderPassDescriptor{:js}`で指定した画像）に絵を描きますよ！」と宣言して、描画用のコマンド記録を開始するメソッドです。
+
+`beginRenderPass(){:js}`メソッドを呼ぶことで、描画専用のコマンドエンコーダである`GPURenderPassEncoder{:js}`が得られます。このエンコーダに対して、描画専用のコマンド（`draw(){:js}`など）を記録していきます。
+
+描画処理が終わったら、`renderPass.end(){:js}`メソッドを呼び出すことで、コマンドの記録を終了します。
+
+### 発展：複数のレンダリングパスを使う場合もある
+
+レンダリングパスは、「どこに」「どう描くか」に応じた=p=描画の単位==です。
+
+そのため、「どこに」（出力先）や「どう描くか」（描画設定）が異なる場合は、複数のレンダリングパスに分けて描画処理を行う必要があります。
+
+たとえば、「影 → ライト → 最終描画」のように、複数ステップで描画を仕上げる==マルチパスレンダリング==の場合、各工程で異なるテクスチャに描く必要があるため、それぞれ別のレンダリングパスを用意します。
+
+他にも、背景と後から描画されるUIでは別々の設定（`loadOp`, `blending`, `depth`など）を使いたい場合や、複数のレンダーターゲット（たとえばミニマップやセカンドビュー）を同時に表示したいときも、それぞれに対してレンダリングパスを作る必要があります。
+
+| 複数必要になる条件 | 具体的な例                                       |
+| ------------------ | ------------------------------------------------ |
+| 出力先が異なる     | テクスチャ → キャンバスなどの複数ステップで描画  |
+| 設定が異なる       | `depth`あり/なし、`blend`あり/なしなどを切り替え |
+| 複数ビュー         | 複数の画面やレイヤーを描画                       |
+
+## 実装：キャンバスの色を初期化する
+
+ここまで解説した内容を順に組み合わせて、WebGPUでキャンバスの色を初期化するデモを実装することができます。
+
+```js title="WebGPUでキャンバスの色を初期化する" showLineNumbers
+const adapter = await navigator.gpu.requestAdapter()
+const device = await adapter.requestDevice()
+
+const canvas = document.querySelector("canvas")
+const context = canvas.getContext("webgpu")
+
+const format = navigator.gpu.getPreferredCanvasFormat()
+context.configure({ device, format })
+
+const commandEncoder = device.createCommandEncoder()
+const renderPassDescriptor = {
+  colorAttachments: [
+    {
+      view: context.getCurrentTexture().createView(),
+      loadOp: "clear",
+      clearValue: { r: 0.5, g: 0.5, b: 0.5, a: 1 },
+      storeOp: "store"
+    }
+  ]
+}
+
+const renderPass = commandEncoder.beginRenderPass(renderPassDescriptor)
+renderPass.end()
+
+device.queue.submit([commandEncoder.finish()])
+```
+
+`loadOp{:js}`の値を`"clear"{:js}`にしているため、`beginRenderPass(){:js}`メソッドを呼び出した時点で、キャンバスの色が初期化されます。
+今回は、初期化したキャンバス上に何かを描くわけではないので、すぐに`end(){:js}`メソッドを呼び出していることに注意してください。
+
+```js showLineNumbers{22}
+const renderPass = commandEncoder.beginRenderPass(renderPassDescriptor)
+renderPass.end()
+```
+
+実行結果は、次のようになります。
+
+<DemoLinkWithResult
+  url="/demo/webgpu-canvas-clear"
+  result={img_WebGpuCanvasClear}
+  title="WebGPUでキャンバスの色を初期化するデモ"
+/>
+
+キャンバスの色を変えたい場合は、`clearValue`の値を変更してみましょう。
+
+```js showLineNumbers{11} {6}
+const renderPassDescriptor = {
+  colorAttachments: [
+    {
+      view: context.getCurrentTexture().createView(),
+      loadOp: "clear",
+      clearValue: { r: 0.5, g: 0.5, b: 0.5, a: 1 },
+      storeOp: "store"
+    }
+  ]
+}
+```
+
+RGBAの値は、`0 ~ 255`の範囲の数値で指定するのが見慣れた形ですが、WebGPUでは、`0.0 ~ 1.0`の範囲の数値で指定する必要があります。
