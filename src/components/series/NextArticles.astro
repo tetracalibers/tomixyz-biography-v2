@@ -1,6 +1,7 @@
 ---
 import { SITE } from "$/config"
 import type { SeriesArticleSlug, SeriesArticles } from "$/lib/series"
+import { Icon } from "astro-icon/components"
 
 interface Props {
   current: SeriesArticleSlug
@@ -17,13 +18,34 @@ const getRecipePageUrl = (articleId: string) => SITE.base + `/recipes/${articleI
   nextArticles.length > 0 && (
     <>
       <h2>Next Step</h2>
-      <ul>
+      <ul class="NextList">
         {nextArticles.map((page) => (
-          <li>
-            <a href={getRecipePageUrl(page.id)}>{page.data.title}</a>
+          <li class="NextList-item">
+            <Icon class="next-icon" name="hugeicons:trade-up" size={32} />
+            <a class="no-marker" href={getRecipePageUrl(page.id)}>
+              {page.data.title}
+            </a>
           </li>
         ))}
       </ul>
     </>
   )
 }
+
+<style>
+  .NextList {
+    padding: 0;
+    list-style: none;
+  }
+
+  .NextList-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5em;
+    color: var(--slate-400);
+  }
+
+  .next-icon {
+    flex-shrink: 0;
+  }
+</style>

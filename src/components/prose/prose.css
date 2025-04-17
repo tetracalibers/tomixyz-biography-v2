@@ -155,6 +155,7 @@
 }
 :where(.prose th) {
   color: light-dark(var(--slate-500), var(--slate-200));
+  white-space: nowrap;
 }
 
 :where(.prose > :first-child) {

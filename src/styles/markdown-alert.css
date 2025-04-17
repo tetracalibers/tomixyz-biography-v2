@@ -9,10 +9,9 @@
   color: inherit;
   border-inline-start: 3px double var(--alert-theme-color);
 }
-.markdown-alert p {
+.markdown-alert :is(p, ul, ol) {
   margin: 0;
-  font-size: 0.9rem;
-  line-height: 1.5;
+  font-size: 0.9em;
 }
 
 .markdown-alert .markdown-alert-title {

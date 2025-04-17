@@ -1,0 +1,275 @@
+---
+title: WebGPUでのキャンバス描画の裏側
+date: "2025-04-18"
+description: キャンバス描画時に作られるテクスチャとスワップチェーンの仕組み
+series: webgpu-concept
+references:
+  - title: Canvas Context and Swap Chain - Render a WebGPU Triangle | Video
+    url: https://carmencincotti.com/2022-12-19/how-to-render-a-webgpu-triangle-series-part-three-video/
+  - title: Learn WebGL - 7.8 - Screen Updates and Animation
+    url: https://learnwebgl.brown37.net/07_cameras/screen_updates_and_animation.html#double-buffering
+tags:
+  - webgpu
+  - webgl
+draft: true
+---
+
+> [!note]
+> 前回作ったデモのコードを深掘りする回
+>
+> - フレームバッファとスワップチェーンについて
+> - `configure()`はスワップチェーンを構築している
+> - カラーフォーマットは描画先テクスチャの形式
+> - `getCurrentTexture()`はバックバッファを取得している
+> - VSyncとティアリング（スワップチェーンがなければどうなる？）
+> - WebGLでのスワップチェーン
+> - WebGPUでのスワップチェーン制御
+
+前回は、WebGPUを使ってキャンバスを初期化するデモを解説しました。
+
+```js showLineNumbers {7-8,14}
+const adapter = await navigator.gpu.requestAdapter()
+const device = await adapter.requestDevice()
+
+const canvas = document.querySelector("canvas")
+const context = canvas.getContext("webgpu")
+
+const format = navigator.gpu.getPreferredCanvasFormat()
+context.configure({ device, format })
+
+const commandEncoder = device.createCommandEncoder()
+const renderPassDescriptor = {
+  colorAttachments: [
+    {
+      view: context.getCurrentTexture().createView(),
+      loadOp: "clear",
+      clearValue: { r: 0.5, g: 0.5, b: 0.5, a: 1 },
+      storeOp: "store"
+    }
+  ]
+}
+
+const renderPass = commandEncoder.beginRenderPass(renderPassDescriptor)
+renderPass.end()
+
+device.queue.submit([commandEncoder.finish()])
+```
+
+今回は、WebGPUとキャンバスの関係について深掘りしていきます。
+
+## WebGPUによるキャンバス描画の仕組み
+
+WebGPUは、キャンバスに直接描画するAPIではなく、画像の描画・生成を行うことを本質とするAPIです。
+WebGPUによるキャンバスへの描画とは、「WebGPUが生成した画像をキャンバスに貼り付ける」という処理になっています。
+
+### フレームバッファ
+
+GPUが描画処理をした結果である画像データは、==フレームバッファ==と呼ばれるメモリ領域に一時的に保持されます。
+
+画面は1秒間に数十回というペースで、高速に更新されます。
+そんな中でも、「描いている途中の絵」が見えないようにするため、WebGPUは、常に最低2枚以上のフレームバッファを用意しておく仕組みになっています。そのうち1枚はキャンバスに表示し、その裏で、もう1枚に次に表示したい内容を描画しておく、という役割分担です。
+
+このような役割分担を実現するため、WebGPUは直接キャンバスに描画するのではなく、=p=一旦裏で画像を作っておいてから、完成した画像を一気に表示する==ようになっているのです。
+
+### スワップチェーン
+
+表示用と描画用、この2つのフレームバッファ（画像）を入れ替えながら描画するための仕組みが、==スワップチェーン==です。
+
+スワップチェーンは、「今GPUで描いているフレームバッファ（==バックバッファ==）」と「今キャンバスに表示しているフレームバッファ（==フロントバッファ==）」を切り替える（==スワップ==する）ことで、スムーズな画面更新を実現します。
+
+## WebGPUにおけるスワップチェーン
+
+`context.configure(){:js}`メソッドは、単に描画先に関する設定を行うだけのものではありません。
+このメソッドの本質的な仕事は、内部で==スワップチェーン==を構築することです。
+
+`configure(){:js}`メソッドを呼び出すことで、`context{:js}`（`GPUCanvasContext{:js}`）がスワップチェーン用の複数のフレームバッファを裏で管理してくれるようになります。
+
+そして、描画時には、`context.getCurrentTexture(){:js}`メソッドで、そのフレームで描画すべきテクスチャ（==バックバッファ==）を取得します。
+
+描画が終わったら、WebGPUが暗黙のスワップを行い、それを画面に表示してくれます。
+
+## 画面の同期とティアリング
+
+スワップチェーンのように、「表示中」と「描画中」を分けることには、多くの利点があります。
+
+- ==ティアリング==を防ぐことができる
+- 描画と表示を並列で処理できるようになる（==非同期化==）
+  etc.
+
+---
+
+## [DRAFT]
+
+## 🎬 そもそも「ティアリング」ってなに？
+
+**ティアリング**とは：
+
+- GPU が描画を終える**前に**画面の更新（表示）が始まってしまい、
+- **複数のフレームが混ざって表示される現象**です。
+
+結果として、スクロール中やゲーム中に画面が**上下でズレて見える**ような「ビリッ」という表示になります。
+
+## 📦 原因：GPU とディスプレイのタイミングずれ
+
+- ディスプレイは毎秒60回（例：60Hz）画面を更新（垂直同期 = VSync）
+- GPUは独自のタイミングでフレームを描画
+- **描画中のフレームを途中で表示されてしまう**とティアリングが発生
+
+## ✅ ティアリングを防ぐには？
+
+→ 対策は「**ディスプレイのリフレッシュに同期してフレームを表示**」すること！
+
+これがよく聞く「**VSync（垂直同期）**」という仕組みです。
+
+## 🧪 WebGLの場合：VSync は **自動**
+
+### ✅ `requestAnimationFrame()` による描画
+
+- `requestAnimationFrame()` は**ブラウザがVSyncに合わせて呼び出す**
+- ティアリングを**基本的に防いでくれる**
+
+```js
+function render() {
+  drawScene() // WebGLの描画命令
+  requestAnimationFrame(render)
+}
+requestAnimationFrame(render)
+```
+
+**✔ 結果**：WebGLでは特に気にしなくても「ティアリングはほとんど起きない」
+
+## 🧰 WebGPU の場合：少し低レベル
+
+WebGPUでは、**スワップチェーン（GPUCanvasContext）**の設定で、  
+**VSync を有効にするかどうか**を自分で指定できます。
+
+### 🎛️ 具体的には `device.configure()` の `presentMode` を使う：
+
+```ts
+context.configure({
+  device,
+  format,
+  alphaMode: "opaque",
+  usage: GPUTextureUsage.RENDER_ATTACHMENT,
+  // ↓これがVSyncの設定！
+  presentMode: "fifo" // or 'immediate', 'mailbox' (環境依存)
+})
+```
+
+### 🧾 `presentMode` の違い（Vulkanと同じ概念）
+
+| presentMode   | ティアリング防止  | レイテンシ | 備考                           |
+| ------------- | ----------------- | ---------- | ------------------------------ |
+| `'fifo'`      | ✅ あり（VSync）  | やや大きい | 標準的・一番安全               |
+| `'immediate'` | ❌ なし（即出し） | 小さい     | ティアリング出る可能性あり     |
+| `'mailbox'`   | ✅ あり           | 小さい     | パフォーマンス良・対応環境限定 |
+
+※ ブラウザによっては `'fifo'` 以外サポートしていない場合があります。
+
+## ✅ WebGPU でティアリングを防ぎたいなら？
+
+1. `presentMode: 'fifo'` を指定（またはデフォルトに任せる）
+2. 描画ループは `requestAnimationFrame()` で駆動
+3. 適切に `getCurrentTexture()` → `commandEncoder.submit()` までやればOK
+
+## 💡 じゃあ WebGPU でティアリングが出る可能性は？
+
+- `presentMode: 'immediate'` を指定して、なおかつ
+- `requestAnimationFrame()` を使わずに `setInterval` などで無理やり描画していると…
+
+➡ **GPUとディスプレイがズレて、ティアリングが発生する**可能性があります。
+
+## 🎯 まとめ：ティアリング防止まとめ表
+
+| 特徴                 | WebGL                                     | WebGPU                                      |
+| -------------------- | ----------------------------------------- | ------------------------------------------- |
+| スワップチェーン制御 | ブラウザ任せ                              | 自分で設定（presentMode）                   |
+| VSyncの仕組み        | 自動的に有効（`requestAnimationFrame()`） | `presentMode: 'fifo'` を使う                |
+| ティアリングの可能性 | ほぼ無し                                  | `'immediate'` を使ったときに発生し得る      |
+| レイテンシ調整       | 不可（ブラウザ任せ）                      | presentMode や multi-buffering の制御で可能 |
+
+---
+
+**スワップチェーンは FPS を維持するためではなく、** 🎯 **ティアリングの防止**と🧩**非同期処理の最適化（並列化）**のために存在します。
+
+FPSを上げるための仕組みではないけど、  
+**安定したフレーム生成やスムーズな描画体験を支える重要な要素**です。
+
+## 🔧 スワップチェーンの主な役割（WebGPU）
+
+1. **ティアリングを防ぐ（＝「表示中」と「描画中」を分ける）**
+2. **描画と表示を並列で処理できるようにする（非同期化）**
+3. **マルチバッファリング（double/triple）でGPUとディスプレイの間のボトルネックを吸収する**
+4. **レンダーターゲットの管理を明示的に可能にする**
+
+## 🧱 スワップチェーンがない場合（仮に）
+
+想像してみましょう：
+
+描画と表示が同じバッファを使っていたら？
+
+```plaintext
+描画開始  → （GPUがまだ描いている）
+          ↓
+ディスプレイが更新 → バッファ読み取り → 🧨 ティアリング！
+```
+
+つまり：
+
+- GPUがまだ描いてる途中のデータを画面に映してしまう → 画面がズレて見える
+- また、**描画と表示の処理を同時にできない** → パフォーマンス低下
+- 高フレームレートに追いつかない → **カクつき・不安定なfps**
+
+## 🧪 例：スワップチェーンなしの世界（単一バッファ）
+
+流れ：
+
+1. `canvas` に直接描画する（= 1つのバッファしかない）
+2. フレームAを描いている最中に、ディスプレイがフレームを取りに来る
+3. **描画途中の画像がそのまま表示される**
+
+🎯 結果：
+
+- **ティアリング発生**
+- **描画の同期待ち（フレームブロック）で FPS が不安定**
+- **GPUとディスプレイが常に競合状態に**
+
+## ✅ スワップチェーンがある場合（WebGPUの現在）
+
+WebGPU では `context.getCurrentTexture()` によって、**今描くべきバックバッファ**が与えられます。
+
+```plaintext
+frame 1:
+  ┌──────────────┐
+  │ display: A   │ ← フロントバッファ（前フレーム）
+  └──────────────┘
+      ↑並列で↓
+  ┌──────────────┐
+  │ render : B   │ ← バックバッファ（今フレーム）
+  └──────────────┘
+```
+
+このように **表示と描画を別々に進められる**ので、
+
+- ティアリングが防げる
+- フレームを落とさず処理しやすくなる（= 結果的に FPS の安定にも貢献）
+
+## 🧠 WebGPU におけるスワップチェーンの本質的な目的は？
+
+結果的に「**描画の安定性**」「**非同期化によるパフォーマンス向上**」を支える重要な存在
+
+## 🧩 まとめ：スワップチェーンがない場合 vs ある場合
+
+| 特徴         | スワップチェーンなし       | スワップチェーンあり（WebGPU） |
+| ------------ | -------------------------- | ------------------------------ |
+| 描画バッファ | 表示と共有（単一）         | 描画用・表示用を分離           |
+| ティアリング | 発生しやすい               | 原則防げる（VSyncあり）        |
+| 同時処理     | 表示と描画が競合           | 並列に進行できる               |
+| FPS安定性    | 不安定（ブロッキングあり） | 安定しやすい（非同期）         |
+| 開発者の制御 | できない（暗黙）           | できる（明示）                 |
+
+## 💡 もしスワップチェーンがなかったら…
+
+- 描画中に読み出し禁止（CPU/GPUの待ち時間増）
+- ティアリング防止には必ず**描画完了待ち（同期）**が必要
+- 結果、**FPSはむしろ下がる！**
