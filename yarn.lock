@@ -403,6 +403,13 @@
   dependencies:
     "@iconify/types" "*"
 
+"@iconify-json/game-icons@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@iconify-json/game-icons/-/game-icons-1.2.1.tgz#1ad8def7157ade5ab4df514c2facf7b8030c62fa"
+  integrity sha512-JrKwJT+xmee87QRGIoUdR59fxMzqykS9NUnG7P0XVeznKwr3WkAw5IVWSQVQDLcN6+X3mdMFme3Hbhh6f0qTDw==
+  dependencies:
+    "@iconify/types" "*"
+
 "@iconify-json/geo@^1.2.2":
   version "1.2.2"
   resolved "https://registry.npmjs.org/@iconify-json/geo/-/geo-1.2.2.tgz"
@@ -414,6 +421,13 @@
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/@iconify-json/grommet-icons/-/grommet-icons-1.2.1.tgz#b18375d1478c0ee821e63f5a7067ac86b36f8afc"
   integrity sha512-x5RT+J4QIUUsgLobgBXjaKp+gpjIy1fMyBSdbhU5nv8F5it3tkmqj2/U2jt8KRgjVnlIgvKqKsGVll48flMnew==
+  dependencies:
+    "@iconify/types" "*"
+
+"@iconify-json/hugeicons@^1.2.4":
+  version "1.2.4"
+  resolved "https://registry.yarnpkg.com/@iconify-json/hugeicons/-/hugeicons-1.2.4.tgz#7cc5e3ffb6bf00e123e5c7e7e07ae32400aca59d"
+  integrity sha512-Rx1I42/wwqNiWx7rdQxtFWWOF1/DT1IMPrNReBVJiZe7NIdGT6Zv6Jw5gayqUtv7lDmE8eRmgd6MYRoVJrbuoA==
   dependencies:
     "@iconify/types" "*"
 
