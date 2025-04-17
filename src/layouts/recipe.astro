@@ -67,14 +67,7 @@ const indexInSeries = series && series.data.articles.findIndex((article) => arti
           <div class="main-content">
             <slot />
             {series && <NextArticles current={entry.id} series={series} />}
-            {
-              references && (
-                <>
-                  <hr />
-                  <References references={references} />
-                </>
-              )
-            }
+            {references && <References references={references} />}
           </div>
         </ProseGridFill>
       </div>
