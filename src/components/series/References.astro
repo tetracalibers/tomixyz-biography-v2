@@ -13,7 +13,7 @@ const { references } = Astro.props
   {
     references.map((reference) => (
       <li class="RefList-item">
-        <Icon name="game-icons:spell-book" size={32} />
+        <Icon class="ref-icon" name="game-icons:spell-book" size={32} />
         <a class="no-marker" href={reference.url} target="_blank" rel="noopener noreferrer">
           {reference.title}
         </a>
@@ -30,8 +30,12 @@ const { references } = Astro.props
 
   .RefList-item {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 0.5em;
     color: var(--slate-400);
+  }
+
+  .ref-icon {
+    flex-shrink: 0;
   }
 </style>
