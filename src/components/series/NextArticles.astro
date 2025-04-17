@@ -21,7 +21,7 @@ const getRecipePageUrl = (articleId: string) => SITE.base + `/recipes/${articleI
       <ul class="NextList">
         {nextArticles.map((page) => (
           <li class="NextList-item">
-            <Icon name="hugeicons:trade-up" size={32} />
+            <Icon class="next-icon" name="hugeicons:trade-up" size={32} />
             <a class="no-marker" href={getRecipePageUrl(page.id)}>
               {page.data.title}
             </a>
@@ -40,8 +40,12 @@ const getRecipePageUrl = (articleId: string) => SITE.base + `/recipes/${articleI
 
   .NextList-item {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 0.5em;
     color: var(--slate-400);
+  }
+
+  .next-icon {
+    flex-shrink: 0;
   }
 </style>
