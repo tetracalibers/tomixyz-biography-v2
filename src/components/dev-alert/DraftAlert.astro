@@ -1,6 +1,6 @@
 <div class="DraftAlert prose markdown-alert markdown-alert-caution">
   <p>
-    この記事は<code>draft</code>に設定されています。<wbr />ビルド時には除外されます。
+    この記事は<code>draft</code>に設定されています。<wbr />プロダクションビルド時には除外されます。
   </p>
 </div>
 
@@ -14,7 +14,7 @@
   }
   .DraftAlert p {
     color: aliceblue;
-    font-size: 1.1rem;
+    font-size: clamp(1rem, 0.965rem + 0.15vw, 1.1rem);
     word-break: keep-all;
     overflow-wrap: anywhere;
   }
