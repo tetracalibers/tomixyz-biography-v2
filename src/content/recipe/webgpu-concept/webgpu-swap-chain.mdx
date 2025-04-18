@@ -10,36 +10,21 @@ references:
     url: https://learnwebgl.brown37.net/07_cameras/screen_updates_and_animation.html#double-buffering
 tags:
   - webgpu
-  - webgl
-draft: true
 ---
 
 import FigureBox from "$/components/image-wrapper/FigureBox.astro"
 
 import img_ScreenTearing from "../../../assets/recipes/webgpu-concept/screen-tearing.png"
 
-> [!note]
-> 前回作ったデモのコードを深掘りする回
->
-> - フレームバッファとスワップチェーンについて
-> - `configure()`はスワップチェーンを構築している
-> - カラーフォーマットは描画先テクスチャの形式
-> - `getCurrentTexture()`はバックバッファを取得している
-> - テクスチャとテクスチャビューの違い
-> - VSyncとティアリング（スワップチェーンがなければどうなる？）
-> - WebGLでのスワップチェーン
-> - WebGPUでのスワップチェーン制御
-
 :SeriesPrevLink[前回]{series="webgpu-concept" current="webgpu-swap-chain"}は、WebGPUを使ってキャンバスを初期化するデモを実装しました。
 
-今回は、WebGPUによるキャンバス描画とは、その裏側でどのような処理が行われているのか、もう少し深掘りしていきます。
-具体的に注目するのは、`canvas{:html}`要素から取得したコンテキストを中心とする、次のメソッドです。
+今回は、WebGPUによるキャンバス描画の裏側でどのような処理が行われているのか、もう少し深掘りしていきます。
+具体的に注目するのは、`canvas{:html}`要素から取得したコンテキスト（`context{:js}`）を中心とする、次のメソッドです。
 
-- `gpu.getPreferredCanvasFormat(){:js}`は何を取得しているのか？
 - `context.configure(){:js}`は何をしているのか？
 - `context.getCurrentTexture().createView(){:js}`で何を作っているのか？
 
-```js showLineNumbers {7-8,14}
+```js showLineNumbers {8,14}
 const adapter = await navigator.gpu.requestAdapter()
 const device = await adapter.requestDevice()
 
@@ -133,143 +118,78 @@ GPUが描画を終える前に画面の更新（表示）が始まってしま�
 
 ## WebGPUにおけるスワップチェーン
 
+ここまでの内容を踏まえて、コードの種明かしをしていきます。
+
+### スワップチェーンの構築
+
+```js showLineNumbers{7} {2}
+const format = navigator.gpu.getPreferredCanvasFormat()
+context.configure({ device, format })
+```
+
 `context.configure(){:js}`メソッドは、単に描画先に関する設定を行うだけのものではありません。
 このメソッドの本質的な仕事は、内部で==スワップチェーン==を構築することです。
 
 `configure(){:js}`メソッドを呼び出すことで、`context{:js}`（`GPUCanvasContext{:js}`）がスワップチェーン用の複数のフレームバッファを裏で管理してくれるようになります。
 
-そして、描画時には、`context.getCurrentTexture(){:js}`メソッドで、そのフレームで描画すべきテクスチャ（==バックバッファ==）を取得します。
+### バックバッファの取得
 
-描画が終わったら、WebGPUが暗黙のスワップを行い、それを画面に表示してくれます。
+描画時には、スワップチェーンで管理されている複数のフレームバッファのうち、今描くべき==バックバッファ==（描画用のフレームバッファ）を取得する必要があります。
+このバックバッファを取得するメソッドが、`context.getCurrentTexture(){:js}`メソッドです。
 
----
-
-## [DRAFT]
-
-## 🔧 スワップチェーンの主な役割（WebGPU）
-
-1. **ティアリングを防ぐ（＝「表示中」と「描画中」を分ける）**
-2. **描画と表示を並列で処理できるようにする（非同期化）**
-3. **マルチバッファリング（double/triple）でGPUとディスプレイの間のボトルネックを吸収する**
-4. **レンダーターゲットの管理を明示的に可能にする**
-
-## 🧱 スワップチェーンがない場合（仮に）
-
-- GPUがまだ描いてる途中のデータを画面に映してしまう → 画面がズレて見える
-- また、**描画と表示の処理を同時にできない** → パフォーマンス低下
-- 高フレームレートに追いつかない → **カクつき・不安定なfps**
-
-## ✅ スワップチェーンがある場合（WebGPUの現在）
-
-WebGPU では `context.getCurrentTexture()` によって、**今描くべきバックバッファ**が与えられます。
-
-```plaintext
-frame 1:
-  ┌──────────────┐
-  │ display: A   │ ← フロントバッファ（前フレーム）
-  └──────────────┘
-      ↑並列で↓
-  ┌──────────────┐
-  │ render : B   │ ← バックバッファ（今フレーム）
-  └──────────────┘
+```js showLineNumbers{11} {4}
+const renderPassDescriptor = {
+  colorAttachments: [
+    {
+      view: context.getCurrentTexture().createView(),
+      loadOp: "clear",
+      clearValue: { r: 0.5, g: 0.5, b: 0.5, a: 1 },
+      storeOp: "store"
+    }
+  ]
+}
 ```
 
-このように **表示と描画を別々に進められる**ので、
+描画先である`colorAttachments[].view{:js}`には、スワップチェーンのバックバッファを指定していることになります。
 
-- ティアリングが防げる
-- フレームを落とさず処理しやすくなる（= 結果的に FPS の安定にも貢献）
+### テクスチャとテクスチャビュー
 
-## 🧠 WebGPU におけるスワップチェーンの本質的な目的は？
+`context.getCurrentTexture(){:js}`がバックバッファを取得するメソッドなら、その後に続く`createView(){:js}`メソッドは何をしているのでしょうか？
 
-結果的に「**描画の安定性**」「**非同期化によるパフォーマンス向上**」を支える重要な存在
+`context.getCurrentTexture(){:js}`メソッドからは、==テクスチャ==（`GPUTexture{:js}`）と呼ばれるオブジェクトが得られます。
+テクスチャは、ピクセル情報のかたまりであり、ただの画像データにすぎません。
 
-## 🧩 まとめ：スワップチェーンがない場合 vs ある場合
+WebGPUプログラミングでは、テクスチャ（画像）をさまざまな用途で使います。
 
-| 特徴         | スワップチェーンなし       | スワップチェーンあり（WebGPU） |
-| ------------ | -------------------------- | ------------------------------ |
-| 描画バッファ | 表示と共有（単一）         | 描画用・表示用を分離           |
-| ティアリング | 発生しやすい               | 原則防げる（VSyncあり）        |
-| 同時処理     | 表示と描画が競合           | 並列に進行できる               |
-| FPS安定性    | 不安定（ブロッキングあり） | 安定しやすい（非同期）         |
-| 開発者の制御 | できない（暗黙）           | できる（明示）                 |
+- 色を描き込む先として使う
+- シェーダーから読み取るためのデータとして使う
+  etc.
 
-## 💡 もしスワップチェーンがなかったら…
+しかし、テクスチャはそのままではGPUがどう使えばいいか分からない、未加工の情報です。
+そこで、テクスチャをどう使うかを判断し、用途に応じて加工させるメソッドが、`createView(){:js}`です。
 
-- 描画中に読み出し禁止（CPU/GPUの待ち時間増）
-- ティアリング防止には必ず**描画完了待ち（同期）**が必要
-- 結果、**FPSはむしろ下がる！**
+`createView(){:js}`メソッドで作成されるオブジェクトは、==テクスチャビュー==（`GPUTextureView{:js}`）と呼ばれます。
+ややこしいのは、=p=ビュー自体には用途を固定する力はない==ということです。実際の使い方（用途）は、そのビューをどこに渡すかによって決まります。
 
----
-
-## ✅ ティアリングを防ぐには？
-
-→ 対策は「**ディスプレイのリフレッシュに同期してフレームを表示**」すること！
-
-これがよく聞く「**VSync（垂直同期）**」という仕組みです。
-
-## 🧪 WebGLの場合：VSync は **自動**
-
-### ✅ `requestAnimationFrame()` による描画
-
-- `requestAnimationFrame()` は**ブラウザがVSyncに合わせて呼び出す**
-- ティアリングを**基本的に防いでくれる**
+`createView(){:js}`を呼び出した時点では、このビューが色として使われるのか、その他のデータとして使われるのか、色を描き込む先として使ってよいのか、シェーダーでの読み取り専用なのか、…などをWebGPUはまだ知る由がありません。
 
 ```js
-function render() {
-  drawScene() // WebGLの描画命令
-  requestAnimationFrame(render)
-}
-requestAnimationFrame(render)
+const view = texture.createView()
 ```
 
-**✔ 結果**：WebGLでは特に気にしなくても「ティアリングはほとんど起きない」
+ビューは、どこか意味のある場所に指定することで、初めてその用途が決まります。
+たとえば、`colorAttachments{:js}`内に指定されたビューは、WebGPU側で自動的に「色を描き込む用」として判断されます。
 
-## 🧰 WebGPU の場合：少し低レベル
+このように、わざわざテクスチャとテクスチャビューという2つの概念に分かれているのは、=p=データ自体とその使われ方を分離して扱う==ためです。
 
-WebGPUでは、**スワップチェーン（GPUCanvasContext）**の設定で、  
-**VSync を有効にするかどうか**を自分で指定できます。
+テクスチャはただの画像データであり、用途に応じてさまざまな使い方ができます。
+同じテクスチャから、目的ごとにビューを作成することで、1つのテクスチャをさまざまな用途に使い回すことができるようになるのです。
 
-### 🎛️ 具体的には `device.configure()` の `presentMode` を使う：
+テクスチャビューは、テクスチャというデータに対して、必要に応じて=p=異なる視点（view）==を与えるために用意された概念といえます。
 
-```ts
-context.configure({
-  device,
-  format,
-  alphaMode: "opaque",
-  usage: GPUTextureUsage.RENDER_ATTACHMENT,
-  // ↓これがVSyncの設定！
-  presentMode: "fifo" // or 'immediate', 'mailbox' (環境依存)
-})
-```
+### フレームバッファのスワップ
 
-### 🧾 `presentMode` の違い（Vulkanと同じ概念）
+描画が終わったら、描画用と表示用のフレームバッファを切り替える（スワップする）必要があります。
+しかし、WebGPUでは、そのスワップ操作を自分で行う必要はありません。
 
-| presentMode   | ティアリング防止  | レイテンシ | 備考                           |
-| ------------- | ----------------- | ---------- | ------------------------------ |
-| `'fifo'`      | ✅ あり（VSync）  | やや大きい | 標準的・一番安全               |
-| `'immediate'` | ❌ なし（即出し） | 小さい     | ティアリング出る可能性あり     |
-| `'mailbox'`   | ✅ あり           | 小さい     | パフォーマンス良・対応環境限定 |
-
-※ ブラウザによっては `'fifo'` 以外サポートしていない場合があります。
-
-## ✅ WebGPU でティアリングを防ぎたいなら？
-
-1. `presentMode: 'fifo'` を指定（またはデフォルトに任せる）
-2. 描画ループは `requestAnimationFrame()` で駆動
-3. 適切に `getCurrentTexture()` → `commandEncoder.submit()` までやればOK
-
-## 💡 じゃあ WebGPU でティアリングが出る可能性は？
-
-- `presentMode: 'immediate'` を指定して、なおかつ
-- `requestAnimationFrame()` を使わずに `setInterval` などで無理やり描画していると…
-
-➡ **GPUとディスプレイがズレて、ティアリングが発生する**可能性があります。
-
-## 🎯 まとめ：ティアリング防止まとめ表
-
-| 特徴                 | WebGL                                     | WebGPU                                      |
-| -------------------- | ----------------------------------------- | ------------------------------------------- |
-| スワップチェーン制御 | ブラウザ任せ                              | 自分で設定（presentMode）                   |
-| VSyncの仕組み        | 自動的に有効（`requestAnimationFrame()`） | `presentMode: 'fifo'` を使う                |
-| ティアリングの可能性 | ほぼ無し                                  | `'immediate'` を使ったときに発生し得る      |
-| レイテンシ調整       | 不可（ブラウザ任せ）                      | presentMode や multi-buffering の制御で可能 |
+描画が終わったら、WebGPUが暗黙のスワップを行い、それを画面に表示してくれます。
