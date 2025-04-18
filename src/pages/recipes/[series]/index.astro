@@ -10,7 +10,7 @@ import { getEntries } from "astro:content"
 export const getStaticPaths: GetStaticPaths = async () => {
   const filterPublic = (entry: CollectionEntry<"recipe">) => {
     if (import.meta.env.DEV) return true
-    return !entry.data.draft && !entry.data.private
+    return !entry.data.draft
   }
 
   const series = await getCollection("series")

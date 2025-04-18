@@ -106,8 +106,7 @@ const recipe = defineCollection({
         })
         .array()
         .optional(),
-      draft: z.boolean().default(false),
-      private: z.boolean().default(false)
+      draft: z.boolean().default(false)
     })
 })
 

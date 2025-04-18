@@ -6,7 +6,7 @@ type RefTagEntry = { data: { tags: ReferenceDataEntry<"tag">[]; date: string } }
 export const getRefTagCollection = async () => {
   const filterPublic = (entry: CollectionEntry<"recipe">) => {
     if (import.meta.env.DEV) return true
-    return !entry.data.draft && !entry.data.private
+    return !entry.data.draft
   }
 
   const projects = await getCollection("project")
