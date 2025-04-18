@@ -6,6 +6,7 @@ articles:
   - webgpu-concept/webgpu-component
   - webgpu-concept/webgpu-canvas
   - webgpu-concept/webgpu-swap-chain
+  - webgpu-concept/webgpu-shader-pipeline
 ---
 
 WebGPUのコンセプトと構成要素について、WebGLと比較しながら解説します。
