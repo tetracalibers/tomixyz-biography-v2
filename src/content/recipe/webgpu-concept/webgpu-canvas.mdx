@@ -249,7 +249,7 @@ device.queue.submit([commandEncoder.finish()])
 
 ## 実装：キャンバスの色を初期化する
 
-ここまで解説した内容を順に組み合わせて、WebGPUでキャンバスの色を初期化するデモを実装することができます。
+ここまで解説した内容を順に組み合わせて、WebGPUでキャンバスの色を初期化するデモを実装することができます。（※エラー処理は省略しています。）
 
 ```js title="WebGPUでキャンバスの色を初期化する" showLineNumbers
 const adapter = await navigator.gpu.requestAdapter()
