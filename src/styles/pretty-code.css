@@ -135,6 +135,7 @@ div[data-rehype-pretty-code-title] + pre {
   color: var(--_pretty-title-border);
   font-weight: bold;
   font-size: clamp(0.6rem, 2.9vw, 0.875rem);
+  line-height: 1.5;
 }
 [data-rehype-pretty-code-title]::before {
   position: absolute;
