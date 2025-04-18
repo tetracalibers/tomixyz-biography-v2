@@ -1,14 +1,10 @@
 import type { ReferenceDataEntry } from "astro:content"
-import { getCollection, type CollectionEntry } from "astro:content"
+import { getCollection } from "astro:content"
+import { filterPublic } from "./filter"
 
 type RefTagEntry = { data: { tags: ReferenceDataEntry<"tag">[]; date: string } }
 
 export const getRefTagCollection = async () => {
-  const filterPublic = (entry: CollectionEntry<"recipe">) => {
-    if (import.meta.env.DEV) return true
-    return !entry.data.draft
-  }
-
   const projects = await getCollection("project")
   const events = await getCollection("event")
   const recipes = await getCollection("recipe", filterPublic)
