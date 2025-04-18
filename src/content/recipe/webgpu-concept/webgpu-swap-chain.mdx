@@ -1,0 +1,196 @@
+---
+title: WebGPUでのキャンバス描画の裏側
+date: "2025-04-18"
+description: キャンバス描画時に作られるテクスチャとスワップチェーンの仕組み
+series: webgpu-concept
+references:
+  - title: Canvas Context and Swap Chain - Render a WebGPU Triangle | Video
+    url: https://carmencincotti.com/2022-12-19/how-to-render-a-webgpu-triangle-series-part-three-video/
+  - title: Learn WebGL - 7.8 - Screen Updates and Animation
+    url: https://learnwebgl.brown37.net/07_cameras/screen_updates_and_animation.html#double-buffering
+tags:
+  - webgpu
+---
+
+import FigureBox from "$/components/image-wrapper/FigureBox.astro"
+
+import img_ScreenTearing from "../../../assets/recipes/webgpu-concept/screen-tearing.png"
+
+:SeriesPrevLink[前回]{series="webgpu-concept" current="webgpu-swap-chain"}は、WebGPUを使ってキャンバスを初期化するデモを実装しました。
+
+今回は、WebGPUによるキャンバス描画の裏側でどのような処理が行われているのか、もう少し深掘りしていきます。
+具体的に注目するのは、`canvas{:html}`要素から取得したコンテキスト（`context{:js}`）を中心とする、次のメソッドです。
+
+- `context.configure(){:js}`は何をしているのか？
+- `context.getCurrentTexture(){:js}`では何を取得しているのか？
+- `createView(){:js}`は何を作るためのものなのか？
+
+```js showLineNumbers {8,14}
+const adapter = await navigator.gpu.requestAdapter()
+const device = await adapter.requestDevice()
+
+const canvas = document.querySelector("canvas")
+const context = canvas.getContext("webgpu")
+
+const format = navigator.gpu.getPreferredCanvasFormat()
+context.configure({ device, format })
+
+const commandEncoder = device.createCommandEncoder()
+const renderPassDescriptor = {
+  colorAttachments: [
+    {
+      view: context.getCurrentTexture().createView(),
+      loadOp: "clear",
+      clearValue: { r: 0.5, g: 0.5, b: 0.5, a: 1 },
+      storeOp: "store"
+    }
+  ]
+}
+
+const renderPass = commandEncoder.beginRenderPass(renderPassDescriptor)
+renderPass.end()
+
+device.queue.submit([commandEncoder.finish()])
+```
+
+## WebGPUによるキャンバス描画の仕組み
+
+WebGPUは、キャンバスに直接描画するAPIというより、画像の描画・生成を行うことを本質とするAPIです。
+WebGPUによるキャンバスへの描画とは、=p=WebGPUが生成した画像をキャンバスに貼り付ける==という処理になっています。
+
+WebGPUが生成した画像データ（描画処理をした結果）は、==フレームバッファ==と呼ばれるメモリ領域に一時的に保存されます。
+
+### フレームバッファと画面更新
+
+画面は1秒間に数十回というペースで、高速に更新されます。
+
+そんな中でも、「描いている途中の絵」が見えないようにするため、WebGPUは、常に最低2枚以上のフレームバッファを用意しておく仕組みになっています。そのうち1枚はキャンバスに表示し、その裏で、もう1枚に次に表示したい内容を描画しておく、という役割分担です。
+
+このような役割分担を実現するため、WebGPUは直接キャンバスに描画するのではなく、=p=一旦裏で画像を作っておいてから、完成した画像を一気に表示する==ようになっているのです。
+
+### スワップチェーン
+
+表示用と描画用、この2つのフレームバッファ（画像）を入れ替えながら描画するための仕組みが、==スワップチェーン==です。
+
+2つのフレームバッファのうち、GPUで描いている最中のフレームバッファは==バックバッファ (Back Buffer)==、キャンバスに表示しているフレームバッファは==フロントバッファ (Front Buffer)==と呼ばれます。
+
+| 名前             | 用途   | 状態                   |
+| ---------------- | ------ | ---------------------- |
+| フロントバッファ | 表示用 | 現在画面に出ている画像 |
+| バックバッファ   | 描画用 | 今GPUが描いている画像  |
+
+WebGPUにおけるスワップチェーンでは、この2つのフレームバッファを切り替えて（==スワップ==して）交互に使います。
+
+```text title="🕐 Frame 1"
+[表示中] 🖼️ Frame A ← Front Buffer
+[描画中] 🖌️ Frame B ← Back Buffer
+```
+
+```text title="🕑 Frame 2（スワップ後）"
+[表示中] 🖼️ Frame B ← 前回描いた結果が表示される
+[描画中] 🖌️ Frame A ← 次に表示したい画像を描画する
+```
+
+```text title="🕒 Frame 3（さらにスワップ）"
+[表示中] 🖼️ Frame A ← 前回描いた結果が表示される
+[描画中] 🖌️ Frame B ← 次に表示したい画像を描画する
+```
+
+このようにフレームバッファを使い回すことで、メモリを圧迫することなく、表示と描画を分けて行うことができます。
+
+### 補足：スクリーンティアリングの防止
+
+もしも、表示と描画を同じフレームバッファで行っていたら、どうなるでしょうか？
+
+GPUは、ディスプレイが画面を更新するタイミングに関わらず、独自のタイミングで==フレーム==（ある瞬間に画面に表示される1枚絵）を描画します。
+
+画面更新のタイミングと、GPUでの描画完了のタイミングが合うとは限りません。タイミングがずれてしまうと、画面に表示される画像は、描画途中の画像になってしまうのです。
+
+1. GPUがフレームバッファに描画を開始
+2. ディスプレイが画面を更新
+3. フレームバッファの内容を読み取って表示
+4. GPUが描いている途中の画像がそのまま表示される
+
+GPUが描画を終える前に画面の更新（表示）が始まってしまい、複数のフレームが混ざって表示される現象は==ティアリング==と呼ばれ、画面が上下でズレて見えるような乱れた表示になってしまいます。
+
+<FigureBox src={img_ScreenTearing} alt="" />
+
+スワップチェーンによって「表示中」と「描画中」を分ける仕組みは、ティアリングを防ぐためにも重要な役割を果たしています。
+
+## WebGPUにおけるスワップチェーン
+
+ここまでの内容を踏まえて、コードの種明かしをしていきます。
+
+### スワップチェーンの構築
+
+```js showLineNumbers{7} {2}
+const format = navigator.gpu.getPreferredCanvasFormat()
+context.configure({ device, format })
+```
+
+`context.configure(){:js}`メソッドは、単に描画先に関する設定を行うだけのものではありません。
+このメソッドの本質的な仕事は、内部で==スワップチェーン==を構築することです。
+
+`configure(){:js}`メソッドを呼び出すことで、`context{:js}`（`GPUCanvasContext{:js}`）がスワップチェーン用の複数のフレームバッファを裏で管理してくれるようになります。
+
+### バックバッファの取得
+
+描画時には、スワップチェーンで管理されている複数のフレームバッファのうち、今描くべき==バックバッファ==（描画用のフレームバッファ）を取得する必要があります。
+このバックバッファを取得するメソッドが、`context.getCurrentTexture(){:js}`メソッドです。
+
+```js showLineNumbers{11} {4}
+const renderPassDescriptor = {
+  colorAttachments: [
+    {
+      view: context.getCurrentTexture().createView(),
+      loadOp: "clear",
+      clearValue: { r: 0.5, g: 0.5, b: 0.5, a: 1 },
+      storeOp: "store"
+    }
+  ]
+}
+```
+
+描画先である`colorAttachments[].view{:js}`には、スワップチェーンのバックバッファを指定していることになります。
+
+### テクスチャとテクスチャビュー
+
+`context.getCurrentTexture(){:js}`がバックバッファを取得するメソッドなら、その後に続く`createView(){:js}`メソッドは何をしているのでしょうか？
+
+`context.getCurrentTexture(){:js}`メソッドからは、==テクスチャ==（`GPUTexture{:js}`）と呼ばれるオブジェクトが得られます。
+テクスチャは、ピクセル情報のかたまりであり、ただの画像データにすぎません。
+
+WebGPUプログラミングでは、テクスチャ（画像）をさまざまな用途で使います。
+
+- 色を描き込む先として使う
+- シェーダーから読み取るためのデータとして使う
+  etc.
+
+しかし、テクスチャはそのままではGPUがどう使えばいいか分からない、未加工の情報です。
+そこで、テクスチャをどう使うかを判断し、用途に応じて加工させるメソッドが、`createView(){:js}`です。
+
+`createView(){:js}`メソッドで作成されるオブジェクトは、==テクスチャビュー==（`GPUTextureView{:js}`）と呼ばれます。
+ややこしいのは、=p=ビュー自体には用途を固定する力はない==ということです。実際の使い方（用途）は、そのビューをどこに渡すかによって決まります。
+
+`createView(){:js}`を呼び出した時点では、このビューが色として使われるのか、その他のデータとして使われるのか、色を描き込む先として使ってよいのか、シェーダーでの読み取り専用なのか、…などをWebGPUはまだ知る由がありません。
+
+```js
+const view = texture.createView()
+```
+
+ビューは、どこか意味のある場所に指定することで、初めてその用途が決まります。
+たとえば、`colorAttachments{:js}`内に指定されたビューは、WebGPU側で自動的に「色を描き込む用」として判断されます。
+
+このように、わざわざテクスチャとテクスチャビューという2つの概念に分かれているのは、=p=データ自体とその使われ方を分離して扱う==ためです。
+
+テクスチャはただの画像データであり、用途に応じてさまざまな使い方ができます。
+同じテクスチャから、目的ごとにビューを作成することで、1つのテクスチャをさまざまな用途に使い回すことができるようになるのです。
+
+テクスチャビューは、テクスチャというデータに対して、必要に応じて=p=異なる視点（view）==を与えるために用意された概念といえます。
+
+### フレームバッファのスワップ
+
+描画が終わったら、描画用と表示用のフレームバッファを切り替える（スワップする）必要があります。
+しかし、WebGPUでは、そのスワップ操作を自分で行う必要はありません。
+
+描画が終わったら、WebGPUが暗黙のスワップを行い、それを画面に表示してくれます。

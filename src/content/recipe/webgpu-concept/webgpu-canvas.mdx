@@ -71,11 +71,13 @@ const format = navigator.gpu.getPreferredCanvasFormat()
 context.configure({ device, format })
 ```
 
-論理デバイス`device{:js}`は、実際のGPUに対する操作の窓口であり、バッファやテクスチャなどのGPUリソースの作成元でもあります。`device{:js}`に紐づいたリソースを使うためには、キャンバスの描画先も同じ`device{:js}`で管理されている必要があります。
+`gpu.getPreferredCanvasFormat(){:js}`メソッドによって、ブラウザとGPUが最適とするキャンバスのカラーフォーマットを取得できます。
+多くの環境では`"bgra8unorm"{:js}`が返ってくることが多いですが、将来のブラウザやデバイスによって最適な形式が変わる可能性もあるため、ハードコードせずこの関数を使うのが推奨されています。
 
-また、キャンバスと論理デバイスを明示的に紐づけることには、セキュリティ上の意味もあります。「使っていいGPUはこれだよ」と明示することで、リソースの誤使用を防ぐのです。
+論理デバイス（`device{:js}`）は、実際のGPUに対する操作の窓口であり、バッファやテクスチャなどのGPUリソースの作成元でもあります。
+`device{:js}`に紐づいたリソースを使うためには、キャンバスの描画先も同じ`device{:js}`で管理されている必要があるため、`context.configure(){:js}`メソッドでは論理デバイスも指定します。
 
-> [!important] > `format{:js}`を取得している`getPreferredCanvasFormat(){:js}`メソッドについては、今後の記事で詳しく解説します。
+キャンバスと論理デバイスを明示的に紐づけることには、セキュリティ上の意味もあります。「使っていいGPUはこれだよ」と明示することで、リソースの誤使用を防ぐのです。
 
 ## GPUに仕事を依頼する
 
@@ -247,7 +249,7 @@ device.queue.submit([commandEncoder.finish()])
 
 ## 実装：キャンバスの色を初期化する
 
-ここまで解説した内容を順に組み合わせて、WebGPUでキャンバスの色を初期化するデモを実装することができます。
+ここまで解説した内容を順に組み合わせて、WebGPUでキャンバスの色を初期化するデモを実装することができます。（※エラー処理は省略しています。）
 
 ```js title="WebGPUでキャンバスの色を初期化する" showLineNumbers
 const adapter = await navigator.gpu.requestAdapter()
