@@ -1,15 +1,11 @@
 ---
 import { getCollection, render, type CollectionEntry } from "astro:content"
 import RecipeLayout from "$/layouts/recipe.astro"
+import { filterPublic } from "$/lib/filter"
 
 import "$/styles/prose/use-marker.css"
 
 export async function getStaticPaths() {
-  const filterPublic = (entry: CollectionEntry<"recipe">) => {
-    if (import.meta.env.DEV) return true
-    return !entry.data.draft
-  }
-
   const collection = await getCollection("recipe", filterPublic)
   return collection.map((page) => {
     return {
