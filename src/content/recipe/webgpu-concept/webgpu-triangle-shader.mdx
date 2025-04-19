@@ -1,7 +1,7 @@
 ---
-title: WebGPUのシェーダとパイプライン
+title: 描画のためのWGSLシェーダの基本
 date: "2025-04-19"
-description: シェーダを使って三角形を描画する
+description: WebGPUで三角形を描く第一歩
 series: webgpu-concept
 references:
   - title: WebGPU入門 - WebGPUで三角形を表示する
@@ -14,13 +14,11 @@ references:
     url: https://carmencincotti.com/2022-05-02/homogeneous-coordinates-clip-space-ndc/
 tags:
   - webgpu
+  - wgsl
 draft: true
 ---
 
-import DemoLinkWithResult from "$/components/demo/DemoLinkWithResult.astro"
 import NdcTriangleSVG from "$/demo/webgpu-triangle-no-buffer/NdcTriangleSVG.astro"
-
-import img_WebGpuTriangleNoBuffer from "../../../assets/recipes/webgpu-concept/webgpu-triangle-no-buffer.png"
 
 キャンバスの初期化ができたら、今度はその上に何らかの図形を表示したくなるでしょう。
 今回からは、WebGPUで三角形を描くことを目指して、まだ解説していないWebGPUの構成要素について触れていきます。
@@ -242,89 +240,3 @@ GPUは各三角形が画面上のどのピクセルをカバーするかを計�
 
 その後、各ピクセルは==フラグメントシェーダ==によって処理されます。
 フラグメントシェーダはピクセル座標だけでなく、そのピクセルの色を決定するための補助データにもアクセスできます。
-
-データを頂点シェーダに渡し、次にフラグメント シェーダに渡して画面に直接出力するこのシステムはパイプラインと呼ばれ、WebGPU ではパイプラインを明示的に定義する必要があります。
-
-## 実装：キャンバスに三角形を描画する
-
-<DemoLinkWithResult
-  url="/demo/webgpu-triangle-no-buffer"
-  result={img_WebGpuTriangleNoBuffer}
-  title="WebGPUで三角形を描画するデモ"
-/>
-
-```wgsl title="シェーダのコード" showLineNumbers
-struct VertexInput {
-  @builtin(vertex_index) VertexIndex: u32
-};
-
-struct VertexOutput {
-  @builtin(position) Position: vec4f
-};
-
-@vertex
-fn vs_main(in: VertexInput) -> VertexOutput {
-  var pos = array<vec2f, 3>(
-    vec2f( 0.0,  0.5),
-    vec2f(-0.5, -0.5),
-    vec2f( 0.5, -0.5)
-  );
-
-  var out: VertexOutput;
-  out.Position = vec4f(pos[in.VertexIndex], 0.0, 1.0);
-  return out;
-}
-
-@fragment
-fn fs_main(in: VertexOutput) -> @location(0) vec4f {
-  return vec4f(0.918, 0.561, 0.918, 1.0);
-}
-```
-
-```ts title="JavaScriptのコード" showLineNumbers {10-12,14-26,41-42}
-const adapter = await navigator.gpu.requestAdapter()
-const device = await adapter.requestDevice()
-
-const canvas = document.querySelector("canvas")
-const context = canvas.getContext("webgpu")
-
-const canvasFormat = navigator.gpu.getPreferredCanvasFormat()
-context.configure({ device, format: canvasFormat })
-
-const shaderModule = device.createShaderModule({
-  code: `シェーダのコードをここに埋め込み`
-})
-
-const renderPipeline = device.createRenderPipeline({
-  layout: "auto",
-  vertex: {
-    module: shaderModule,
-    entryPoint: "vs_main"
-  },
-  fragment: {
-    module: shaderModule,
-    entryPoint: "fs_main",
-    targets: [{ format: canvasFormat }]
-  },
-  primitive: { topology: "triangle-list" }
-})
-
-const commandEncoder = device.createCommandEncoder()
-const renderPassDescriptor = {
-  colorAttachments: [
-    {
-      view: context.getCurrentTexture().createView(),
-      loadOp: "clear",
-      clearValue: { r: 0.32, g: 0.34, b: 0.36, a: 1 },
-      storeOp: "store"
-    }
-  ]
-}
-
-const renderPass = commandEncoder.beginRenderPass(renderPassDescriptor)
-renderPass.setPipeline(renderPipeline)
-renderPass.draw(3)
-renderPass.end()
-
-device.queue.submit([encoder.finish()])
-```
