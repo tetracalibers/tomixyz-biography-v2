@@ -4,15 +4,17 @@ import type { CollectionEntry } from "astro:content"
 import { Icon } from "astro-icon/components"
 import type { DataEntryMap } from "astro:content"
 
-interface Props<K extends keyof DataEntryMap> {
-  page: Page<CollectionEntry<K>>
+interface Props {
+  page: Page<CollectionEntry<keyof DataEntryMap>>
 }
 
 const { page } = Astro.props
 
 const { currentPage, lastPage } = page
 const { prev, next } = page.url
+
 const pages = new Array(lastPage).fill(0).map((_, i) => i)
+const root = page.url.current.split("/").slice(1, 2).join("/")
 ---
 
 <ul class="Paginator">
@@ -24,7 +26,7 @@ const pages = new Array(lastPage).fill(0).map((_, i) => i)
   {
     pages.map((index) => (
       <li class="Paginator-item -page-num">
-        <a href={`/projects/${index + 1}`} aria-current={index + 1 === currentPage ? "page" : undefined}>
+        <a href={`/${root}/${index + 1}`} aria-current={index + 1 === currentPage ? "page" : undefined}>
           {index + 1}
         </a>
       </li>

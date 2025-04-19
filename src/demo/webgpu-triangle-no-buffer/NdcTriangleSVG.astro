@@ -1,0 +1,114 @@
+<div id="svg-webgpu-ndc-triangle"></div>
+
+<script>
+  import { SVG } from "@svgdotjs/svg.js"
+
+  const axisColor = "#666"
+  const textColor = "#000"
+  const triColor = "#0077cc"
+  const labelFontSize = 14
+
+  const fontConfig = { size: labelFontSize, fill: textColor, family: "Ysabeau Office", weight: 500 }
+
+  const points = [
+    [0.0, 0.5],
+    [-0.5, -0.5],
+    [0.5, -0.5]
+  ]
+
+  const pointsStr = points.reduce((acc, p) => {
+    acc += `${p[0] * 100},${p[1] * 100} `
+    return acc
+  }, "")
+
+  const draw = SVG().addTo("#svg-webgpu-ndc-triangle").viewbox(-200, -150, 400, 280)
+
+  // clip space
+  const spaceRect = draw.rect(200, 200).move(-100, -100).fill("#f9f9f9").stroke({ color: "#000", width: 1 })
+
+  // axis
+  const xAxis = draw.line(-120, 0, 120, 0).stroke({ color: axisColor, width: 1 })
+  const yAxis = draw.line(0, -120, 0, 120).stroke({ color: axisColor, width: 1 })
+
+  // Y軸反転のためグループで scaleY(-1)
+  const groupFlipY = draw.group().transform({ scaleY: -1 })
+
+  // triangle
+  groupFlipY.polygon(pointsStr).fill("rgba(0, 128, 255, 0.4)").stroke({ color: triColor, width: 1.5 })
+
+  // vertex
+  points.forEach((p) => {
+    groupFlipY
+      .circle(5)
+      .fill(triColor)
+      .move(p[0] * 100 - 2.5, p[1] * 100 - 2.5)
+  })
+
+  // axis label
+  draw
+    .text("x")
+    .font(fontConfig)
+    .amove(-xAxis.x(), spaceRect.cy())
+    .dmove(labelFontSize / 2, labelFontSize / 4)
+  draw
+    .text("y")
+    .font(fontConfig)
+    .amove(yAxis.x(), yAxis.y())
+    .dmove(-labelFontSize / 4, -labelFontSize)
+
+  // spaceRectの左上
+  draw
+    .text("(-1, +1)")
+    .font(fontConfig)
+    .move(spaceRect.x() - labelFontSize * 4, spaceRect.y() - labelFontSize)
+  // spaceRectの左下
+  draw
+    .text("(-1, -1)")
+    .font(fontConfig)
+    .move(spaceRect.x() - labelFontSize * 4, spaceRect.y() + spaceRect.height() - labelFontSize * 0.5)
+  // spaceRectの右上
+  draw
+    .text("(+1, +1)")
+    .font(fontConfig)
+    .move(spaceRect.x() + spaceRect.width() + labelFontSize * 0.5, spaceRect.y() - labelFontSize)
+  // spaceRectの右下
+  draw
+    .text("(+1, -1)")
+    .font(fontConfig)
+    .move(
+      spaceRect.x() + spaceRect.width() + labelFontSize * 0.5,
+      spaceRect.y() + spaceRect.height() - labelFontSize * 0.5
+    )
+
+  // 三角形の上の頂点
+  groupFlipY
+    .text("(0.0, 0.5)")
+    .font({ ...fontConfig, fill: triColor })
+    .move(points[0][0] * 100 - labelFontSize * 2, points[0][1] * 100 + labelFontSize * 0.5)
+    .transform({ scaleY: -1 })
+  // 三角形の左下の頂点
+  groupFlipY
+    .text("(-0.5, -0.5)")
+    .font({ ...fontConfig, fill: triColor })
+    .move(points[1][0] * 100 - labelFontSize * 3, points[1][1] * 100 - labelFontSize * 1.5)
+    .transform({ scaleY: -1 })
+  // 三角形の右下の頂点
+  groupFlipY
+    .text("(0.5, -0.5)")
+    .font({ ...fontConfig, fill: triColor })
+    .move(points[2][0] * 100 - labelFontSize * 2, points[2][1] * 100 - labelFontSize * 1.5)
+    .transform({ scaleY: -1 })
+</script>
+
+<style>
+  #svg-webgpu-ndc-triangle {
+    background-color: light-dark(rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.6));
+    border-radius: 0.3em;
+    padding-block: 1em;
+    display: grid;
+    place-items: center;
+  }
+  #svg-webgpu-ndc-triangle :global(> svg) {
+    max-width: 600px;
+  }
+</style>
