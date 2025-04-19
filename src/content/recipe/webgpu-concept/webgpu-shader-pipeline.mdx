@@ -10,19 +10,22 @@ references:
     url: https://webgpufundamentals.org/webgpu/lessons/webgpu-fundamentals.html
   - title: WebGPU WGSL
     url: https://webgpufundamentals.org/webgpu/lessons/webgpu-wgsl.html
+  - title: Homogeneous Coordinates, Clip Space, and NDC | WebGPU
+    url: https://carmencincotti.com/2022-05-02/homogeneous-coordinates-clip-space-ndc/
 tags:
   - webgpu
 draft: true
 ---
 
 import DemoLinkWithResult from "$/components/demo/DemoLinkWithResult.astro"
+import NdcTriangleSVG from "$/demo/webgpu-triangle-no-buffer/NdcTriangleSVG.astro"
 
 import img_WebGpuTriangleNoBuffer from "../../../assets/recipes/webgpu-concept/webgpu-triangle-no-buffer.png"
 
 キャンバスの初期化ができたら、今度はその上に何らかの図形を表示したくなるでしょう。
 今回からは、WebGPUで三角形を描くことを目指して、まだ解説していないWebGPUの構成要素について触れていきます。
 
-## 描画コマンドからすべてが始まる
+## 描画コマンドから始める
 
 三角形の描画を行うにはさまざまな準備が必要ですが、わかりやすいように、まずは描画コマンドから見ていくことにします。必要なものは後から用意していくことにしましょう。
 
@@ -60,7 +63,7 @@ WebGPUでは、GPUを使って描画処理を行います。
 
 ## 頂点シェーダの実装
 
-「頂点の座標を計算する処理」を担うのが、頂点シェーダです。
+各頂点ごとに呼び出され、「頂点の座標を計算する処理」を担うのが、頂点シェーダです。
 つまり、`renderPass.draw(3){:js}`という描画コマンドを呼び出した場合は、頂点シェーダが3回呼び出されることになるのです。
 
 頂点シェーダは、頂点の座標を返す関数として定義します。
@@ -87,6 +90,149 @@ fn vs_main(in: VertexInput) -> VertexOutput {
   return out;
 }
 ```
+
+### エントリーポイント
+
+`fn{:wgsl}`キーワードで定義している`vs_main(){:wgsl}`という関数が、頂点シェーダとして各頂点ごとに呼び出されます。
+
+```wgsl showLineNumbers{9} {1-2}
+@vertex
+fn vs_main(in: VertexInput) -> VertexOutput {
+  var pos = array<vec2f, 3>(
+    vec2f( 0.0,  0.5),
+    vec2f(-0.5, -0.5),
+    vec2f( 0.5, -0.5)
+  );
+
+  var out: VertexOutput;
+  out.Position = vec4f(pos[in.VertexIndex], 0.0, 1.0);
+  return out;
+}
+```
+
+関数名は`vs_main{:wgsl}`でなくても構いません。関数名は自由に決めることができます。
+
+ただし、この関数が頂点シェーダの==エントリーポイント==（真っ先に呼び出されるメインの関数）を表していることを示すために、`@vertex{:wgsl}`という印（==属性==）を付ける必要があります。
+
+### 入力・出力の構造体
+
+`vs_main(){:wgsl}`関数の定義では、引数`in{:wgsl}`は`VertexInput{:wgsl}`という型、出力は`VertexOutput{:wgsl}`という型であると明示しています。
+
+```wgsl showLineNumbers{9} {2}
+@vertex
+fn vs_main(in: VertexInput) -> VertexOutput {
+```
+
+`VertexInput{:wgsl}`と`VertexOutput{:wgsl}`がどんな中身を持つのかは、コードの先頭部分で定義しています。
+
+```wgsl showLineNumbers
+struct VertexInput {
+  @builtin(vertex_index) VertexIndex: u32
+};
+
+struct VertexOutput {
+  @builtin(position) Position: vec4f
+};
+```
+
+これらは==構造体== (struct)と呼ばれる、JavaScriptのオブジェクトに似たデータ構造で、複数の値をまとめて格納することができます。
+
+### 組み込み変数の利用
+
+`VertexInput{:wgsl}`構造体に注目してみましょう。
+
+```wgsl showLineNumbers
+struct VertexInput {
+  @builtin(vertex_index) VertexIndex: u32
+};
+```
+
+`@builtin{:wgsl}`は、WGSLが自動的に用意してくれる変数（==組み込み変数==）を利用することを意味します。
+ここでは、`vertex_index`という組み込み変数を、`VertexIndex`という変数名で利用することを宣言しています。
+
+`vertex_index`に格納されている値は、==頂点インデックス==と呼ばれる、描画する三角形の各頂点を識別するための番号です。
+
+`renderPass.draw(3){:js}`という描画コマンドを呼び出した場合、頂点シェーダは3回呼び出されるのでした。
+この`draw(3){:js}`コマンドでは、`0`、`1`、`2`という`vertex_index`が自動生成され、頂点シェーダに渡されます。
+
+頂点シェーダ側で`vertex_index`を参照することで、今、何番目の頂点を処理しているのかを知ることができるのです。この値は、あとで頂点の座標を出力するときに使います。
+
+> [!tip]
+> WGSLが自動的に用意してくれる組み込み変数は他にもたくさんありますが、使いたいものだけ宣言するようにするとよいでしょう。
+
+### 必須の出力としてマーク
+
+`VertexOutput{:wgsl}`構造体でも、`@builtin{:wgsl}`というキーワードが登場します。
+
+```wgsl showLineNumbers{5}
+struct VertexOutput {
+  @builtin(position) Position: vec4f
+};
+```
+
+頂点シェーダでは、必ず頂点の座標を返す必要があります。
+頂点シェーダが返した頂点の位置は、WebGPU側では`position{:wgsl}`という内部変数に格納され、その値をもとに描画処理が進んでいきます。
+
+ここでは、`Position{:wgsl}`がWebGPU内部で使われていく必須の出力であることを示すために、`@builtin{:wgsl}`という印をつけています。
+つまり、「`Position{:wgsl}`という名前で頂点の座標を返すから、それを`position{:wgsl}`内部変数に格納して使ってね」という合図を出しているわけです。
+
+### 頂点の座標の定義
+
+関数内部では、`pos{:wgsl}`という配列を用意し、三角形の3つの頂点の`(x, y)`座標を定義しています。
+
+```wgsl showLineNumbers{9} {3-7}
+@vertex
+fn vs_main(in: VertexInput) -> VertexOutput {
+  var pos = array<vec2f, 3>(
+    vec2f( 0.0,  0.5),
+    vec2f(-0.5, -0.5),
+    vec2f( 0.5, -0.5)
+  );
+
+  var out: VertexOutput;
+  out.Position = vec4f(pos[in.VertexIndex], 0.0, 1.0);
+  return out;
+}
+```
+
+<NdcTriangleSVG />
+
+WebGPUでは、頂点シェーダが返す座標は、`(-1, -1)`から`(1, 1)`の範囲に収める必要があります。
+
+> [!note]
+> この範囲は、==正規化デバイス座標==（==NDC==：Normalized Device Coordinate）と呼ばれています。
+
+### 出力の組み立て
+
+頂点シェーダの出力として、`VertexOutput`構造体の`Position`に、`pos{:wgsl}`配列から取得した座標を格納して返すようにします。
+
+```wgsl showLineNumbers{9} {9-11}
+@vertex
+fn vs_main(in: VertexInput) -> VertexOutput {
+  var pos = array<vec2f, 3>(
+    vec2f( 0.0,  0.5),
+    vec2f(-0.5, -0.5),
+    vec2f( 0.5, -0.5)
+  );
+
+  var out: VertexOutput;
+  out.Position = vec4f(pos[in.VertexIndex], 0.0, 1.0);
+  return out;
+}
+```
+
+`pos`は3つの頂点の座標を持つ配列でした。「何番目の頂点か」を表す`VertexIndex`を使って、`pos`配列から座標を取り出しています。
+
+```wgsl showLineNumbers{18}
+  out.Position = vec4f(pos[in.VertexIndex], 0.0, 1.0);
+```
+
+今回は平面上の三角形を描きたいだけなので、`vec4f(){:wgsl}`のうち、`z`座標を表す3番目の要素は`0.0`に指定しています。
+また、`vec4f(){:wgsl}`の4番目の要素は、基本的には`1.0`を指定するようにします。
+
+> [!note]
+> 3次元空間内の点の座標を表すには`(x, y, z)`の3つの値を返せば十分なのに、なぜ4つの値を返すのか？という疑問が生まれるかもしれません。
+> この4つ目の値は、WebGPUで3Dグラフィックスを実装したいときに重要になります。気になる方は、==同次座標==というトピックを調べてみてください（ただし、行列などの数学の知識が必要です）。
 
 ---
 
