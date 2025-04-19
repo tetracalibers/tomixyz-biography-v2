@@ -23,9 +23,148 @@ import img_WebGpuTriangleNoBuffer from "../../../assets/recipes/webgpu-concept/w
 > - レンダーパイプライン
 > - フラグメントシェーダ出力の`@location(0)`の意味
 
+:SeriesPrevLink[前回]{series="webgpu-concept" current="webgpu-triangle-pipeline"}は、三角形の描画に必要なシェーダを実装しました。
+
+今回は、そのシェーダを使って、実際に三角形を表示するためのWebGPUのコードを実装します。
+
+## レンダーパイプライン
+
+シェーダを意図通りGPUに使ってもらうためには、GPUに対してさまざまな補足説明を伝える必要があります。
+
+WebGPUでは、==レンダーパイプライン==（`GPURenderPipeline{:ts}`）というオブジェクトに、シェーダの実行に関する設定を詰め込みます。
+
+- どのシェーダーを使うか（頂点／フラグメント）
+- 頂点データのレイアウトはどうなっているか
+- 色をどう合成するか（ブレンド）
+- 深度テストやカリングの方法
+- 出力するフォーマット（カラーバッファの形式）
+  etc.
+
+グラフィックスAPIにおいて、==パイプライン==は「処理の流れ」のような意味を持つ言葉です。
+たとえば、GPUのパイプラインは「頂点シェーダ→ラスタライズ→フラグメントシェーダ」という流れで処理を行います。
+WebGPUにおける`GPURenderPipeline{:ts}`オブジェクトは、パイプラインの各処理工程に対して、それぞれ「どんな設定（状態）に基づいて処理してほしいか」をまとめて定義したものです。
+
 ## [DRAFT]
 
-データを頂点シェーダに渡し、次にフラグメント シェーダに渡して画面に直接出力するこのシステムはパイプラインと呼ばれ、WebGPU ではパイプラインを明示的に定義する必要があります。
+パイプラインとは、シェーダの調理法を詰め込んだレシピです。
+
+この設定をあらかじめいくつも作り置きし、状況に応じてGPUにアタッチすることで、GPUのパイプライン状態を高速に変更することが可能となります。
+
+---
+
+## 1. パイプラインとは？
+GPUに対して「どうやって描画するか？」を伝えるための**設計図**です。具体的には：
+
+- どのシェーダーを使うか（頂点／フラグメント）
+- 頂点データのレイアウトはどうなっているか
+- 色をどう合成するか（ブレンド）
+- 深度テストやカリングの方法
+- 出力するフォーマット（カラーバッファの形式）など
+
+すべてを一括で設定して、`device.createRenderPipeline()` でパイプラインを生成します。
+
+## 2. グラフィックスパイプラインの構成
+
+WebGPUのパイプラインは大きく以下のような構成要素で作られます：
+
+### a. シェーダーの設定
+```ts
+vertex: {
+  module: shaderModule,
+  entryPoint: "vs_main",
+  buffers: [...]
+},
+fragment: {
+  module: shaderModule,
+  entryPoint: "fs_main",
+  targets: [...]
+}
+```
+- `shaderModule`：`device.createShaderModule()`で作ったWGSLコード
+- `entryPoint`：シェーダー関数の名前（`@vertex`, `@fragment`）
+
+### b. 入力レイアウト（`vertex.buffers`）
+```ts
+{
+  arrayStride: 24,
+  attributes: [
+    { shaderLocation: 0, offset: 0, format: "float32x3" },
+    { shaderLocation: 1, offset: 12, format: "float32x3" }
+  ]
+}
+```
+- 頂点バッファの構造（例：位置と法線が3つずつ）
+
+### c. レンダーターゲット設定（`fragment.targets`）
+```ts
+{
+  format: "bgra8unorm",
+  blend: {
+    color: {
+      srcFactor: "src-alpha",
+      dstFactor: "one-minus-src-alpha",
+      operation: "add"
+    },
+    alpha: { ... }
+  },
+  writeMask: GPUColorWrite.ALL
+}
+```
+- 書き込み先のテクスチャ形式やブレンドの方法
+
+### d. 深度ステンシルの設定（任意）
+```ts
+depthStencil: {
+  format: "depth24plus",
+  depthWriteEnabled: true,
+  depthCompare: "less"
+}
+```
+
+### e. プリミティブの設定
+```ts
+primitive: {
+  topology: "triangle-list",
+  cullMode: "back",
+  frontFace: "ccw"
+}
+```
+
+### f. マルチサンプリング（任意）
+```ts
+multisample: {
+  count: 4
+}
+```
+
+## 3. パイプラインの使用方法
+
+生成したパイプラインは、コマンドエンコーダーの中でこう使います：
+
+```ts
+renderPassEncoder.setPipeline(pipeline);
+renderPassEncoder.draw(vertexCount);
+```
+
+これによって、GPUは「どう描画すべきか」のルールに従って描画を実行します。
+
+## 4. 補足：バインドグループとの関係
+パイプライン内では、リソース（バッファやテクスチャなど）をどう参照するか、という**バインドレイアウト**も決まっています。  
+たとえば：
+
+```ts
+layout: "auto"
+```
+
+にすると、自動でバインドグループのレイアウトを推測してくれます。手動で指定も可能です（`device.createBindGroupLayout()`などを使って）。
+
+## まとめ
+- パイプラインはGPU処理のレシピ（すべての設定の集合）
+- シェーダー、バッファレイアウト、ブレンド、深度設定などが含まれる
+- パイプラインは一度作って、使いまわすのが基本
+- 描画系と計算系で種類が違う（Render vs Compute）
+
+---
 
 ## 実装：キャンバスに三角形を描画する
 
