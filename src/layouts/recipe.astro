@@ -14,7 +14,7 @@ import ArticleHeaderBlock from "$components/article-header/layout-2/ArticleHeade
 import TagList from "$components/article-header/TagList.astro"
 import { collectSeriesArticles } from "$/lib/series"
 import RecipeToc from "$components/toc/RecipeToc.astro"
-import NextArticles from "$components/series/NextArticles.astro"
+import NextStep from "$components/series/NextStep.astro"
 import SeriesTitle from "$components/series/SeriesTitle.astro"
 import References from "$components/series/References.astro"
 import DraftAlert from "$components/dev-alert/DraftAlert.astro"
@@ -66,7 +66,7 @@ const indexInSeries = series && series.data.articles.findIndex((article) => arti
         <ProseGridFill>
           <div class="main-content">
             <slot />
-            {series && <NextArticles current={entry.id} series={series} />}
+            {series && <NextStep current={entry.id} series={series} />}
             {references && <References references={references} />}
           </div>
         </ProseGridFill>
