@@ -21,15 +21,101 @@ import img_WebGpuTriangleNoBuffer from "../../../assets/recipes/webgpu-concept/w
 > ここで学ぶこと
 >
 > - レンダーパイプライン
+> - シェーダのコンパイル
+> - レンダーパイプラインレイアウト
 > - フラグメントシェーダ出力の`@location(0)`の意味
 
 :SeriesPrevLink[前回]{series="webgpu-concept" current="webgpu-triangle-pipeline"}は、三角形の描画に必要なシェーダを実装しました。
 
 今回は、そのシェーダを使って、実際に三角形を表示するためのWebGPUのコードを実装します。
 
-## レンダーパイプライン
+## シェーダをWebGPUに渡す
+
+シェーダを動かすには、シェーダのコード（WGSLコード）をGPUが理解できる形式に変換してから、GPUに渡す必要があります。
+WGSLコードをGPUが理解できる形式に変換する作業を==コンパイル==といいます。
+
+WGSLコードのコンパイルは、WebGPU内部で行ってくれますが、そのためにはWGSLコードを=p=WebGPUに登録==する必要があります。
+
+### シェーダモジュールの作成
+
+WGSLコードをJavaScriptからWebGPUに渡すときに使うのが、`device.createShaderModule{:js}`メソッドです。
+
+このメソッドにWGSLコードを文字列として渡すことで、==シェーダモジュール==（`GPUShaderModule{:ts}`）というオブジェクトが作られます。
+単なる文字列だったWGSLコードを、描画処理を構成する1つの部品（モジュール）としてWebGPUが使えるようにしたものが、==シェーダモジュール==です。
+
+実際に、前回実装したWGSLコードを文字列として渡して、シェーダモジュールを作成するコードは次のようになります。
+
+```ts
+const shaderModule = device.createShaderModule({
+  code: `
+    struct VertexInput {
+      @builtin(vertex_index) VertexIndex: u32
+    };
+
+    struct VertexOutput {
+      @builtin(position) Position: vec4f
+    };
+
+    @vertex
+    fn vs_main(in: VertexInput) -> VertexOutput {
+      var pos = array<vec2f, 3>(
+        vec2f( 0.0,  0.5),
+        vec2f(-0.5, -0.5),
+        vec2f( 0.5, -0.5)
+      );
+    
+      var out: VertexOutput;
+      out.Position = vec4f(pos[in.VertexIndex], 0.0, 1.0);
+      return out;
+    }
+
+    @fragment
+    fn fs_main() -> @location(0) vec4f {
+      return vec4f(0.918, 0.561, 0.918, 1.0);
+    }`
+})
+```
+
+### 補足：Viteなどのビルドツールを使う場合
+
+先ほど示したような、シェーダのコードをJavaScriptの文字列として埋め込む方法では、エディタのシンタックスハイライト機能の恩恵を受けられないですし、JavaScriptのコード全体が読みづらくなります。
+
+シェーダのコードを別ファイルに分けて書きたい場合は、[Vite](https://ja.vite.dev/)などのビルドツールを使うと便利です。
+
+たとえば、Viteでビルドする場合は、`shader.wgsl`という別ファイルに書いたシェーダのコードを、次のように`.js`（`.ts`）ファイルで`import{:js}`して使うことができます。
+
+```ts title="Viteでビルドする場合の例"
+// ?rawをつけることで、シェーダのコードを文字列としてimportできる
+import shaderCode from "./shader.wgsl?raw"
+
+const shaderModule = device.createShaderModule({
+  code: shaderCode
+})
+```
+
+### 発展：コンパイルエラーの検出
+
+- コンパイルの結果は `compilationInfo()` で確認できる
+
+```ts
+// エラーチェック（非同期でバリデーション情報を取得）
+shaderModule.compilationInfo().then((info) => {
+  if (info.messages.length > 0) {
+    for (const msg of info.messages) {
+      console.warn(`${msg.lineNum}:${msg.linePos} - ${msg.message}`)
+    }
+    if (info.messages.some((m) => m.type === "error")) {
+      throw new Error("シェーダのコンパイルに失敗しました")
+    }
+  }
+})
+```
+
+## シェーダの使い方を伝える
 
 シェーダを意図通りGPUに使ってもらうためには、GPUに対してさまざまな補足説明を伝える必要があります。
+
+### レンダーパイプライン
 
 WebGPUでは、==レンダーパイプライン==（`GPURenderPipeline{:ts}`）というオブジェクトに、シェーダの実行に関する設定を詰め込みます。
 
@@ -40,34 +126,33 @@ WebGPUでは、==レンダーパイプライン==（`GPURenderPipeline{:ts}`）�
 - 出力するフォーマット（カラーバッファの形式）
   etc.
 
+言うなれば、レンダーパイプラインは=p=シェーダの調理法を詰め込んだレシピ==です。
+
+### 補足：パイプラインという名前の解釈
+
 グラフィックスAPIにおいて、==パイプライン==は「処理の流れ」のような意味を持つ言葉です。
 たとえば、GPUのパイプラインは「頂点シェーダ→ラスタライズ→フラグメントシェーダ」という流れで処理を行います。
-WebGPUにおける`GPURenderPipeline{:ts}`オブジェクトは、パイプラインの各処理工程に対して、それぞれ「どんな設定（状態）に基づいて処理してほしいか」をまとめて定義したものです。
+
+WebGPUにおける`GPURenderPipeline{:ts}`オブジェクトは、パイプラインの各処理工程に対して、それぞれ「どんな設定に基づいて処理してほしいか」をまとめて定義したものといえます。
+
+その処理工程ではどういう「状態｣であってほしいか、WebGLではグローバルに散らばっていた状態を、WebGPUではレンダーパイプラインというオブジェクトに閉じ込めてしまうのです。設定をオブジェクト化することにより、その設定を使い回すことも容易になります。
+
+## レンダーパイプラインの構成要素
+
+レンダーパイプラインは、`device.createRenderPipeline(){:js}`メソッドで作成します。
+
+このメソッドに引数として渡すオブジェクトは、さまざまな設定を詰め込んだものになります。
+
+## 発展：パイプラインのレイアウト
 
 ## [DRAFT]
-
-パイプラインとは、シェーダの調理法を詰め込んだレシピです。
-
-この設定をあらかじめいくつも作り置きし、状況に応じてGPUにアタッチすることで、GPUのパイプライン状態を高速に変更することが可能となります。
-
----
-
-## 1. パイプラインとは？
-GPUに対して「どうやって描画するか？」を伝えるための**設計図**です。具体的には：
-
-- どのシェーダーを使うか（頂点／フラグメント）
-- 頂点データのレイアウトはどうなっているか
-- 色をどう合成するか（ブレンド）
-- 深度テストやカリングの方法
-- 出力するフォーマット（カラーバッファの形式）など
-
-すべてを一括で設定して、`device.createRenderPipeline()` でパイプラインを生成します。
 
 ## 2. グラフィックスパイプラインの構成
 
 WebGPUのパイプラインは大きく以下のような構成要素で作られます：
 
 ### a. シェーダーの設定
+
 ```ts
 vertex: {
   module: shaderModule,
@@ -80,10 +165,12 @@ fragment: {
   targets: [...]
 }
 ```
+
 - `shaderModule`：`device.createShaderModule()`で作ったWGSLコード
 - `entryPoint`：シェーダー関数の名前（`@vertex`, `@fragment`）
 
 ### b. 入力レイアウト（`vertex.buffers`）
+
 ```ts
 {
   arrayStride: 24,
@@ -93,9 +180,11 @@ fragment: {
   ]
 }
 ```
+
 - 頂点バッファの構造（例：位置と法線が3つずつ）
 
 ### c. レンダーターゲット設定（`fragment.targets`）
+
 ```ts
 {
   format: "bgra8unorm",
@@ -110,9 +199,11 @@ fragment: {
   writeMask: GPUColorWrite.ALL
 }
 ```
+
 - 書き込み先のテクスチャ形式やブレンドの方法
 
 ### d. 深度ステンシルの設定（任意）
+
 ```ts
 depthStencil: {
   format: "depth24plus",
@@ -122,6 +213,7 @@ depthStencil: {
 ```
 
 ### e. プリミティブの設定
+
 ```ts
 primitive: {
   topology: "triangle-list",
@@ -131,6 +223,7 @@ primitive: {
 ```
 
 ### f. マルチサンプリング（任意）
+
 ```ts
 multisample: {
   count: 4
@@ -142,13 +235,14 @@ multisample: {
 生成したパイプラインは、コマンドエンコーダーの中でこう使います：
 
 ```ts
-renderPassEncoder.setPipeline(pipeline);
-renderPassEncoder.draw(vertexCount);
+renderPassEncoder.setPipeline(pipeline)
+renderPassEncoder.draw(vertexCount)
 ```
 
 これによって、GPUは「どう描画すべきか」のルールに従って描画を実行します。
 
 ## 4. 補足：バインドグループとの関係
+
 パイプライン内では、リソース（バッファやテクスチャなど）をどう参照するか、という**バインドレイアウト**も決まっています。  
 たとえば：
 
@@ -157,12 +251,6 @@ layout: "auto"
 ```
 
 にすると、自動でバインドグループのレイアウトを推測してくれます。手動で指定も可能です（`device.createBindGroupLayout()`などを使って）。
-
-## まとめ
-- パイプラインはGPU処理のレシピ（すべての設定の集合）
-- シェーダー、バッファレイアウト、ブレンド、深度設定などが含まれる
-- パイプラインは一度作って、使いまわすのが基本
-- 描画系と計算系で種類が違う（Render vs Compute）
 
 ---
 
@@ -213,7 +301,7 @@ const canvasFormat = navigator.gpu.getPreferredCanvasFormat()
 context.configure({ device, format: canvasFormat })
 
 const shaderModule = device.createShaderModule({
-  code: `シェーダのコードをここに埋め込み`
+  code: `(shader code)`
 })
 
 const renderPipeline = device.createRenderPipeline({
