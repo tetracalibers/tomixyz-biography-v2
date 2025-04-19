@@ -1,0 +1,22 @@
+---
+title: 頂点バッファとバインディング
+date: "2025-04-21"
+description: TODO
+series: webgpu-concept
+references:
+  - title: WebGPU Buffer Uploads - Best practices
+    url: https://toji.dev/webgpu-best-practices/buffer-uploads
+tags:
+  - webgpu
+draft: true
+---
+
+前回は、WebGPUを使って三角形を描画する処理を完成させました。
+
+ところで、三角形の頂点の座標は頂点シェーダ内で配列として定義していましたが、通常はこのようなことはしません。
+なぜなら、頂点のデータをシェーダ内で定義してしまうと、そのシェーダはその図形専用のシェーダになってしまうからです。
+
+シェーダは、コンパイルしてパイプラインに組み込むことで、初めて利用できるようになります。
+WebGPUのパイプライン作成はそこそこ重い処理であり、図形ごとにシェーダとパイプラインを用意して切り替えながら描画するのは非効率です。
+
+そこで、GPUにデータを渡すための仕組みとして、==バッファ==を導入します。
