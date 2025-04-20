@@ -17,14 +17,6 @@ import DemoLinkWithResult from "$/components/demo/DemoLinkWithResult.astro"
 
 import img_WebGpuTriangleNoBuffer from "../../../assets/recipes/webgpu-concept/webgpu-triangle-no-buffer.png"
 
-> [!note]
-> ここで学ぶこと
->
-> - レンダーパイプライン
-> - シェーダのコンパイル
-> - レンダーパイプラインレイアウト
-> - フラグメントシェーダ出力の`@location(0)`の意味
-
 :SeriesPrevLink[前回]{series="webgpu-concept" current="webgpu-triangle-pipeline"}は、三角形の描画に必要なシェーダを実装しました。
 
 今回は、そのシェーダを使って、実際に三角形を表示するためのWebGPUのコードを実装します。
@@ -45,7 +37,7 @@ WGSLコードをJavaScriptからWebGPUに渡すときに使うのが、`device.c
 
 実際に、前回実装したWGSLコードを文字列として渡して、シェーダモジュールを作成するコードは次のようになります。
 
-```ts
+```ts showLineNumbers title="シェーダモジュールを作成する"
 const shaderModule = device.createShaderModule({
   code: `
     struct VertexInput {
@@ -76,7 +68,7 @@ const shaderModule = device.createShaderModule({
 })
 ```
 
-### 補足：Viteなどのビルドツールを使う場合
+### 補足：Viteなどのビルドツールを使う
 
 先ほど示したような、シェーダのコードをJavaScriptの文字列として埋め込む方法では、エディタのシンタックスハイライト機能の恩恵を受けられないですし、JavaScriptのコード全体が読みづらくなります。
 
@@ -95,6 +87,9 @@ const shaderModule = device.createShaderModule({
 
 ### 発展：コンパイルエラーの検出
 
+> [!caution]
+> TODO
+
 - コンパイルの結果は `compilationInfo()` で確認できる
 
 ```ts
@@ -111,7 +106,7 @@ shaderModule.compilationInfo().then((info) => {
 })
 ```
 
-## シェーダの使い方を伝える
+## シェーダの使い方を伝える仕組み
 
 シェーダを意図通りGPUに使ってもらうためには、GPUに対してさまざまな補足説明を伝える必要があります。
 
@@ -119,12 +114,12 @@ shaderModule.compilationInfo().then((info) => {
 
 WebGPUでは、==レンダーパイプライン==（`GPURenderPipeline{:ts}`）というオブジェクトに、シェーダの実行に関する設定を詰め込みます。
 
-- どのシェーダーを使うか（頂点／フラグメント）
-- 頂点データのレイアウトはどうなっているか
-- 色をどう合成するか（ブレンド）
-- 深度テストやカリングの方法
-- 出力するフォーマット（カラーバッファの形式）
-  etc.
+- シェーダーの設定：どのシェーダーを使うか
+- 入力レイアウト：頂点データの構成はどうなっているか
+- レンダーターゲットの設定：色をどう合成するか（ブレンド）etc.
+- プリミティブの設定：どのように頂点を結ぶか
+- 深度ステンシルの設定
+- マルチサンプリングの設定
 
 言うなれば、レンダーパイプラインは=p=シェーダの調理法を詰め込んだレシピ==です。
 
@@ -137,124 +132,120 @@ WebGPUにおける`GPURenderPipeline{:ts}`オブジェクトは、パイプラ�
 
 その処理工程ではどういう「状態｣であってほしいか、WebGLではグローバルに散らばっていた状態を、WebGPUではレンダーパイプラインというオブジェクトに閉じ込めてしまうのです。設定をオブジェクト化することにより、その設定を使い回すことも容易になります。
 
-## レンダーパイプラインの構成要素
+## レンダーパイプラインを作成する
+
+> [!caution]
+> TODO
 
 レンダーパイプラインは、`device.createRenderPipeline(){:js}`メソッドで作成します。
 
-このメソッドに引数として渡すオブジェクトは、さまざまな設定を詰め込んだものになります。
+このメソッドの引数には、さまざまな設定をオブジェクトに詰め込んで渡します。とはいえ、三角形を描くだけなら、あまり多くの設定は必要ありません。
 
-## 発展：パイプラインのレイアウト
-
-## [DRAFT]
-
-## 2. グラフィックスパイプラインの構成
-
-WebGPUのパイプラインは大きく以下のような構成要素で作られます：
-
-### a. シェーダーの設定
-
-```ts
-vertex: {
-  module: shaderModule,
-  entryPoint: "vs_main",
-  buffers: [...]
-},
-fragment: {
-  module: shaderModule,
-  entryPoint: "fs_main",
-  targets: [...]
-}
-```
-
-- `shaderModule`：`device.createShaderModule()`で作ったWGSLコード
-- `entryPoint`：シェーダー関数の名前（`@vertex`, `@fragment`）
-
-### b. 入力レイアウト（`vertex.buffers`）
-
-```ts
-{
-  arrayStride: 24,
-  attributes: [
-    { shaderLocation: 0, offset: 0, format: "float32x3" },
-    { shaderLocation: 1, offset: 12, format: "float32x3" }
-  ]
-}
-```
-
-- 頂点バッファの構造（例：位置と法線が3つずつ）
-
-### c. レンダーターゲット設定（`fragment.targets`）
-
-```ts
-{
-  format: "bgra8unorm",
-  blend: {
-    color: {
-      srcFactor: "src-alpha",
-      dstFactor: "one-minus-src-alpha",
-      operation: "add"
-    },
-    alpha: { ... }
+```ts showLineNumbers title="レンダーパイプラインを作成する"
+const renderPipeline = device.createRenderPipeline({
+  layout: "auto",
+  vertex: {
+    module: shaderModule,
+    entryPoint: "vs_main"
   },
-  writeMask: GPUColorWrite.ALL
-}
+  fragment: {
+    module: shaderModule,
+    entryPoint: "fs_main",
+    targets: [{ format: canvasFormat }]
+  }
+})
 ```
 
-- 書き込み先のテクスチャ形式やブレンドの方法
+### 頂点シェーダの設定
 
-### d. 深度ステンシルの設定（任意）
-
-```ts
-depthStencil: {
-  format: "depth24plus",
-  depthWriteEnabled: true,
-  depthCompare: "less"
-}
+```ts showLineNumbers {3-6}
+const renderPipeline = device.createRenderPipeline({
+  layout: "auto",
+  vertex: {
+    module: shaderModule,
+    entryPoint: "vs_main"
+  },
+  fragment: {
+    module: shaderModule,
+    entryPoint: "fs_main",
+    targets: [{ format: canvasFormat }]
+  }
+})
 ```
 
-### e. プリミティブの設定
+### フラグメントシェーダの設定
 
-```ts
-primitive: {
-  topology: "triangle-list",
-  cullMode: "back",
-  frontFace: "ccw"
-}
+```ts showLineNumbers {7-9,11}
+const renderPipeline = device.createRenderPipeline({
+  layout: "auto",
+  vertex: {
+    module: shaderModule,
+    entryPoint: "vs_main"
+  },
+  fragment: {
+    module: shaderModule,
+    entryPoint: "fs_main",
+    targets: [{ format: canvasFormat }]
+  }
+})
 ```
 
-### f. マルチサンプリング（任意）
+### レンダーターゲットの設定
 
-```ts
-multisample: {
-  count: 4
-}
+```ts showLineNumbers {10}
+const renderPipeline = device.createRenderPipeline({
+  layout: "auto",
+  vertex: {
+    module: shaderModule,
+    entryPoint: "vs_main"
+  },
+  fragment: {
+    module: shaderModule,
+    entryPoint: "fs_main",
+    targets: [{ format: canvasFormat }]
+  }
+})
 ```
 
-## 3. パイプラインの使用方法
+- フラグメントシェーダ出力の`@location(0)`の意味
+
+### レイアウト
+
+```ts showLineNumbers {2}
+const renderPipeline = device.createRenderPipeline({
+  layout: "auto",
+  vertex: {
+    module: shaderModule,
+    entryPoint: "vs_main"
+  },
+  fragment: {
+    module: shaderModule,
+    entryPoint: "fs_main",
+    targets: [{ format: canvasFormat }]
+  }
+})
+```
+
+## レンダーパイプラインを使う
+
+> [!caution]
+> TODO
 
 生成したパイプラインは、コマンドエンコーダーの中でこう使います：
 
-```ts
-renderPassEncoder.setPipeline(pipeline)
-renderPassEncoder.draw(vertexCount)
+```ts showLineNumbers title="レンダーパイプラインを使うように設定" {2}
+const renderPass = commandEncoder.beginRenderPass(renderPassDescriptor)
+renderPass.setPipeline(pipeline)
+renderPass.draw(3)
+renderPass.end()
 ```
 
 これによって、GPUは「どう描画すべきか」のルールに従って描画を実行します。
 
-## 4. 補足：バインドグループとの関係
-
-パイプライン内では、リソース（バッファやテクスチャなど）をどう参照するか、という**バインドレイアウト**も決まっています。  
-たとえば：
-
-```ts
-layout: "auto"
-```
-
-にすると、自動でバインドグループのレイアウトを推測してくれます。手動で指定も可能です（`device.createBindGroupLayout()`などを使って）。
-
----
-
 ## 実装：キャンバスに三角形を描画する
+
+> [!caution]
+> TODO
 
 <DemoLinkWithResult
   url="/demo/webgpu-triangle-no-buffer"
@@ -262,7 +253,7 @@ layout: "auto"
   title="WebGPUで三角形を描画するデモ"
 />
 
-```wgsl title="シェーダのコード" showLineNumbers
+```wgsl title="WGSLのコード（シェーダ）" showLineNumbers
 struct VertexInput {
   @builtin(vertex_index) VertexIndex: u32
 };
@@ -290,7 +281,7 @@ fn fs_main() -> @location(0) vec4f {
 }
 ```
 
-```ts title="JavaScriptのコード" showLineNumbers {10-12,14-26,41-42}
+```ts title="JavaScriptのコード" showLineNumbers {10-12,14-25,40-41}
 const adapter = await navigator.gpu.requestAdapter()
 const device = await adapter.requestDevice()
 
@@ -301,7 +292,7 @@ const canvasFormat = navigator.gpu.getPreferredCanvasFormat()
 context.configure({ device, format: canvasFormat })
 
 const shaderModule = device.createShaderModule({
-  code: `(shader code)`
+  code: `(WGSL code)`
 })
 
 const renderPipeline = device.createRenderPipeline({
@@ -314,8 +305,7 @@ const renderPipeline = device.createRenderPipeline({
     module: shaderModule,
     entryPoint: "fs_main",
     targets: [{ format: canvasFormat }]
-  },
-  primitive: { topology: "triangle-list" }
+  }
 })
 
 const commandEncoder = device.createCommandEncoder()
