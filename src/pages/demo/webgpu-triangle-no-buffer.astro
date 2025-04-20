@@ -40,8 +40,7 @@ import WebGPUDemoLayout from "$/layouts/webgpu-demo.astro"
       module: shaderModule,
       entryPoint: "fs_main",
       targets: [{ format }]
-    },
-    primitive: { topology: "triangle-list" }
+    }
   })
 
   const encoder = device.createCommandEncoder()
