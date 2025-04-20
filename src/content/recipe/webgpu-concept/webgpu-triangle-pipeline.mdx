@@ -165,7 +165,7 @@ const renderPipeline = device.createRenderPipeline({
 `vertex.module{:js}`には、先ほど作成したシェーダモジュールを指定しています。
 
 `vertex.entryPoint{:js}`には、`"vs_main"{:js}`という文字列を指定しました。
-これは、前回実装したシェーダのコードの中で、`@vertex`という印をつけて定義した関数の名前です。
+これは、前回実装したシェーダのコードの中で、`@vertex{:wgsl}`という印をつけて定義した関数の名前です。
 
 ```wgsl title="前回実装した頂点シェーダ" showLineNumbers{9} {1-2}
 @vertex
@@ -312,7 +312,7 @@ fn fs_main() -> @location(0) vec4f {
 
 レンダーパイプラインは、GPUの描画処理の根幹を担うシェーダに関する設定をまとめたものです。
 
-このレンダーパイプライン（描画設定）で描画を行うには、`renderPass.draw(){:js}`メソッドを呼び出す前に、同じく`renderPass`が持つ`setPipeline(){:js}`メソッドによって、レンダーパイプラインを使用するように指示します。
+このレンダーパイプライン（描画設定）で描画を行うには、`renderPass.draw(){:js}`メソッドを呼び出す前に、同じく`renderPass{:js}`が持つ`setPipeline(){:js}`メソッドによって、レンダーパイプラインを使用するように指示します。
 
 ```ts title="レンダーパイプラインを使うように設定" {2}
 const renderPass = commandEncoder.beginRenderPass(renderPassDescriptor)
