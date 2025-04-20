@@ -270,7 +270,7 @@ fn fs_main() -> @location(0) vec4f {
 
 ### 戻り値は色のみ
 
-フラグメントシェーダは、基本的にはRGBA色を表す`vec4f{:wgsl}`型の値を返すだけの関数とします。頂点シェーダのように、独自に定義した構造体を返すことはほとんどありません。
+フラグメントシェーダは、基本的にはRGBA色を表す`vec4f{:wgsl}`型の値を返すだけの関数とします。頂点シェーダのように、独自に定義した構造体を返す場面はあまりありません。
 
 ```wgsl showLineNumbers{22} {3}
 @fragment
@@ -321,7 +321,35 @@ fn fs_main() -> (
 
 ## とはいえシェーダだけでは動けない
 
-ここまでで、三角形を描くために必要なシェーダは一通り完成です。
+ここまでで、三角形を描くために必要なシェーダは一通り完成です。改めて、シェーダのコード全体を見てみましょう。
+
+```wgsl title="WGSLで書かれたシェーダのコード" showLineNumbers
+struct VertexInput {
+  @builtin(vertex_index) VertexIndex: u32
+};
+
+struct VertexOutput {
+  @builtin(position) Position: vec4f
+};
+
+@vertex
+fn vs_main(in: VertexInput) -> VertexOutput {
+  var pos = array<vec2f, 3>(
+    vec2f( 0.0,  0.5),
+    vec2f(-0.5, -0.5),
+    vec2f( 0.5, -0.5)
+  );
+
+  var out: VertexOutput;
+  out.Position = vec4f(pos[in.VertexIndex], 0.0, 1.0);
+  return out;
+}
+
+@fragment
+fn fs_main() -> @location(0) vec4f {
+  return vec4f(0.918, 0.561, 0.918, 1.0);
+}
+```
 
 しかし、このシェーダを動かすには、シェーダのコードをGPUが理解できる形式で渡し、GPU上で適切に実行されるように設定する必要があります。
 

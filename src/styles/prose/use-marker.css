@@ -26,6 +26,7 @@
 
 :where(.prose a:not(.no-marker)) {
   text-decoration: none;
+  font-weight: bold;
   line-height: 1.3;
 }
 :where(.prose a:not(.no-marker))::after {

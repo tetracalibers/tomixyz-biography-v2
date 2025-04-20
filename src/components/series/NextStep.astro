@@ -10,35 +10,26 @@ interface Props {
 
 const { series, current } = Astro.props
 
-const nextArticles = series.getNextArticles(current)
+const nextArticle = series.getNextArticle(current)
 const getRecipePageUrl = (articleId: string) => SITE.base + `/recipes/${articleId}`
 ---
 
 {
-  nextArticles.length > 0 && (
+  nextArticle && (
     <>
       <h2>Next Step</h2>
-      <ul class="NextList">
-        {nextArticles.map((page) => (
-          <li class="NextList-item">
-            <Icon class="next-icon" name="hugeicons:trade-up" size={32} />
-            <a class="no-marker" href={getRecipePageUrl(page.id)}>
-              {page.data.title}
-            </a>
-          </li>
-        ))}
-      </ul>
+      <div class="Next-item">
+        <Icon class="next-icon" name="hugeicons:trade-up" size={32} />
+        <a class="no-marker" href={getRecipePageUrl(nextArticle.id)}>
+          {nextArticle.data.title}
+        </a>
+      </div>
     </>
   )
 }
 
 <style>
-  .NextList {
-    padding: 0;
-    list-style: none;
-  }
-
-  .NextList-item {
+  .Next-item {
     display: flex;
     align-items: flex-start;
     gap: 0.5em;

@@ -11,7 +11,7 @@ export interface SeriesArticles {
   slugs: SeriesArticleSlug[]
   articles: SeriesArticle[]
   isFirstArticle: (slug: SeriesArticleSlug) => boolean
-  getNextArticles: (slug: SeriesArticleSlug) => SeriesArticle[]
+  getNextArticle: (slug: SeriesArticleSlug) => SeriesArticle
   Summary: AstroComponentFactory
 }
 
@@ -31,7 +31,7 @@ export const collectSeriesArticles = async (seriesId: string): Promise<SeriesArt
 
   const findIndex = (slug: SeriesArticleSlug) => slugs.indexOf(slug)
   const isFirstArticle = (slug: SeriesArticleSlug) => findIndex(slug) === 0
-  const getNextArticles = (slug: SeriesArticleSlug) => articleEntries.slice(findIndex(slug) + 1)
+  const getNextArticle = (slug: SeriesArticleSlug) => articleEntries[findIndex(slug) + 1]
 
   return {
     id: seriesId,
@@ -39,7 +39,7 @@ export const collectSeriesArticles = async (seriesId: string): Promise<SeriesArt
     slugs,
     articles: articleEntries,
     isFirstArticle,
-    getNextArticles,
+    getNextArticle,
     Summary: Content
   }
 }
