@@ -10,7 +10,6 @@ references:
     url: https://webgpufundamentals.org/webgpu/lessons/webgpu-fundamentals.html
 tags:
   - webgpu
-draft: true
 ---
 
 import DemoLinkWithResult from "$/components/demo/DemoLinkWithResult.astro"
@@ -85,27 +84,6 @@ const shaderModule = device.createShaderModule({
 })
 ```
 
-### 発展：コンパイルエラーの検出
-
-> [!caution]
-> TODO
-
-- コンパイルの結果は `compilationInfo()` で確認できる
-
-```ts
-// エラーチェック（非同期でバリデーション情報を取得）
-shaderModule.compilationInfo().then((info) => {
-  if (info.messages.length > 0) {
-    for (const msg of info.messages) {
-      console.warn(`${msg.lineNum}:${msg.linePos} - ${msg.message}`)
-    }
-    if (info.messages.some((m) => m.type === "error")) {
-      throw new Error("シェーダのコンパイルに失敗しました")
-    }
-  }
-})
-```
-
 ## シェーダの使い方を伝える仕組み
 
 シェーダを意図通りGPUに使ってもらうためには、GPUに対してさまざまな補足説明を伝える必要があります。
@@ -157,6 +135,10 @@ const renderPipeline = device.createRenderPipeline({
 })
 ```
 
+このうち、`layout: "auto"{:js}`という部分は、今回の例ではあまり重要ではありません。次回の内容と密接に関わる部分なので、今の時点ではおまじないとしておきます。
+
+それ以外の部分を詳しく見ていきましょう。
+
 ### 頂点シェーダの設定
 
 描画にあたって「どのシェーダを使うのか？」という設定は、レンダーパイプラインで必須となります。
@@ -175,13 +157,7 @@ const renderPipeline = device.createRenderPipeline({
     entryPoint: "vs_main"
   },
   fragment: {
-    module: shaderModule,
-    entryPoint: "fs_main",
-    targets: [
-      {
-        format: canvasFormat
-      }
-    ]
+    // ...
   }
 })
 ```
@@ -194,15 +170,7 @@ const renderPipeline = device.createRenderPipeline({
 ```wgsl title="前回実装した頂点シェーダ" showLineNumbers{9} {1-2}
 @vertex
 fn vs_main(in: VertexInput) -> VertexOutput {
-  var pos = array<vec2f, 3>(
-    vec2f( 0.0,  0.5),
-    vec2f(-0.5, -0.5),
-    vec2f( 0.5, -0.5)
-  );
-
-  var out: VertexOutput;
-  out.Position = vec4f(pos[in.VertexIndex], 0.0, 1.0);
-  return out;
+  // ...
 }
 ```
 
@@ -268,7 +236,7 @@ const renderPipeline = device.createRenderPipeline({
 このとき、`targets[0].format{:js}`には、`getPreferredCanvasFormat(){:js}`メソッドで取得した、キャンバスに最適なフォーマットを指定します。
 つまり、`context.configure(){:js}`メソッドの引数に指定した`format{:js}`と同じものです。
 
-```ts {6-7,20-24}
+```ts {6-7,16-20}
 // ...
 
 const canvas = document.querySelector("canvas")
@@ -280,11 +248,7 @@ context.configure({ device, format: canvasFormat })
 // ...
 
 const renderPipeline = device.createRenderPipeline({
-  layout: "auto",
-  vertex: {
-    module: shaderModule,
-    entryPoint: "vs_main"
-  },
+  // ...
   fragment: {
     module: shaderModule,
     entryPoint: "fs_main",
@@ -303,13 +267,9 @@ const renderPipeline = device.createRenderPipeline({
 
 今回は出力先は1つだけですが、`targets[0]{:js}`と`colorAttachments[0]{:js}`がどちらも同じ出力先（キャンバス）を表していることを意識しておきましょう。
 
-```ts {11-13,21-26}
+```ts {7-9,18-23}
 const renderPipeline = device.createRenderPipeline({
-  layout: "auto",
-  vertex: {
-    module: shaderModule,
-    entryPoint: "vs_main"
-  },
+  // ...
   fragment: {
     module: shaderModule,
     entryPoint: "fs_main",
@@ -321,7 +281,8 @@ const renderPipeline = device.createRenderPipeline({
   }
 })
 
-const commandEncoder = device.createCommandEncoder()
+// ...
+
 const renderPassDescriptor = {
   colorAttachments: [
     {
@@ -341,35 +302,17 @@ const renderPassDescriptor = {
 ```wgsl showLineNumbers{17} {2} title="前回実装したフラグメントシェーダ"
 @fragment
 fn fs_main() -> @location(0) vec4f {
-  return vec4f(0.918, 0.561, 0.918, 1.0);
+  // ...
 }
 ```
 
 もしも出力先が複数ある場合は、さらに`targets[1]{:js}`と`colorAttachments[1]{:js}`に指定した出力先がフラグメントシェーダの`@location(1){:wgsl}`指定つきの出力に対応し、…というように、順番を揃えて出力先を指定する必要があるということです。
 
-### レイアウト
-
-> [!caution]
-> TODO
-
-```ts {2}
-const renderPipeline = device.createRenderPipeline({
-  layout: "auto",
-  vertex: {
-    // ...
-  },
-  fragment: {
-    // ...
-  }
-})
-```
-
 ## レンダーパイプラインを使う
 
-> [!caution]
-> TODO
+レンダーパイプラインは、GPUの描画処理の根幹を担うシェーダに関する設定をまとめたものです。
 
-生成したパイプラインは、コマンドエンコーダーの中でこう使います：
+このレンダーパイプライン（描画設定）で描画を行うには、`renderPass.draw(){:js}`メソッドを呼び出す前に、同じく`renderPass`が持つ`setPipeline(){:js}`メソッドによって、レンダーパイプラインを使用するように指示します。
 
 ```ts title="レンダーパイプラインを使うように設定" {2}
 const renderPass = commandEncoder.beginRenderPass(renderPassDescriptor)
@@ -378,20 +321,14 @@ renderPass.draw(3)
 renderPass.end()
 ```
 
-これによって、GPUは「どう描画すべきか」のルールに従って描画を実行します。
+こうすることによって、GPUはレンダーパイプラインに込められた「どう描画すべきか？」のルールに従って、描画を実行してくれます。
 
 ## 実装：キャンバスに三角形を描画する
 
-> [!caution]
-> TODO
+これでようやく、キャンバスに三角形を描画するためのコードが出揃いました。
+以下に、そのコードの全文を示します（※エラー処理は省略しています）。
 
-<DemoLinkWithResult
-  url="/demo/webgpu-triangle-no-buffer"
-  result={img_WebGpuTriangleNoBuffer}
-  title="WebGPUで三角形を描画するデモ"
-/>
-
-```wgsl title="WGSLのコード（シェーダ）" showLineNumbers
+```wgsl title="WGSLによるシェーダのコード" showLineNumbers
 struct VertexInput {
   @builtin(vertex_index) VertexIndex: u32
 };
@@ -419,7 +356,7 @@ fn fs_main() -> @location(0) vec4f {
 }
 ```
 
-```ts title="JavaScriptのコード" showLineNumbers {10-12,14-29,44-45}
+```ts title="JavaScriptによるWebGPUのコード" showLineNumbers {10-12,14-29,44-45}
 const adapter = await navigator.gpu.requestAdapter()
 const device = await adapter.requestDevice()
 
@@ -469,3 +406,20 @@ renderPass.end()
 
 device.queue.submit([encoder.finish()])
 ```
+
+`device.createShaderModule(){:js}`メソッドの`code{:js}`の値は、`'(WGSL code)'{:js}`という仮の文字列で省略表記しています。
+この文字列を実際のWGSLシェーダのコードに置き換えてから、動作を確認してみてください。
+
+```ts showLineNumbers{10} {2}
+const shaderModule = device.createShaderModule({
+  code: `(WGSL code)`
+})
+```
+
+実行結果は次のようになります。
+
+<DemoLinkWithResult
+  url="/demo/webgpu-triangle-no-buffer"
+  result={img_WebGpuTriangleNoBuffer}
+  title="WebGPUで三角形を描画するデモ"
+/>
