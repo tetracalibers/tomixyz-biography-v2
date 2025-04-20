@@ -30,14 +30,14 @@ WGSLコードのコンパイルは、WebGPU内部で行ってくれますが、�
 
 ### シェーダモジュールの作成
 
-WGSLコードをJavaScriptからWebGPUに渡すときに使うのが、`device.createShaderModule{:js}`メソッドです。
+WGSLコードをJavaScriptからWebGPUに渡すときに使うのが、`device.createShaderModule(){:js}`メソッドです。
 
 このメソッドにWGSLコードを文字列として渡すことで、==シェーダモジュール==（`GPUShaderModule{:ts}`）というオブジェクトが作られます。
 単なる文字列だったWGSLコードを、描画処理を構成する1つの部品（モジュール）としてWebGPUが使えるようにしたものが、==シェーダモジュール==です。
 
 実際に、前回実装したWGSLコードを文字列として渡して、シェーダモジュールを作成するコードは次のようになります。
 
-```ts showLineNumbers title="シェーダモジュールを作成する"
+```ts title="シェーダモジュールを作成する"
 const shaderModule = device.createShaderModule({
   code: `
     struct VertexInput {
@@ -134,14 +134,11 @@ WebGPUにおける`GPURenderPipeline{:ts}`オブジェクトは、パイプラ�
 
 ## レンダーパイプラインを作成する
 
-> [!caution]
-> TODO
-
 レンダーパイプラインは、`device.createRenderPipeline(){:js}`メソッドで作成します。
 
 このメソッドの引数には、さまざまな設定をオブジェクトに詰め込んで渡します。とはいえ、三角形を描くだけなら、あまり多くの設定は必要ありません。
 
-```ts showLineNumbers title="レンダーパイプラインを作成する"
+```ts title="レンダーパイプラインを作成する"
 const renderPipeline = device.createRenderPipeline({
   layout: "auto",
   vertex: {
@@ -151,14 +148,26 @@ const renderPipeline = device.createRenderPipeline({
   fragment: {
     module: shaderModule,
     entryPoint: "fs_main",
-    targets: [{ format: canvasFormat }]
+    targets: [
+      {
+        format: canvasFormat
+      }
+    ]
   }
 })
 ```
 
 ### 頂点シェーダの設定
 
-```ts showLineNumbers {3-6}
+描画にあたって「どのシェーダを使うのか？」という設定は、レンダーパイプラインで必須となります。
+
+まず、使用する頂点シェーダの情報は、`vertex{:js}`プロパティに指定します。
+必ず含めなければならないのは、次の2つの情報です。
+
+- `vertex.module{:js}`：頂点シェーダのコードを含むシェーダモジュール
+- `vertex.entryPoint{:js}`：シェーダのコードのうち、どの関数を頂点シェーダとして実行するか
+
+```ts {3-6}
 const renderPipeline = device.createRenderPipeline({
   layout: "auto",
   vertex: {
@@ -168,14 +177,44 @@ const renderPipeline = device.createRenderPipeline({
   fragment: {
     module: shaderModule,
     entryPoint: "fs_main",
-    targets: [{ format: canvasFormat }]
+    targets: [
+      {
+        format: canvasFormat
+      }
+    ]
   }
 })
 ```
 
+`vertex.module{:js}`には、先ほど作成したシェーダモジュールを指定しています。
+
+`vertex.entryPoint{:js}`には、`"vs_main"{:js}`という文字列を指定しました。
+これは、前回実装したシェーダのコードの中で、`@vertex`という印をつけて定義した関数の名前です。
+
+```wgsl title="前回実装した頂点シェーダ" showLineNumbers{9} {1-2}
+@vertex
+fn vs_main(in: VertexInput) -> VertexOutput {
+  var pos = array<vec2f, 3>(
+    vec2f( 0.0,  0.5),
+    vec2f(-0.5, -0.5),
+    vec2f( 0.5, -0.5)
+  );
+
+  var out: VertexOutput;
+  out.Position = vec4f(pos[in.VertexIndex], 0.0, 1.0);
+  return out;
+}
+```
+
 ### フラグメントシェーダの設定
 
-```ts showLineNumbers {7-9,11}
+使用するフラグメントシェーダの情報は、`fragment{:js}`プロパティに指定します。
+指定する内容は、頂点シェーダとほぼ同様です。
+
+- `fragment.module{:js}`：フラグメントシェーダのコードを含むシェーダモジュール
+- `fragment.entryPoint{:js}`：シェーダのコードのうち、どの関数をフラグメントシェーダとして実行するか
+
+```ts {7-9,15}
 const renderPipeline = device.createRenderPipeline({
   layout: "auto",
   vertex: {
@@ -185,14 +224,20 @@ const renderPipeline = device.createRenderPipeline({
   fragment: {
     module: shaderModule,
     entryPoint: "fs_main",
-    targets: [{ format: canvasFormat }]
+    targets: [
+      {
+        format: canvasFormat
+      }
+    ]
   }
 })
 ```
 
 ### レンダーターゲットの設定
 
-```ts showLineNumbers {10}
+`vertex{:js}`と唯一異なる点として、`fragment{:js}`には`target{:js}`というプロパティも含まれています。
+
+```ts {10-14}
 const renderPipeline = device.createRenderPipeline({
   layout: "auto",
   vertex: {
@@ -202,16 +247,38 @@ const renderPipeline = device.createRenderPipeline({
   fragment: {
     module: shaderModule,
     entryPoint: "fs_main",
-    targets: [{ format: canvasFormat }]
+    targets: [
+      {
+        format: canvasFormat
+      }
+    ]
   }
 })
 ```
 
-- フラグメントシェーダ出力の`@location(0)`の意味
+`fragment.targets{:js}`には、フラグメントシェーダで計算した色をどこに出力するか？（==レンダーターゲット==）を指定します。
 
-### レイアウト
+この`targets{:js}`が配列になっているのは、WebGPUでは、複数のレンダーターゲット（画像）に同時に出力することができるからです。
 
-```ts showLineNumbers {2}
+> [!tip]
+> 前回解説した、[何番目のテクスチャに出力するのか](/recipes/webgpu-concept/webgpu-triangle-shader#何番目のテクスチャに出力するのか)というセクションを復習してみましょう。
+
+今回は、キャンバスに描画するだけなので、`targets{:js}`には1つだけ要素を指定します。
+
+このとき、`targets[0].format{:js}`には、`getPreferredCanvasFormat(){:js}`メソッドで取得した、キャンバスに最適なフォーマットを指定します。
+つまり、`context.configure(){:js}`メソッドの引数に指定した`format{:js}`と同じものです。
+
+```ts {6-7,20-24}
+// ...
+
+const canvas = document.querySelector("canvas")
+const context = canvas.getContext("webgpu")
+
+const canvasFormat = navigator.gpu.getPreferredCanvasFormat()
+context.configure({ device, format: canvasFormat })
+
+// ...
+
 const renderPipeline = device.createRenderPipeline({
   layout: "auto",
   vertex: {
@@ -221,7 +288,78 @@ const renderPipeline = device.createRenderPipeline({
   fragment: {
     module: shaderModule,
     entryPoint: "fs_main",
-    targets: [{ format: canvasFormat }]
+    targets: [
+      {
+        format: canvasFormat
+      }
+    ]
+  }
+})
+```
+
+さらに注意が必要なのは、`beginRenderPass(){:js}`の引数となる`renderPassDescriptor{:js}`の`colorAttachments{:js}`でも、出力先に関する設定を行っていることです。
+
+もしも出力先が複数ある場合は、`renderPipeline{:js}`の`fragment.targets{:js}`と、`renderPassDescriptor{:js}`の`colorAttachments{:js}`に、同じ順番で出力先を指定する必要があります。
+
+今回は出力先は1つだけですが、`targets[0]{:js}`と`colorAttachments[0]{:js}`がどちらも同じ出力先（キャンバス）を表していることを意識しておきましょう。
+
+```ts {11-13,21-26}
+const renderPipeline = device.createRenderPipeline({
+  layout: "auto",
+  vertex: {
+    module: shaderModule,
+    entryPoint: "vs_main"
+  },
+  fragment: {
+    module: shaderModule,
+    entryPoint: "fs_main",
+    targets: [
+      {
+        format: canvasFormat
+      }
+    ]
+  }
+})
+
+const commandEncoder = device.createCommandEncoder()
+const renderPassDescriptor = {
+  colorAttachments: [
+    {
+      view: context.getCurrentTexture().createView(),
+      loadOp: "clear",
+      clearValue: { r: 0.32, g: 0.34, b: 0.36, a: 1 },
+      storeOp: "store"
+    }
+  ]
+}
+
+// ...
+```
+
+そして、`targets[0]{:js}`と`colorAttachments[0]{:js}`に指定した出力先は、フラグメントシェーダの`@location(0){:wgsl}`指定つきの出力に対応しています。
+
+```wgsl showLineNumbers{17} {2} title="前回実装したフラグメントシェーダ"
+@fragment
+fn fs_main() -> @location(0) vec4f {
+  return vec4f(0.918, 0.561, 0.918, 1.0);
+}
+```
+
+もしも出力先が複数ある場合は、さらに`targets[1]{:js}`と`colorAttachments[1]{:js}`に指定した出力先がフラグメントシェーダの`@location(1){:wgsl}`指定つきの出力に対応し、…というように、順番を揃えて出力先を指定する必要があるということです。
+
+### レイアウト
+
+> [!caution]
+> TODO
+
+```ts {2}
+const renderPipeline = device.createRenderPipeline({
+  layout: "auto",
+  vertex: {
+    // ...
+  },
+  fragment: {
+    // ...
   }
 })
 ```
@@ -233,9 +371,9 @@ const renderPipeline = device.createRenderPipeline({
 
 生成したパイプラインは、コマンドエンコーダーの中でこう使います：
 
-```ts showLineNumbers title="レンダーパイプラインを使うように設定" {2}
+```ts title="レンダーパイプラインを使うように設定" {2}
 const renderPass = commandEncoder.beginRenderPass(renderPassDescriptor)
-renderPass.setPipeline(pipeline)
+renderPass.setPipeline(renderPipeline)
 renderPass.draw(3)
 renderPass.end()
 ```
@@ -281,7 +419,7 @@ fn fs_main() -> @location(0) vec4f {
 }
 ```
 
-```ts title="JavaScriptのコード" showLineNumbers {10-12,14-25,40-41}
+```ts title="JavaScriptのコード" showLineNumbers {10-12,14-29,44-45}
 const adapter = await navigator.gpu.requestAdapter()
 const device = await adapter.requestDevice()
 
@@ -304,7 +442,11 @@ const renderPipeline = device.createRenderPipeline({
   fragment: {
     module: shaderModule,
     entryPoint: "fs_main",
-    targets: [{ format: canvasFormat }]
+    targets: [
+      {
+        format: canvasFormat
+      }
+    ]
   }
 })
 
