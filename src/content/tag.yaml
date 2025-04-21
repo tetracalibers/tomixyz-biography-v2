@@ -146,6 +146,10 @@ wgsl:
   name: WGSL
   url: https://www.w3.org/TR/WGSL/
 
+winit:
+  name: winit
+  url: https://github.com/rust-windowing/winit
+
 wordpress:
   name: WordPress
   url: https://wordpress.com/ja/
