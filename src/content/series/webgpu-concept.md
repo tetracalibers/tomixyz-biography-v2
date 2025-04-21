@@ -9,6 +9,9 @@ articles:
   - webgpu-concept/webgpu-triangle-shader
   - webgpu-concept/webgpu-triangle-pipeline
   - webgpu-concept/webgpu-vertex-buffer
+  - webgpu-concept/webgpu-inter-stage-lerp
+  - webgpu-concept/webgpu-index-buffer-or-strip
+  - webgpu-concept/webgpu-with-rust
 ---
 
 WebGPUのコンセプトと構成要素について、WebGLと比較しながら解説します。
