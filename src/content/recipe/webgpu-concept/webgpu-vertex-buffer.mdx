@@ -16,8 +16,13 @@ references:
     url: https://webgpufundamentals.org/webgpu/lessons/webgpu-bind-group-layouts.html
 tags:
   - webgpu
+  - wgsl
 draft: true
 ---
+
+import DemoLinkWithResult from "$/components/demo/DemoLinkWithResult.astro"
+
+import img_WebGPUTriangleVertexBuffer from "../../../assets/recipes/webgpu-concept/webgpu-triangle-vertex-buffer.png"
 
 > [!note]
 > ここで学ぶこと
@@ -36,3 +41,105 @@ draft: true
 WebGPUのパイプライン作成はそこそこ重い処理であり、図形ごとにシェーダとパイプラインを用意して切り替えながら描画するのは非効率です。
 
 そこで、GPUにデータを渡すための仕組みとして、==バッファ==を導入します。
+
+## 実装：頂点バッファを使った三角形の描画
+
+```wgsl title="WGSLによるシェーダのコード" showLineNumbers {2,12}
+struct VertexInput {
+  @location(0) position: vec2f
+};
+
+struct VertexOutput {
+  @builtin(position) Position: vec4f
+};
+
+@vertex
+fn vs_main(in: VertexInput) -> VertexOutput {
+  var out: VertexOutput;
+  out.Position = vec4f(in.position, 0.0, 1.0);
+  return out;
+}
+
+@fragment
+fn fs_main() -> @location(0) vec4f {
+  return vec4f(0.918, 0.561, 0.918, 1.0);
+}
+```
+
+```js title="JavaScriptによるWebGPUのコード" showLineNumbers {10-17,26-37,63}
+const adapter = await navigator.gpu.requestAdapter()
+const device = await adapter.requestDevice()
+
+const canvas = document.querySelector("canvas")
+const context = canvas!.getContext("webgpu")
+
+const canvasFormat = navigator.gpu.getPreferredCanvasFormat()
+context.configure({ device, format: canvasFormat })
+
+const vertices = new Float32Array([0.0, 0.5, -0.5, -0.5, 0.5, -0.5])
+const vertexBuffer = device.createBuffer({
+  size: vertices.byteLength,
+  usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+  mappedAtCreation: true
+})
+new Float32Array(vertexBuffer.getMappedRange()).set(vertices)
+vertexBuffer.unmap()
+
+const shaderModule = device.createShaderModule({ code: shaderCode })
+
+const renderPipeline = device.createRenderPipeline({
+  layout: "auto",
+  vertex: {
+    module: shaderModule,
+    entryPoint: "vs_main",
+    buffers: [
+      {
+        arrayStride: vertices.BYTES_PER_ELEMENT * 2,
+        attributes: [
+          {
+            shaderLocation: 0,
+            offset: 0,
+            format: "float32x2"
+          }
+        ]
+      }
+    ]
+  },
+  fragment: {
+    module: shaderModule,
+    entryPoint: "fs_main",
+    targets: [
+      {
+        format: canvasFormat
+      }
+    ]
+  }
+})
+
+const commandEncoder = device.createCommandEncoder()
+
+const renderPass = commandEncoder.beginRenderPass({
+  colorAttachments: [
+    {
+      view: context.getCurrentTexture().createView(),
+      loadOp: "clear",
+      clearValue: { r: 0.32, g: 0.34, b: 0.36, a: 1 },
+      storeOp: "store"
+    }
+  ]
+})
+renderPass.setPipeline(renderPipeline)
+renderPass.setVertexBuffer(0, vertexBuffer)
+renderPass.draw(3)
+renderPass.end()
+
+device.queue.submit([commandEncoder.finish()])
+```
+
+実行結果は次のようになります。
+
+<DemoLinkWithResult
+  url="https://tomixyz-sketchbook.pages.dev/basics/webgpu-triangle-vertex-buffer/"
+  result={img_WebGPUTriangleVertexBuffer}
+  title="頂点バッファを使って三角形を描画するデモ"
+/>
