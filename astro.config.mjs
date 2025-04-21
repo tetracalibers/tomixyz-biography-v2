@@ -39,7 +39,7 @@ const directives = {
   leaf: [
     {
       name: "DemoLink",
-      path: "src/components/directive/DemoLink.astro",
+      path: "src/components/demo/DemoLink.astro",
       useAsProps: {
         directiveLabel: "title"
       }
