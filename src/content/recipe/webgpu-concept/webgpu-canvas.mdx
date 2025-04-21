@@ -34,8 +34,6 @@ gl.clearColor(0.5, 0.5, 0.5, 1)
 gl.clear(gl.COLOR_BUFFER_BIT)
 ```
 
-::DemoLink[WebGLでキャンバスの色を初期化するデモ]{url="/demo/webgl-canvas-clear"}
-
 WebGLでは、`gl{:js}`コンテキスト（`WebGL2RenderingContext{:js}`）を直接操作して、キャンバスの色を初期化しています。このように、`gl{:js}`コンテキストが持つグローバルな状態を書き換えながら描画処理を進めていくのが、WebGLのスタイルです。
 
 では、WebGPUの場合はどのようなアプローチになるのでしょうか。
@@ -290,7 +288,7 @@ renderPass.end()
 実行結果は、次のようになります。
 
 <DemoLinkWithResult
-  url="/demo/webgpu-canvas-clear"
+  url="https://tomixyz-sketchbook.pages.dev/basics/webgpu-canvas-clear/"
   result={img_WebGpuCanvasClear}
   title="WebGPUでキャンバスの色を初期化するデモ"
 />
