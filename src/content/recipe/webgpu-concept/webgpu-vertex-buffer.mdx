@@ -20,6 +20,11 @@ tags:
 draft: true
 ---
 
+> [!note]
+>
+> - https://chatgpt.com/c/6806e75b-a60c-8000-a5e8-66fb838d8749
+> - https://chatgpt.com/c/6807595b-4fe4-8000-bf42-24caa3c7069b
+
 import DemoLinkWithResult from "$/components/demo/DemoLinkWithResult.astro"
 
 import img_WebGPUTriangleVertexBuffer from "../../../assets/recipes/webgpu-concept/webgpu-triangle-vertex-buffer.png"
@@ -63,7 +68,81 @@ WebGPUは大きく分けて、2種類のメモリを扱っていると考える�
 しかし、WebGPUはWeb上で動くAPIなので、=p=なるべく多くの種類のデバイスで同じコードが動作する==ことを重視します。
 そのため、WebGPUはすべての環境が「GPUとCPUが別々のメモリを持っている」と仮定してコードを書かせるようになっています。あとは、WebGPU内部で環境に応じて最適化をしてくれるわけです。
 
-## バッファにデータを書き込む手法
+## 三角形のための頂点バッファを作る
+
+### JavaScript側で頂点座標を定義
+
+前回実装した三角形を描画するコードでは、頂点シェーダ内で定義した`pos{:wgsl}`という配列に、3つの頂点の座標を定義していました。
+
+```wgsl title="🔙 WGSLによるシェーダのコード" showLineNumbers{9} {3-7}
+@vertex
+fn vs_main(in: VertexInput) -> VertexOutput {
+  var pos = array<vec2f, 3>(
+    vec2f( 0.0,  0.5),
+    vec2f(-0.5, -0.5),
+    vec2f( 0.5, -0.5)
+  );
+
+  var out: VertexOutput;
+  out.Position = vec4f(pos[in.VertexIndex], 0.0, 1.0);
+  return out;
+}
+```
+
+この頂点の座標（`pos{:wgsl}`の中身）を、JavaScript側で定義するようにしましょう。
+
+愚直に写し書きするだけなら、次のようなコードが思い浮かぶかもしれません。1つの頂点の座標を1つの配列とし、それを3つ並べた「配列の配列」です。
+
+```js title="❌ JSによる頂点座標の定義"
+const vertices = [
+  [0.0, 0.5],
+  [-0.5, -0.5],
+  [0.5, -0.5]
+]
+```
+
+1つの頂点ごとの座標をそれぞれ配列でまとめたこのコードは、人間にとってはわかりやすいものです。
+しかし、GPUにバッファとして渡すときは、次のようにフラット（flat）な1次元配列で定義するようにします。GPUからアクセスできるメモリ上にデータを並べる上で、そのほうが都合がよいのです。
+
+```js title="❌ JSによる頂点座標の定義"
+const vertices = [0.0, 0.5, -0.5, -0.5, 0.5, -0.5]
+```
+
+しかし、これでもまだGPU（シェーダ）に渡すには不十分です。
+シェーダにデータを渡すときは、シェーダ側と各数値の型を合わせる必要があります。
+
+WGSLによる頂点シェーダのコードでは、最終的に出力する座標`@builtin(position){:wgsl}`は`vec4f{:wgsl}`型と指定されています。
+
+```wgsl title="🔙 WGSLによるシェーダのコード" showLineNumbers {2}
+struct VertexOutput {
+  @builtin(position) Position: vec4f
+};
+```
+
+`vec4f{:wgsl}`は`vec4<f32>{:wgsl}`の省略形であり、つまり座標を表す各数値は32ビット浮動小数点数（`f32{:wgsl}`型）であることを意味しています。
+
+シェーダに座標データを正しく効率的に渡すには、JavaScript側でも、座標を表す各数値が32ビット浮動小数点数であることを明示する必要があるのです。
+そのためには、通常の配列ではなく、`Float32Array{:js}`という型付きの配列を使います。
+
+```js title="✅ JSによる頂点座標の定義"
+const vertices = new Float32Array([0.0, 0.5, -0.5, -0.5, 0.5, -0.5])
+```
+
+### 頂点座標のためのバッファを作成
+
+この`vertices{:js}`配列をGPUに渡すためには、バッファを作成して、そこにデータを書き込んでおく必要があります。
+
+```js title="JavaScriptのコード"
+const vertexBuffer = device.createBuffer({
+  size: vertices.byteLength,
+  usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+  mappedAtCreation: true
+})
+new Float32Array(vertexBuffer.getMappedRange()).set(vertices)
+vertexBuffer.unmap()
+```
+
+## 補足：バッファへの書き込み手法
 
 ## 発展：データの読み書きの裏側
 
