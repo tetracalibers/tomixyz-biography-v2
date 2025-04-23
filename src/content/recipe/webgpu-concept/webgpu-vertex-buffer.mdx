@@ -24,6 +24,7 @@ draft: true
 >
 > - https://chatgpt.com/c/6806e75b-a60c-8000-a5e8-66fb838d8749
 > - https://chatgpt.com/c/6807595b-4fe4-8000-bf42-24caa3c7069b
+> - https://chatgpt.com/c/68083090-b328-8000-85a5-10762d0c16d0
 
 import DemoLinkWithResult from "$/components/demo/DemoLinkWithResult.astro"
 
@@ -41,7 +42,9 @@ WebGPUのパイプライン作成はそれなりに重い処理であり、図�
 
 ## バッファを介したデータのやり取り
 
-==バッファ==とは、GPUからアクセスできるメモリ上のデータ列を表すオブジェクトです。、簡単に言えば**GPUに渡すためのデータを入れておく箱のようなもの**です。もう少し正確に言うと、**GPUが使うためのメモリ領域**を意味します。
+一般に、==バッファ==とは、直接やり取りするには速度やタイミングが合わない時に、=p=データを一時的にためておく場所==（メモリ領域）を指します。
+
+==バッファ==とは、GPUからアクセスできるメモリ上のデータ列を表すオブジェクトです。簡単に言えば**GPUに渡すためのデータを入れておく箱のようなもの**です。もう少し正確に言うと、**GPUが使うためのメモリ領域**を意味します。
 
 頂点の座標や色などの情報は、普通はシェーダとは別にデータとして用意して、シェーダに渡します。
 
@@ -49,8 +52,6 @@ WebGPUのパイプライン作成はそれなりに重い処理であり、図�
 シェーダにデータを渡すためには、データを==GPUからアクセスできるメモリ==に置いておく必要があります。
 
 GPUから普通のメモリの内容は参照できないため、シェーダで使いたいデータがある場合、まずGPUからアクセス可能なメモリに移す必要があります。そしてそれはプログラムの上では「バッファに書き込む」「バッファに書き込んで転送する」という形になります。
-
-==バッファ==はCPUからGPUへの=p=受け渡し場所==ともいえます。
 
 ### WebGPUが扱うメモリ
 
@@ -68,13 +69,11 @@ WebGPUは大きく分けて、2種類のメモリを扱っていると考える�
 しかし、WebGPUはWeb上で動くAPIなので、=p=なるべく多くの種類のデバイスで同じコードが動作する==ことを重視します。
 そのため、WebGPUはすべての環境が「GPUとCPUが別々のメモリを持っている」と仮定してコードを書かせるようになっています。あとは、WebGPU内部で環境に応じて最適化をしてくれるわけです。
 
-## 三角形のための頂点バッファを作る
-
-### JavaScript側で頂点座標を定義
+## JS側で頂点データを定義する
 
 前回実装した三角形を描画するコードでは、頂点シェーダ内で定義した`pos{:wgsl}`という配列に、3つの頂点の座標を定義していました。
 
-```wgsl title="🔙 WGSLによるシェーダのコード" showLineNumbers{9} {3-7}
+```wgsl title="WGSLによるシェーダのコード" showLineNumbers{9} {3-7}
 @vertex
 fn vs_main(in: VertexInput) -> VertexOutput {
   var pos = array<vec2f, 3>(
@@ -113,7 +112,7 @@ const vertices = [0.0, 0.5, -0.5, -0.5, 0.5, -0.5]
 
 WGSLによる頂点シェーダのコードでは、最終的に出力する座標`@builtin(position){:wgsl}`は`vec4f{:wgsl}`型と指定されています。
 
-```wgsl title="🔙 WGSLによるシェーダのコード" showLineNumbers {2}
+```wgsl title="WGSLによるシェーダのコード" showLineNumbers {2}
 struct VertexOutput {
   @builtin(position) Position: vec4f
 };
@@ -128,11 +127,11 @@ struct VertexOutput {
 const vertices = new Float32Array([0.0, 0.5, -0.5, -0.5, 0.5, -0.5])
 ```
 
-### 頂点座標のためのバッファを作成
+## 頂点データのためのバッファを作る
 
 この`vertices{:js}`配列をGPUに渡すためには、バッファを作成して、そこにデータを書き込んでおく必要があります。
 
-```js title="JavaScriptのコード"
+```js
 const vertexBuffer = device.createBuffer({
   size: vertices.byteLength,
   usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
@@ -143,6 +142,9 @@ vertexBuffer.unmap()
 ```
 
 ## 補足：バッファへの書き込み手法
+
+- `mappedAtCreation: true`を指定して、バッファを作成したときにマッピングする方法
+- `queue.writeBuffer()`を使って、バッファにデータを書き込む方法
 
 ## 発展：データの読み書きの裏側
 
@@ -185,11 +187,6 @@ GPU用のメモリにデータを送るには、以下のような一連のス�
 
 ## [DRAFT]
 
-バッファ（`GPUBuffer`）は **GPU用** か **CPU用** のどちらかに割り当てることができますが、**両方にはできません**。  
-一方、テクスチャ（`GPUTexture`）は **常に GPU アクセス専用** です。
-
----
-
 ## なぜ明示的な管理が必要なのか？
 
 WebGLでは、バッファを作るときや使うときにあまり多くの情報を指定する必要はありませんでした。`gl.createBuffer()`で作り、`gl.bufferData()`で書き込むだけです。ただしその裏では、多くの状態や挙動が暗黙的に処理されており、「なぜこの描画が失敗したのか」がわかりづらいこともよくありました。
@@ -209,7 +206,7 @@ WebGPUでバッファを作るには、`device.createBuffer()` という関数�
 
 WebGPUでは、バッファにデータを渡す方法も明示的です。よく使われるのが、`mappedAtCreation: true` を指定して作成時にマッピングし、JavaScript側からバッファのメモリに直接書き込む方法です。
 
-```javascript
+```js
 const buffer = device.createBuffer({
   size: 256,
   usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
