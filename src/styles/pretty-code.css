@@ -150,6 +150,60 @@ html.dark [data-rehype-pretty-code-title] {
   --_pretty-title-border: var(--pretty-dark-title-border);
 }
 
+/** language name */
+
+pre[data-language] {
+  /** 言語名とコードブロック上端の間に余白が現れないように */
+  padding-block-start: 0;
+}
+pre[data-language]::before {
+  /** 言語名を表示 */
+  content: attr(data-language);
+  /** 長いコードをスクロールしても、言語名は左上に固定 */
+  position: sticky;
+  left: 0;
+  top: 0;
+  /** 行ハイライト時の全体を薄くするレイヤーより上に重ねる */
+  z-index: 2;
+  display: inline-block;
+  padding-block: 0.25rem;
+  padding-inline: 0.5rem;
+  color: light-dark(#295f98, #aac4ff);
+  font-size: 0.75rem;
+  border-bottom-right-radius: 5px;
+  margin-bottom: 0.5rem;
+  text-align: center;
+  line-height: 1.5;
+}
+[data-rehype-pretty-code-title] + pre[data-language] {
+  border-top-left-radius: 0;
+}
+/** 言語ごとのラベル */
+pre[data-language="js"]::before {
+  content: "JavaScript";
+}
+pre[data-language="ts"]::before {
+  content: "TypeScript";
+}
+pre[data-language="html"]::before {
+  content: "HTML";
+}
+pre[data-language="css"]::before {
+  content: "CSS";
+}
+pre[data-language="svg"]::before {
+  content: "SVG";
+}
+pre[data-language="rs"]::before {
+  content: "Rust";
+}
+pre[data-language="wgsl"]::before {
+  content: "WGSL";
+}
+pre[data-language="glsl"]::before {
+  content: "GLSL";
+}
+
 /** error */
 
 pre > code .highlighted.error {
