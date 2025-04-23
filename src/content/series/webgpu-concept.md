@@ -11,6 +11,9 @@ articles:
   - webgpu-concept/webgpu-vertex-buffer
   - webgpu-concept/webgpu-inter-stage-lerp
   - webgpu-concept/webgpu-index-buffer-or-strip
+  - webgpu-concept/webgpu-texture-mapping
+  - webgpu-concept/webgpu-uniform-buffer
+  - webgpu-concept/webgpu-compute-add
   - webgpu-concept/webgpu-with-rust
 ---
 
