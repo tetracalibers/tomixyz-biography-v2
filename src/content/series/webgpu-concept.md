@@ -14,6 +14,7 @@ articles:
   - webgpu-concept/webgpu-uniform-memory-alignment
   - webgpu-concept/webgpu-texture-mapping
   - webgpu-concept/webgpu-alpha-blending
+  - webgpu-concept/webgpu-instancing
   - webgpu-concept/webgpu-compute-add
   - webgpu-concept/webgpu-with-rust
 ---
