@@ -1,0 +1,52 @@
+---
+title: はじめに
+date: "2025-04-25"
+description: WebGPUに入門しよう
+series: webgpu-concept
+draft: true
+---
+
+このシリーズは、WebGLの後継として注目され始めている、WebGPUを学ぶための入門シリーズです。
+（主に筆者自身のWebGPUに対する解像度を上げるために書き始めたものです。）
+
+## WebGPUとは
+
+WebGPUは、ブラウザ上でGPU（Graphics Processing Unit）を利用した処理を行うための新しいAPIです。
+これまでも、ブラウザ上でGPUを利用できるAPIとしてWebGLが使われてきましたが、WebGLはグラフィックス処理に特化したAPIでした。
+
+最近のGPUは、グラフィックス処理だけでなく、一般的な計算処理にも利用されるようになっています。
+WebGPUは、そんな時代の流れを汲んで、3Dグラフィックスの実装や画像処理だけでなく、GPUを使ったより汎用的な計算処理（機械学習や科学計算など）も可能にすることを目指した設計思想と機能を持っています。
+
+## このシリーズで扱う範囲
+
+このシリーズでは、WebGPUを使ったグラフィックス処理の基本と、WebGPUで可能になったGPUでの計算処理の基本という、WebGPUの2つの側面を扱います。
+
+グラフィックスAPIとしてのWebGPUは、特に3Dグラフィックスで真価を発揮しますが、このシリーズではあえて2Dグラフィックスの例に限定します。
+3Dグラフィックスに必要な行列などの数学やCGの概念に振り回されることなく、WebGPUの扱い方に集中するためです。（3Dグラフィックスについては、いつか別シリーズで解説するかもしれません。）
+
+## このシリーズの構成
+
+案外長いシリーズになりそうなので、グループ化した目次を以下に示します。
+
+### 1. WebGLとの違い編
+
+まずは、WebGPUはWebGLとは何が違うのか？に焦点を当てていきます。
+これらの回はWebGLの知識を前提にしているので、WebGLを知らない or WebGLのことはいいから早くWebGPUを学びたい、という方は飛ばしてしまいましょう。
+
+- [歴史から見るWebGPUのコンセプト](/recipes/webgpu-concept/graphics-api-history)
+- [Stateから見るWebGLとWebGPU](/recipes/webgpu-concept/webgpu-stateless)
+
+### 2. WebGPUの初期化編
+
+ここから、WebGPUについて学ぶ旅路が始まります。
+まずは、WebGPUを介してGPUにアクセスするための基本的な概念を学びます。WebGPUをグラフィックス or 計算処理のどちらに使う場合にも必要となる基礎知識です。
+
+- [WebGPUの抽象化レイヤー](/recipes/webgpu-concept/webgpu-adapter-device)
+
+### 3. キャンバスの初期化編
+
+WebGPUをグラフィックス処理に使う場合、多くの場合はキャンバスに描画することになるでしょう。
+ここでは、WebGPUとキャンバスを紐付けて、キャンバス全体の色を初期化（クリア）するところまでを解説します。
+
+- [WebGPUをキャンバスで動かす](/recipes/webgpu-concept/webgpu-canvas)
+- [WebGPUでのキャンバス描画の裏側](/recipes/webgpu-concept/webgpu-swap-chain)

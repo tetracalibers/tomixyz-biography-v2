@@ -1,6 +1,7 @@
 ---
 title: WebGPUのコンセプト
 articles:
+  - webgpu-concept/introduction
   - webgpu-concept/graphics-api-history
   - webgpu-concept/webgpu-stateless
   - webgpu-concept/webgpu-adapter-device
