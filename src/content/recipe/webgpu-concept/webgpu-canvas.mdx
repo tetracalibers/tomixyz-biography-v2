@@ -30,7 +30,7 @@ import img_WebGpuCanvasClear from "../../../assets/recipes/webgpu-concept/webgpu
 const canvas = document.querySelector("canvas")
 const gl = canvas.getContext("webgl2")
 
-gl.clearColor(0.5, 0.5, 0.5, 1)
+gl.clearColor(0.749, 0.925, 1.0, 1)
 gl.clear(gl.COLOR_BUFFER_BIT)
 ```
 
@@ -186,7 +186,7 @@ const renderPassDescriptor = {
       storeOp: "store", // 最終的に描いた内容を保存する
 
       // 画像を初期化するときの色
-      clearValue: { r: 0.5, g: 0.5, b: 0.5, a: 1 }
+      clearValue: { r: 0.749, g: 0.925, b: 1.0, a: 1 }
     }
   ]
 }
@@ -264,7 +264,7 @@ const renderPassDescriptor = {
     {
       view: context.getCurrentTexture().createView(),
       loadOp: "clear",
-      clearValue: { r: 0.5, g: 0.5, b: 0.5, a: 1 },
+      clearValue: { r: 0.749, g: 0.925, b: 1.0, a: 1 },
       storeOp: "store"
     }
   ]
@@ -300,7 +300,7 @@ const renderPassDescriptor = {
     {
       view: context.getCurrentTexture().createView(),
       loadOp: "clear",
-      clearValue: { r: 0.5, g: 0.5, b: 0.5, a: 1 },
+      clearValue: { r: 0.749, g: 0.925, b: 1.0, a: 1 },
       storeOp: "store"
     }
   ]

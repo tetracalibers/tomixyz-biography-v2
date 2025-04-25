@@ -28,7 +28,7 @@ draft: true
 
 import DemoLinkWithResult from "$/components/demo/DemoLinkWithResult.astro"
 
-import img_WebGPUTriangleVertexBuffer from "../../../assets/recipes/webgpu-concept/webgpu-triangle-vertex-buffer.png"
+import img_WebGPUTriangleVertexBuffer from "../../../assets/recipes/webgpu-concept/webgpu-triangle.png"
 
 :SeriesPrevLink[前回]{series="webgpu-concept" current="webgpu-vertex-buffer"}は、WebGPUを使って三角形を描画する処理を完成させました。
 
@@ -263,7 +263,7 @@ const renderPass = commandEncoder.beginRenderPass({
     {
       view: context.getCurrentTexture().createView(),
       loadOp: "clear",
-      clearValue: { r: 0.32, g: 0.34, b: 0.36, a: 1 },
+      clearValue: { r: 0.749, g: 0.925, b: 1.0, a: 1 },
       storeOp: "store"
     }
   ]
