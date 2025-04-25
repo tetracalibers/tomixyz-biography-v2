@@ -16,8 +16,7 @@ articles:
   - webgpu-concept/webgpu-alpha-blending
   - webgpu-concept/webgpu-instancing
   - webgpu-concept/webgpu-compute-add
-  - webgpu-concept/wgpu-basic
-  - webgpu-concept/wgpu-with-winit
+  - webgpu-concept/webgpu-with-rust
 ---
 
 WebGPUの入門シリーズです。
