@@ -1,0 +1,43 @@
+---
+title: コンピュートシェーダの基本
+date: "2025-04-30"
+description: GPUで足し算をする
+series: webgpu-concept
+references:
+  - title: WebGPU — All of the cores, none of the canvas
+    url: https://surma.dev/things/webgpu/
+  - title: ステージングバッファ
+    url: https://monobook.org/wiki/%E3%82%B9%E3%83%86%E3%83%BC%E3%82%B8%E3%83%B3%E3%82%B0%E3%83%90%E3%83%83%E3%83%95%E3%82%A1
+tags:
+  - webgpu
+  - wgsl
+draft: true
+---
+
+> [!note]
+>
+> - [ChatGPT: バッファとステージングバッファの違いとか](https://chatgpt.com/c/6806e75b-a60c-8000-a5e8-66fb838d8749)
+
+## [DRAFT]
+
+### データをGPU用のメモリに送る流れ
+
+GPU用のメモリにデータを送るには、以下のような一連のステップが使われます：
+
+1. **ステージングバッファ**（CPU アクセス可能なバッファ）を作る  
+   使用目的は `GPUBufferUsage.MAP_WRITE | GPUBufferUsage.COPY_SRC`
+2. `mapAsync()` を使って書き込み用にマッピングする（JavaScript の `ArrayBuffer` として扱えるようになる）
+3. データを `ArrayBuffer` に書き込む
+4. バッファのマッピングを解除する（unmap）
+5. `copyBufferToBuffer()` または `copyBufferToTexture()` を使って、GPU 用のメモリにコピーする
+
+### GPU用のメモリからデータを読み出す流れ
+
+逆に、GPU のメモリからデータを読むときも似たような流れになります：
+
+1. **ステージングバッファ**（CPU 読み出し用）を作る  
+   使用目的は `GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST`
+2. `copyBufferToBuffer()` や `copyTextureToBuffer()` で GPU メモリからステージングバッファにコピーする
+3. `mapAsync()` を使って読み出し用にマッピングする（JavaScript の `ArrayBuffer` として読めるようになる）
+4. データを `ArrayBuffer` から読み出す
+5. バッファのマッピングを解除する

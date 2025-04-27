@@ -15,6 +15,7 @@ interface Props {
 
 const { headings, current, series } = Astro.props
 
+const getSeriesPageUrl = (seriesId: string) => SITE.base + `/recipes/${seriesId}`
 const getRecipePageUrl = (articleId: string) => SITE.base + `/recipes/${articleId}`
 ---
 
@@ -24,7 +25,9 @@ const getRecipePageUrl = (articleId: string) => SITE.base + `/recipes/${articleI
     series ? (
       <>
         <details open={series.isFirstArticle(current)} class="closure">
-          <summary>「{series.data.title}」シリーズについて</summary>
+          <summary class="series-about">
+            「<a href={getSeriesPageUrl(series.id)}>{series.data.title}</a>」シリーズについて
+          </summary>
           <Prose>
             <div class="series-summary">
               <series.Summary />
@@ -104,7 +107,6 @@ const getRecipePageUrl = (articleId: string) => SITE.base + `/recipes/${articleI
     border-block-end-width: 1px;
     border-block-end-style: dotted;
     border-block-end-color: light-dark(var(--slate-300), var(--slate-400));
-    color: light-dark(var(--slate-600), var(--slate-100));
   }
   @media (width >= 48rem) {
     .series-summary {
@@ -115,11 +117,14 @@ const getRecipePageUrl = (articleId: string) => SITE.base + `/recipes/${articleI
   .series-summary :global(*) {
     margin-block: 0;
   }
-  .series-summary :global(a) {
+  .series-summary :global(p) {
+    color: inherit;
+  }
+  :is(.series-summary, .series-about) :global(a) {
     text-decoration-style: dotted;
     text-decoration-thickness: 1px;
     text-underline-offset: 4px;
-    color: light-dark(var(--slate-600), var(--slate-100));
+    color: inherit;
   }
 
   .toc-list-with-series {

@@ -14,7 +14,7 @@ tags:
 
 import DemoLinkWithResult from "$/components/demo/DemoLinkWithResult.astro"
 
-import img_WebGpuTriangleNoBuffer from "../../../assets/recipes/webgpu-concept/webgpu-triangle-no-buffer.png"
+import img_WebGpuTriangleNoBuffer from "../../../assets/recipes/webgpu-concept/webgpu-triangle.png"
 
 :SeriesPrevLink[前回]{series="webgpu-concept" current="webgpu-triangle-pipeline"}は、三角形の描画に必要なシェーダを実装しました。
 
@@ -288,7 +288,7 @@ const renderPassDescriptor = {
     {
       view: context.getCurrentTexture().createView(),
       loadOp: "clear",
-      clearValue: { r: 0.32, g: 0.34, b: 0.36, a: 1 },
+      clearValue: { r: 0.749, g: 0.925, b: 1.0, a: 1 },
       storeOp: "store"
     }
   ]
@@ -393,7 +393,7 @@ const renderPassDescriptor = {
     {
       view: context.getCurrentTexture().createView(),
       loadOp: "clear",
-      clearValue: { r: 0.32, g: 0.34, b: 0.36, a: 1 },
+      clearValue: { r: 0.749, g: 0.925, b: 1.0, a: 1 },
       storeOp: "store"
     }
   ]

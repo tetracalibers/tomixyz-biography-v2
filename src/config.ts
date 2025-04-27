@@ -41,4 +41,4 @@ export const SITE = {
   author: "tomixy"
 }
 
-export const PAGE_SIZE = 8
+export const PAGE_SIZE = 10

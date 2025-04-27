@@ -30,7 +30,7 @@ import img_WebGpuCanvasClear from "../../../assets/recipes/webgpu-concept/webgpu
 const canvas = document.querySelector("canvas")
 const gl = canvas.getContext("webgl2")
 
-gl.clearColor(0.5, 0.5, 0.5, 1)
+gl.clearColor(0.749, 0.925, 1.0, 1)
 gl.clear(gl.COLOR_BUFFER_BIT)
 ```
 
@@ -167,8 +167,7 @@ WebGPUは、正確なメモリ制御のために、「どこに」「どう描�
 1つのレンダリングパス（ひとまとまりの描画処理）を開始するときには、「どこに」「どう描くか」という設定をまとめたオブジェクト（`GPURenderPassDescriptor{:js}`）を与える必要があります。
 
 > [!tip]
-> WebGPUでは、`xxxDescriptor`というような名前がつけられたオブジェクトが多数登場します。
-> `description`は「説明」という意味を持つ英単語です。`descriptor`とは、こんなふうに動いてほしい！という意図をGPUに対して「説明してくれるもの」と解釈しておくと、イメージしやすいかもしれません。
+> WebGPUでは、「〜デスクリプタ」（`xxxDescriptor`）というような名前がつけられたオブジェクトが多数登場します。`description`は「説明」という意味を持つ英単語ですから、`descriptor`とは、こんなふうに動いてほしい！という意図をGPUに対して「説明してくれるもの」と解釈しておくと、イメージしやすいかもしれません。
 
 `GPURenderPassDescriptor{:js}`に最低限必要なのは、==アタッチメント==（描画対象とする画像）の設定です。
 
@@ -187,7 +186,7 @@ const renderPassDescriptor = {
       storeOp: "store", // 最終的に描いた内容を保存する
 
       // 画像を初期化するときの色
-      clearValue: { r: 0.5, g: 0.5, b: 0.5, a: 1 }
+      clearValue: { r: 0.749, g: 0.925, b: 1.0, a: 1 }
     }
   ]
 }
@@ -265,7 +264,7 @@ const renderPassDescriptor = {
     {
       view: context.getCurrentTexture().createView(),
       loadOp: "clear",
-      clearValue: { r: 0.5, g: 0.5, b: 0.5, a: 1 },
+      clearValue: { r: 0.749, g: 0.925, b: 1.0, a: 1 },
       storeOp: "store"
     }
   ]
@@ -301,7 +300,7 @@ const renderPassDescriptor = {
     {
       view: context.getCurrentTexture().createView(),
       loadOp: "clear",
-      clearValue: { r: 0.5, g: 0.5, b: 0.5, a: 1 },
+      clearValue: { r: 0.749, g: 0.925, b: 1.0, a: 1 },
       storeOp: "store"
     }
   ]

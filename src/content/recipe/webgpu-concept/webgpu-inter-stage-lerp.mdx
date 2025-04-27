@@ -1,15 +1,30 @@
 ---
 title: シェーダ間の値と線形補間
-date: "2025-04-23"
-description: 頂点に指定した色はどう表示されるのか？
+date: "2025-04-25"
+description: 頂点に指定した色はどう表示されるのか
 series: webgpu-concept
 references:
   - title: WebGPU Unleashed - 1.4 Using Different Vertex Colors
     url: https://shi-yan.github.io/webgpuunleashed/Basics/using_different_vertex_colors.html
   - title: inter-stage(シェーダ間)変数
     url: https://webgpufundamentals.org/webgpu/lessons/ja/webgpu-inter-stage-variables.html
+  - title: インターリーブ配列 VBO
+    url: https://wgld.org/d/webgl/w088.html
 tags:
   - webgpu
   - wgsl
 draft: true
 ---
+
+> [!note]
+>
+> - https://chatgpt.com/c/6802a2f1-b134-8000-a8fa-b28869dfccb1
+> - https://tetracalibers.github.io/webgl-practice-ground/norm-lerp-map/
+
+## [DRAFT]
+
+## WebGPUにおけるバッファの型と設計
+
+バッファはGPU上に配置されるため、その内容はGPUにとってアクセスしやすい形式でなければなりません。そのため、**配列の並び順（レイアウト）や型のサイズ（たとえば32bit floatや16bit int）**を意識した設計が求められます。
+
+さらに、シェーダー側でどう参照するかにも影響します。たとえば、頂点バッファを使う場合は、頂点ごとにどんな属性（位置・色・UVなど）が並んでいるかを、`vertexState` の中で定義する必要があります。

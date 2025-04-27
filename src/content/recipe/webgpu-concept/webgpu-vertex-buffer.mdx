@@ -1,6 +1,6 @@
 ---
-title: 頂点バッファとバインディング
-date: "2025-04-22"
+title: 頂点バッファとレイアウト
+date: "2025-04-24"
 description: CPUからGPUへデータを渡す基本の仕組み
 series: webgpu-concept
 references:
@@ -16,16 +16,20 @@ references:
     url: https://webgpufundamentals.org/webgpu/lessons/webgpu-bind-group-layouts.html
 tags:
   - webgpu
+  - wgsl
 draft: true
 ---
 
 > [!note]
-> ここで学ぶこと
 >
-> - バッファとは何か
-> - バッファへデータを書き込む方法の種類
-> - バッファのバインディング
-> - パイプラインレイアウト（`auto`ではない書き方）
+> - https://chatgpt.com/c/6806e75b-a60c-8000-a5e8-66fb838d8749
+> - https://chatgpt.com/c/6807595b-4fe4-8000-bf42-24caa3c7069b
+> - https://chatgpt.com/c/68083090-b328-8000-85a5-10762d0c16d0
+> - https://chatgpt.com/c/680b171a-f2f4-8000-acee-572a8eb01376
+
+import DemoLinkWithResult from "$/components/demo/DemoLinkWithResult.astro"
+
+import img_WebGPUTriangleVertexBuffer from "../../../assets/recipes/webgpu-concept/webgpu-triangle.png"
 
 :SeriesPrevLink[前回]{series="webgpu-concept" current="webgpu-vertex-buffer"}は、WebGPUを使って三角形を描画する処理を完成させました。
 
@@ -33,6 +37,250 @@ draft: true
 なぜなら、頂点のデータをシェーダ内で定義してしまうと、そのシェーダはその図形専用のシェーダになってしまうからです。
 
 シェーダは、コンパイルしてパイプラインに組み込むことで、初めて利用できるようになります。
-WebGPUのパイプライン作成はそこそこ重い処理であり、図形ごとにシェーダとパイプラインを用意して切り替えながら描画するのは非効率です。
+WebGPUのパイプライン作成はそれなりに重い処理であり、図形ごとにシェーダとパイプラインを用意して切り替えながら描画するのは非効率です。
 
 そこで、GPUにデータを渡すための仕組みとして、==バッファ==を導入します。
+
+## バッファを介したデータのやり取り
+
+一般に、==バッファ==とは、直接やり取りするには速度やタイミングが合わない時に、=p=データを一時的にためておく場所==（メモリ領域）を指します。
+
+==バッファ==とは、GPUからアクセスできるメモリ上のデータ列を表すオブジェクトです。簡単に言えば**GPUに渡すためのデータを入れておく箱のようなもの**です。もう少し正確に言うと、**GPUが使うためのメモリ領域**を意味します。
+
+頂点の座標や色などの情報は、普通はシェーダとは別にデータとして用意して、シェーダに渡します。
+
+しかし、シェーダは普通のプログラムと違い、CPU上ではなくGPU上で動くプログラムです。そのため、普通のメモリ上にある変数の値などは基本的に読み込めません。
+シェーダにデータを渡すためには、データを==GPUからアクセスできるメモリ==に置いておく必要があります。
+
+GPUから普通のメモリの内容は参照できないため、シェーダで使いたいデータがある場合、まずGPUからアクセス可能なメモリに移す必要があります。そしてそれはプログラムの上では「バッファに書き込む」「バッファに書き込んで転送する」という形になります。
+
+### WebGPUが扱うメモリ
+
+WebGPUは大きく分けて、2種類のメモリを扱っていると考えることができます。
+
+- ==GPUからアクセス可能==なメモリ
+- ==CPUからアクセス可能==で、GPUに効率よくコピーできるメモリ
+
+シェーダからデータにアクセスしたいときは、そのデータは==GPUからアクセス可能なメモリ==にある必要があります。
+一方、JavaScriptからデータにアクセスしたい場合は、そのデータは==CPUからアクセス可能なメモリ==に存在している必要があります。
+
+### 補足：互換性という「Webらしさ」
+
+スマートフォンなど一部のデバイスでは、GPUとCPUが同じメモリを共有していることもあります。
+しかし、WebGPUはWeb上で動くAPIなので、=p=なるべく多くの種類のデバイスで同じコードが動作する==ことを重視します。
+そのため、WebGPUはすべての環境が「GPUとCPUが別々のメモリを持っている」と仮定してコードを書かせるようになっています。あとは、WebGPU内部で環境に応じて最適化をしてくれるわけです。
+
+## JS側で頂点データを定義する
+
+前回実装した三角形を描画するコードでは、頂点シェーダ内で定義した`pos{:wgsl}`という配列に、3つの頂点の座標を定義していました。
+
+```wgsl title="WGSLによるシェーダのコード" showLineNumbers{9} {3-7}
+@vertex
+fn vs_main(in: VertexInput) -> VertexOutput {
+  var pos = array<vec2f, 3>(
+    vec2f( 0.0,  0.5),
+    vec2f(-0.5, -0.5),
+    vec2f( 0.5, -0.5)
+  );
+
+  var out: VertexOutput;
+  out.Position = vec4f(pos[in.VertexIndex], 0.0, 1.0);
+  return out;
+}
+```
+
+この頂点の座標（`pos{:wgsl}`の中身）を、JavaScript側で定義するようにしましょう。
+
+愚直に写し書きするだけなら、次のようなコードが思い浮かぶかもしれません。1つの頂点の座標を1つの配列とし、それを3つ並べた「配列の配列」です。
+
+```js title="❌ JSによる頂点座標の定義"
+const vertices = [
+  [0.0, 0.5],
+  [-0.5, -0.5],
+  [0.5, -0.5]
+]
+```
+
+1つの頂点ごとの座標をそれぞれ配列でまとめたこのコードは、人間にとってはわかりやすいものです。
+しかし、GPUにバッファとして渡すときは、次のようにフラット（flat）な1次元配列で定義するようにします。GPUからアクセスできるメモリ上にデータを並べる上で、そのほうが都合がよいのです。
+
+```js title="❌ JSによる頂点座標の定義"
+const vertices = [0.0, 0.5, -0.5, -0.5, 0.5, -0.5]
+```
+
+しかし、これでもまだGPU（シェーダ）に渡すには不十分です。
+シェーダにデータを渡すときは、シェーダ側と各数値の型を合わせる必要があります。
+
+WGSLによる頂点シェーダのコードでは、最終的に出力する座標`@builtin(position){:wgsl}`は`vec4f{:wgsl}`型と指定されています。
+
+```wgsl title="WGSLによるシェーダのコード" showLineNumbers {2}
+struct VertexOutput {
+  @builtin(position) Position: vec4f
+};
+```
+
+`vec4f{:wgsl}`は`vec4<f32>{:wgsl}`の省略形であり、つまり座標を表す各数値は32ビット浮動小数点数（`f32{:wgsl}`型）であることを意味しています。
+
+シェーダに座標データを正しく効率的に渡すには、JavaScript側でも、座標を表す各数値が32ビット浮動小数点数であることを明示する必要があるのです。
+そのためには、通常の配列ではなく、`Float32Array{:js}`という型付きの配列を使います。
+
+```js title="✅ JSによる頂点座標の定義"
+const vertices = new Float32Array([0.0, 0.5, -0.5, -0.5, 0.5, -0.5])
+```
+
+## 頂点データのためのバッファを作る
+
+この`vertices{:js}`配列をGPUに渡すためには、バッファを作成して、そこにデータを書き込んでおく必要があります。
+
+WebGPUでバッファを作るには、`device.createBuffer()` という関数を使います。このとき、どのような使い方をするかを `usage` というフラグで明示します。たとえば：
+
+- **`VERTEX`**：頂点データとして使う
+- **`COPY_SRC` / `COPY_DST`**：他のバッファやテクスチャとの間でコピーするために使う
+
+このように、**どう使うかを最初から明示する**のがWebGPUの基本スタイルです。
+
+```js
+const vertices = new Float32Array([0.0, 0.5, -0.5, -0.5, 0.5, -0.5])
+const vertexBuffer = device.createBuffer({
+  size: vertices.byteLength,
+  usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
+})
+device.queue.writeBuffer(vertexBuffer, 0, vertices)
+```
+
+## 発展：バッファへの書き込み手法いろいろ
+
+以後変更されないバッファは、`mappedAtCreation: true`を指定して、バッファを作成したときにマッピングする方法も使える
+この方法は、CPU側で動的に頂点データを生成する場合に効率がよい
+
+```js
+const vertexBuffer = device.createBuffer({
+  size: vertices.byteLength,
+  usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+  mappedAtCreation: true
+})
+new Float32Array(vertexBuffer.getMappedRange()).set(vertices)
+vertexBuffer.unmap()
+```
+
+よく使われるのが、`mappedAtCreation: true` を指定して作成時にマッピングし、JavaScript側からバッファのメモリに直接書き込む方法です。
+
+ここで `getMappedRange()` によって得られるのは、生のメモリ領域です。そこに `Float32Array` などを使ってデータを書き込み、`unmap()` を呼ぶことで、GPU側で利用可能な状態になります。
+
+なお、バッファを使い回して内容だけ書き換えるような場合には、非マップ方式で `queue.writeBuffer()` を使う方法もあります。
+
+## バッファの中身とレイアウト
+
+バッファの中身は、**ただの連続したバイナリデータ**です。たとえば、`[0.0, 1.0, 0.0, 1.0]` のような浮動小数点数（`Float32`）がずらっと並んでいたり、`[1, 2, 3, 4]` のような整数列だったりします。
+
+でもGPUはそれを「色」や「座標」として直接理解してくれるわけではないので、**「このバッファのこの場所には、何のデータが入っているのか」を一緒に伝える必要**があります。
+
+これが「レイアウト（layout）」です。たとえば「1つの頂点には、位置が3つ（X, Y, Z）、色が4つ（R, G, B, A）あります」というような情報を、プログラム側で教えてあげることで、GPUはバッファの中身を正しく解釈できます。
+
+- パイプラインレイアウトについても触れる（`auto`ではない書き方）
+
+## 補足：なぜ明示的な管理が必要なのか？
+
+WebGLでは、バッファを作るときや使うときにあまり多くの情報を指定する必要はありませんでした。`gl.createBuffer()`で作り、`gl.bufferData()`で書き込むだけです。ただしその裏では、多くの状態や挙動が暗黙的に処理されており、「なぜこの描画が失敗したのか」がわかりづらいこともよくありました。
+
+WebGPUでは逆に、**バッファを作成する時点で細かい指定が必要**になります。その分、開発者が意図をはっきり伝えることができ、GPU側でも最適なリソースの準備がしやすくなります。これはパフォーマンスやメモリ効率の面でも重要なポイントです。
+
+## 実装：頂点バッファを使った三角形の描画
+
+```wgsl title="WGSLによるシェーダのコード" showLineNumbers {2,12}
+struct VertexInput {
+  @location(0) position: vec2f
+};
+
+struct VertexOutput {
+  @builtin(position) Position: vec4f
+};
+
+@vertex
+fn vs_main(in: VertexInput) -> VertexOutput {
+  var out: VertexOutput;
+  out.Position = vec4f(in.position, 0.0, 1.0);
+  return out;
+}
+
+@fragment
+fn fs_main() -> @location(0) vec4f {
+  return vec4f(0.918, 0.561, 0.918, 1.0);
+}
+```
+
+```js title="JavaScriptによるWebGPUのコード" showLineNumbers {10-15,24-35,61}
+const adapter = await navigator.gpu.requestAdapter()
+const device = await adapter.requestDevice()
+
+const canvas = document.querySelector("canvas")
+const context = canvas!.getContext("webgpu")
+
+const canvasFormat = navigator.gpu.getPreferredCanvasFormat()
+context.configure({ device, format: canvasFormat })
+
+const vertices = new Float32Array([0.0, 0.5, -0.5, -0.5, 0.5, -0.5])
+const vertexBuffer = device.createBuffer({
+  size: vertices.byteLength,
+  usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
+})
+device.queue.writeBuffer(vertexBuffer, 0, vertices)
+
+const shaderModule = device.createShaderModule({ code: shaderCode })
+
+const renderPipeline = device.createRenderPipeline({
+  layout: "auto",
+  vertex: {
+    module: shaderModule,
+    entryPoint: "vs_main",
+    buffers: [
+      {
+        arrayStride: vertices.BYTES_PER_ELEMENT * 2,
+        attributes: [
+          {
+            shaderLocation: 0,
+            offset: 0,
+            format: "float32x2"
+          }
+        ]
+      }
+    ]
+  },
+  fragment: {
+    module: shaderModule,
+    entryPoint: "fs_main",
+    targets: [
+      {
+        format: canvasFormat
+      }
+    ]
+  }
+})
+
+const commandEncoder = device.createCommandEncoder()
+
+const renderPass = commandEncoder.beginRenderPass({
+  colorAttachments: [
+    {
+      view: context.getCurrentTexture().createView(),
+      loadOp: "clear",
+      clearValue: { r: 0.749, g: 0.925, b: 1.0, a: 1 },
+      storeOp: "store"
+    }
+  ]
+})
+renderPass.setPipeline(renderPipeline)
+renderPass.setVertexBuffer(0, vertexBuffer)
+renderPass.draw(3)
+renderPass.end()
+
+device.queue.submit([commandEncoder.finish()])
+```
+
+実行結果は次のようになります。
+
+<DemoLinkWithResult
+  url="https://tomixyz-sketchbook.pages.dev/basics/webgpu-triangle-vertex-buffer/"
+  result={img_WebGPUTriangleVertexBuffer}
+  title="頂点バッファを使って三角形を描画するデモ"
+/>
