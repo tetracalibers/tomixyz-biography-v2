@@ -12,7 +12,7 @@ references:
     url: https://webgpufundamentals.org/webgpu/lessons/webgpu-copying-data.html
   - title: あらためて理解するArrayBuffer - JavaScriptでバイナリデータを扱う方法
     url: https://ics.media/entry/250408/
-    summary: 今回登場した`Float32Array`などの型付き配列や、その`ArrayBuffer`との関係について詳しく学びたい方におすすめの記事です。
+    summary: 今回登場した`Float32Array`などの型付き配列や、`ArrayBuffer`との関係について詳しく学びたい方におすすめの記事です。
   - title: ファイルとメモリーのマッピング (mmap)
     url: https://mkguytone.github.io/allocator-navigatable/ch68.html
     summary: Linuxの仕組みに関する記事ですが、「マッピング」のイメージを掴む上で参考になるかもしれません。
@@ -258,7 +258,7 @@ const vertexBuffer = device.createBuffer({
 この作成時マッピング方式は、特にCPU側で動的に頂点データを生成する場合に効率がよい方法です。
 JavaScriptの配列を作ってからGPU側のメモリにコピーするのではなく、GPU側のメモリへ直接書き込みながら処理を進めることで、余計なメモリコピーを省くことができます。
 
-```js title="例：トーラスの頂点バッファを作成する" showLineNumbers {7-11,13,32,36}
+```js title="例：トーラスの頂点バッファを作成する" showLineNumbers {7-11,13,31-34,38}
 function generateTorusVertexBuffer({
   radius = 1.0, // トーラスの中心からチューブ中心までの距離
   tubeRadius = 0.4, // チューブ自体の半径
@@ -266,12 +266,12 @@ function generateTorusVertexBuffer({
   tubularSegments = 24 // チューブ側の分割数
 } = {}) {
   const vertexBuffer = device.createBuffer({
-    size: Float32Array.BYTES_PER_ELEMENT * 3,
+    size: Float32Array.BYTES_PER_ELEMENT * 3 * (radialSegments + 1) * (tubularSegments + 1),
     usage: GPUBufferUsage.VERTEX,
     mappedAtCreation: true
   })
 
-  const vertices = new Float32Array(instanceBuffer.getMappedRange())
+  const vertices = new Float32Array(vertexBuffer.getMappedRange())
 
   for (let j = 0; j <= radialSegments; j++) {
     const v = (j / radialSegments) * Math.PI * 2
@@ -285,12 +285,14 @@ function generateTorusVertexBuffer({
       const cosU = Math.cos(u)
       const sinU = Math.sin(u)
 
-      // 頂点位置
       const x = (radius + tubeRadius * cosV) * cosU
       const y = (radius + tubeRadius * cosV) * sinU
       const z = tubeRadius * sinV
 
-      vertices.push(x, y, z)
+      // 直接書き込み
+      vertices[(j * (tubularSegments + 1) + i) * 3 + 0] = x
+      vertices[(j * (tubularSegments + 1) + i) * 3 + 1] = y
+      vertices[(j * (tubularSegments + 1) + i) * 3 + 2] = z
     }
   }
 
