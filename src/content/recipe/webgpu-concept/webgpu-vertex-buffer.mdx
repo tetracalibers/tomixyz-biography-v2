@@ -4,15 +4,18 @@ date: "2025-04-28"
 description: CPUからGPUへデータを渡す基本の仕組み
 series: webgpu-concept
 references:
-  - title: あらためて理解するArrayBuffer - JavaScriptでバイナリデータを扱う方法
-    url: https://ics.media/entry/250408/
-    summary: 今回登場した`Float32Array`など、JavaScriptの型付き配列について詳しく学びたい方におすすめの記事です。
-  - title: WebGPU Vertex Buffers
-    url: https://webgpufundamentals.org/webgpu/lessons/webgpu-vertex-buffers.html
   - title: WebGPU Buffer Uploads - Best practices
     url: https://toji.dev/webgpu-best-practices/buffer-uploads
+  - title: WebGPU Vertex Buffers
+    url: https://webgpufundamentals.org/webgpu/lessons/webgpu-vertex-buffers.html
   - title: WebGPU Copying Data
     url: https://webgpufundamentals.org/webgpu/lessons/webgpu-copying-data.html
+  - title: あらためて理解するArrayBuffer - JavaScriptでバイナリデータを扱う方法
+    url: https://ics.media/entry/250408/
+    summary: 今回登場した`Float32Array`などの型付き配列や、その`ArrayBuffer`との関係について詳しく学びたい方におすすめの記事です。
+  - title: ファイルとメモリーのマッピング (mmap)
+    url: https://mkguytone.github.io/allocator-navigatable/ch68.html
+    summary: Linuxの仕組みに関する記事ですが、「マッピング」のイメージを掴む上で参考になるかもしれません。
 tags:
   - webgpu
   - wgsl
@@ -24,7 +27,6 @@ draft: true
 > - https://chatgpt.com/c/6806e75b-a60c-8000-a5e8-66fb838d8749
 > - https://chatgpt.com/c/6807595b-4fe4-8000-bf42-24caa3c7069b
 > - https://chatgpt.com/c/68083090-b328-8000-85a5-10762d0c16d0
-> - https://chatgpt.com/c/680b171a-f2f4-8000-acee-572a8eb01376
 
 import DemoLinkWithResult from "$/components/demo/DemoLinkWithResult.astro"
 
@@ -141,11 +143,13 @@ WebGPUでは、バッファの作成時に`usage{:js}`フラグを指定する�
 この組み合わせによって、「GPU側のメモリに頂点データ用の領域を確保し、CPU側からその領域にデータをコピーする」という意図をWebGPUに伝えています。
 
 さて、バッファを作成しただけでは、バッファはただの空箱にすぎません。
-作成したバッファにデータを書き込むには、`device.queue.writeBuffer(){:js}`メソッドを使うのが便利です。
+作成したバッファにデータを書き込むには、`device.queue{:js}`が持つ`writeBuffer(){:js}`メソッドを使うのが便利です。
 
 ```js title="バッファにデータを書き込む"
 device.queue.writeBuffer(vertexBuffer, 0, vertices)
 ```
+
+`writeBuffer(){:js}`メソッドでは、ブラウザが最も効率のよい方法を判断し、データの書き込みを行ってくれます。
 
 ### 補足：互換性という「Webらしさ」
 
@@ -156,30 +160,148 @@ WebGPUでは、すべての環境が「GPUとCPUが別々のメモリを持っ�
 
 このような設計になっているのは、WebGPUがWebブラウザ上で動くAPIだからです。WebGPU APIは、なるべく多くの種類のデバイスで同じコードが動作することを重視した設計になっています。
 
-## 発展：バッファへの書き込みの裏側
+### 発展：作成時にマッピングして書き込む方法
 
-実は、CPU側のメモリとGPU側のメモリで、直接データを受け渡しすることはありません。
+先ほど解説したコードをまとめると、次のようなコードで頂点バッファの作成・書き込みを行っていました。
 
-### バッファを初期化する別な方法
-
-以後変更されないバッファは、`mappedAtCreation: true`を指定して、バッファを作成したときにマッピングする方法も使える
-この方法は、CPU側で動的に頂点データを生成する場合に効率がよい
-
-```js
+```js title="頂点バッファを作成して書き込む（非マップ方式）"
 const vertexBuffer = device.createBuffer({
   size: vertices.byteLength,
-  usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+  usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
+})
+device.queue.writeBuffer(vertexBuffer, 0, vertices)
+```
+
+このコードの代わりに、次のようなコードスニペットによって、頂点バッファの作成・書き込みを行うこともできます。
+
+```js title="頂点バッファを作成して書き込む（作成時マッピング方式）"
+const vertexBuffer = device.createBuffer({
+  size: vertices.byteLength,
+  usage: GPUBufferUsage.VERTEX,
   mappedAtCreation: true
 })
 new Float32Array(vertexBuffer.getMappedRange()).set(vertices)
 vertexBuffer.unmap()
 ```
 
-よく使われるのが、`mappedAtCreation: true` を指定して作成時にマッピングし、JavaScript側からバッファのメモリに直接書き込む方法です。
+インターネットで調べると出てくるWebGPUのサンプルコードでは、むしろこちらのコードスニペットの方がよく見かけるかもしれません。
 
-ここで `getMappedRange()` によって得られるのは、生のメモリ領域です。そこに `Float32Array` などを使ってデータを書き込み、`unmap()` を呼ぶことで、GPU側で利用可能な状態になります。
+この新たな方法に登場する、未知の部分に注目してみましょう。
 
-なお、バッファを使い回して内容だけ書き換えるような場合には、非マップ方式で `queue.writeBuffer()` を使う方法もあります。
+```js title="頂点バッファを作成して書き込む（作成時マッピング方式）" {4,6-9}
+const vertexBuffer = device.createBuffer({
+  size: vertices.byteLength,
+  usage: GPUBufferUsage.VERTEX,
+  mappedAtCreation: true
+})
+new Float32Array(vertexBuffer.getMappedRange()).set(vertices)
+vertexBuffer.unmap()
+```
+
+まず、`mappedAtCreation: true{:js}`を指定することで、バッファの作成時に==マッピング==も同時に行います。
+==マッピング==とは、GPU側のメモリをCPUから直接アクセスできるようにし、まるでCPUメモリの一部のように扱える状態にすることです。
+
+```js {4}
+const vertexBuffer = device.createBuffer({
+  size: vertices.byteLength,
+  usage: GPUBufferUsage.VERTEX,
+  mappedAtCreation: true
+})
+```
+
+これで、バッファの作成後すぐに、JavaScript側から中身を直接書き込めるようになります。実際にデータの書き込みを行っているのが、次の行です。
+
+```js
+new Float32Array(vertexBuffer.getMappedRange()).set(vertices)
+```
+
+`getMappedRange(){:js}`メソッドでは、バッファの書き込み可能な範囲のメモリ領域をJavaScriptの`ArrayBuffer{:js}`オブジェクトとして取得します。
+
+```js
+vertexBuffer.getMappedRange()
+```
+
+ただし、`ArrayBuffer{:js}`オブジェクトが扱うのは、ただのバイナリデータです。
+何バイトで1つの数値を表すのかは数値型によって異なるため、このバイナリデータを意味のある値として扱うためには、型付き配列でラップする必要があります。
+
+ここでは、得られたメモリ領域を32ビット浮動小数点数の配列として扱うために、`Float32Array{:js}`コンストラクタでラップしています。
+
+```js
+new Float32Array(vertexBuffer.getMappedRange())
+```
+
+これで、GPU側のメモリ領域を、JavaScript側から32ビット浮動小数点数の配列として扱えるようになりました。
+あとは、`set(){:js}`メソッドを使って、JavaScript側で用意した頂点データ（`vertices{:js}`）を直接書き込みます。
+
+```js
+new Float32Array(vertexBuffer.getMappedRange()).set(vertices)
+```
+
+書き込みが終わったら、マッピングを解除して、GPUにメモリのアクセス権を返します。
+WebGPUでは、マッピング状態のままだとGPU側がそのバッファを使えないので、次の`unmap(){:js}`でロックを外す必要があります。
+
+```js
+vertexBuffer.unmap()
+```
+
+最後に、`usage{:js}`フラグから`COPY_DST{:js}`を外していることに注意してください。
+GPU側のメモリに直接書き込むこの方式では、CPU側からGPU側へのデータのコピーが行われないため、`COPY_DST{:js}`は不要になります。
+
+```js {3}
+const vertexBuffer = device.createBuffer({
+  size: vertices.byteLength,
+  usage: GPUBufferUsage.VERTEX,
+  mappedAtCreation: true
+})
+```
+
+この作成時マッピング方式は、特にCPU側で動的に頂点データを生成する場合に効率がよい方法です。
+JavaScriptの配列を作ってからGPU側のメモリにコピーするのではなく、GPU側のメモリへ直接書き込みながら処理を進めることで、余計なメモリコピーを省くことができます。
+
+```js title="例：トーラスの頂点バッファを作成する" showLineNumbers {7-11,13,32,36}
+function generateTorusVertexBuffer({
+  radius = 1.0, // トーラスの中心からチューブ中心までの距離
+  tubeRadius = 0.4, // チューブ自体の半径
+  radialSegments = 32, // 外側リングの分割数
+  tubularSegments = 24 // チューブ側の分割数
+} = {}) {
+  const vertexBuffer = device.createBuffer({
+    size: Float32Array.BYTES_PER_ELEMENT * 3,
+    usage: GPUBufferUsage.VERTEX,
+    mappedAtCreation: true
+  })
+
+  const vertices = new Float32Array(instanceBuffer.getMappedRange())
+
+  for (let j = 0; j <= radialSegments; j++) {
+    const v = (j / radialSegments) * Math.PI * 2
+
+    const cosV = Math.cos(v)
+    const sinV = Math.sin(v)
+
+    for (let i = 0; i <= tubularSegments; i++) {
+      const u = (i / tubularSegments) * Math.PI * 2
+
+      const cosU = Math.cos(u)
+      const sinU = Math.sin(u)
+
+      // 頂点位置
+      const x = (radius + tubeRadius * cosV) * cosU
+      const y = (radius + tubeRadius * cosV) * sinU
+      const z = tubeRadius * sinV
+
+      vertices.push(x, y, z)
+    }
+  }
+
+  vertexBuffer.unmap()
+
+  return vertexBuffer
+}
+```
+
+注意点として、`mappedAtCreation: true{:js}`による作成時マッピング方式は、バッファの内容を後から変更しない場合にしか使うことができません。
+バッファを使い回して内容だけ書き換えるような場合には、`queue.writeBuffer(){:js}`による非マップ方式を使う必要があります。
 
 ## バッファの中身とレイアウト
 
