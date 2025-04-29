@@ -1,6 +1,6 @@
 import type TextToSVG from "text-to-svg"
-import { defInsetShadowFilter, defRoundCornerMask } from "./defs"
 import type { GenerationOptions } from "text-to-svg"
+import { defGradient, gradient } from "./gradient"
 
 const floor2 = (n: number) => Math.floor(n * 100) / 100
 const rem2px = (n: number) => n * 16
@@ -8,10 +8,9 @@ const rem2px = (n: number) => n * 16
 const OG_WIDTH = 1200
 const OG_HEIGHT = 630
 
-const BG_COLOR = "#f1f5f9"
 const TXT_COLOR = "#64748b"
 
-const padding = floor2(OG_WIDTH * (1 - 0.916) * 0.5)
+const padding = floor2(OG_WIDTH * (1 - 0.875) * 0.5)
 const innerWidth = OG_WIDTH - padding * 2
 const innerHeight = OG_HEIGHT - padding * 2
 
@@ -24,26 +23,19 @@ const layoutBase = (slot: string) => {
   const p = padding
   const w = innerWidth
   const h = innerHeight
-  // borderRadius
-  const r = rem2px(10)
-
-  const filterId = "inset-shadow"
-  const maskId = "round-corner"
 
   return /* xml */ `
     <svg width="${OG_WIDTH}" height="${OG_HEIGHT}" viewBox="0 0 ${OG_WIDTH} ${OG_HEIGHT}" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        ${defInsetShadowFilter(filterId)}
-        ${defRoundCornerMask(maskId, { x: p, y: p, width: w, height: h, radius: r })}
+        ${defGradient()}
       </defs>
       
       <!-- background -->
       <rect fill="white" width="${OG_WIDTH}" height="${OG_HEIGHT}" />
+      ${gradient(OG_WIDTH, OG_HEIGHT, 0, 0)}
       
-      <!-- inner container -->
-      <g filter="url(#${filterId})">
-        <rect fill="${BG_COLOR}" width="${w}" height="${h}" x="${p}" y="${p}" mask="url(#${maskId})" />
-      </g>
+      <!-- inner background -->
+      <rect fill="white" fill-opacity="0.8" rx="4" width="${w}" height="${h}" x="${p}" y="${p}" />
       
       ${slot}
     </svg>
