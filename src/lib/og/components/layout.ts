@@ -88,7 +88,7 @@ export const layoutForRootPage = ({ title, logo }: Omit<LayoutParams, "subtitle"
   return layoutBase(slot)
 }
 
-export const layoutForLowerPage = ({ title, subtitle, logo }: LayoutParams) => {
+export const layoutForCategoryTopPage = ({ title, subtitle, logo }: LayoutParams) => {
   const titleRenderOption: GenerationOptions = {
     fontSize: rem2px(3),
     anchor: "center top"

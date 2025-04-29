@@ -1,4 +1,3 @@
-import { SITE } from "$/config"
 import { loadEmbedAssets } from "./loader"
 import { useOgSvgTemplate } from "./template"
 import sharp from "sharp"
@@ -23,17 +22,15 @@ const toPNGBuffer = (svgString: string) => {
   return sharp(Buffer.from(svgString)).png().toBuffer()
 }
 
-const makeCustomOGP = (title: string, subtitle?: string) => {
-  return toPNGBuffer(ogSVG({ title, subtitle }))
+const createCustomOgImage = (category?: string) => {
+  const svg = ogSVG({ category })
+  return toPNGBuffer(svg)
 }
 
-export const defaultOGP = await makeCustomOGP(SITE.name)
+export const defaultOGP = await createCustomOgImage()
 
-export const makeCategoryIndexPageOGP = (category: string) => {
-  return makeCustomOGP(category, SITE.name)
-}
-export const makeCategoryLowerPageOGP = (category: string, title: string) => {
-  return makeCustomOGP(title, `${SITE.name} - ${category}`)
+export const createOgImageCategoryTop = (category: string) => {
+  return createCustomOgImage(category)
 }
 
 export const OG_RESPONSE_HEADERS: HeadersInit = {

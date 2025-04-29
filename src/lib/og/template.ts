@@ -1,5 +1,6 @@
 import type TextToSVG from "text-to-svg"
-import { layoutForLowerPage, layoutForRootPage } from "./components/layout"
+import { layoutForCategoryTopPage, layoutForRootPage } from "./components/layout"
+import { SITE } from "$/config"
 
 interface TemplateNeedAssets {
   font: {
@@ -12,8 +13,7 @@ interface TemplateNeedAssets {
 }
 
 interface TemplateContent {
-  title: string
-  subtitle?: string
+  category?: string
 }
 
 const escapeForJaFont = (str: string) => str.replaceAll(" ", "\u00A0").replaceAll("-", "\u2011")
@@ -21,25 +21,15 @@ const escapeForJaFont = (str: string) => str.replaceAll(" ", "\u00A0").replaceAl
 export const useOgSvgTemplate = ({ font, image }: TemplateNeedAssets) => {
   const { logo } = image
 
-  return ({ title, subtitle }: TemplateContent) => {
-    return subtitle
-      ? layoutForLowerPage({
-          title: {
-            text: escapeForJaFont(title),
-            font: font.ja
-          },
-          subtitle: {
-            text: subtitle,
-            font: font.en
-          },
-          logo
-        })
-      : layoutForRootPage({
-          title: {
-            text: title,
-            font: font.en
-          },
-          logo
-        })
+  return ({ category }: TemplateContent) => {
+    if (!category) {
+      return layoutForRootPage({ title: { text: SITE.name, font: font.en }, logo })
+    }
+
+    return layoutForCategoryTopPage({
+      title: { text: category, font: font.en },
+      subtitle: { text: SITE.name, font: font.en },
+      logo
+    })
   }
 }
