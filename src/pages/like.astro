@@ -17,3 +17,7 @@ const sections = (await getCollection("like")).sort((a, b) => a.data.order - b.d
 <DefaultPageLayout content={{ title, description }} meta={{ ...meta }}>
   {sections.map((section) => <LikeSection section={section} />)}
 </DefaultPageLayout>
+
+<style>
+  @layer prose, prose-use-marker;
+</style>
