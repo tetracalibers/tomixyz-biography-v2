@@ -1,3 +1,5 @@
+@layer prose, prose-use-marker;
+
 @layer prose-use-marker {
   :where(.prose :is(mark, a:not(.no-marker))) {
     --marker-color: rgba(191, 225, 252, 0.5);
