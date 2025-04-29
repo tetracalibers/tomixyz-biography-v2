@@ -71,7 +71,7 @@ pre > code > [data-highlighted-line] {
   border-color: #f6c6ea;
 }
 html.dark pre > code > [data-highlighted-line] {
-  background-color: rgb(74, 76, 94);
+  background-color: rgb(61 64 89);
   border-color: #b2a4ff;
 }
 

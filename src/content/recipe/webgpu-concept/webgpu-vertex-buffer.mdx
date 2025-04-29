@@ -1,19 +1,21 @@
 ---
 title: 頂点バッファとレイアウト
-date: "2025-04-24"
+date: "2025-04-28"
 description: CPUからGPUへデータを渡す基本の仕組み
 series: webgpu-concept
 references:
-  - title: あらためて理解するArrayBuffer - JavaScriptでバイナリデータを扱う方法
-    url: https://ics.media/entry/250408/
-  - title: WebGPU Vertex Buffers
-    url: https://webgpufundamentals.org/webgpu/lessons/webgpu-vertex-buffers.html
   - title: WebGPU Buffer Uploads - Best practices
     url: https://toji.dev/webgpu-best-practices/buffer-uploads
+  - title: WebGPU Vertex Buffers
+    url: https://webgpufundamentals.org/webgpu/lessons/webgpu-vertex-buffers.html
   - title: WebGPU Copying Data
     url: https://webgpufundamentals.org/webgpu/lessons/webgpu-copying-data.html
-  - title: WebGPU Bind Group Layouts
-    url: https://webgpufundamentals.org/webgpu/lessons/webgpu-bind-group-layouts.html
+  - title: あらためて理解するArrayBuffer - JavaScriptでバイナリデータを扱う方法
+    url: https://ics.media/entry/250408/
+    summary: 今回登場した`Float32Array`などの型付き配列や、`ArrayBuffer`との関係について詳しく学びたい方におすすめの記事です。
+  - title: ファイルとメモリーのマッピング (mmap)
+    url: https://mkguytone.github.io/allocator-navigatable/ch68.html
+    summary: Linuxの仕組みに関する記事ですが、「マッピング」のイメージを掴む上で参考になるかもしれません。
 tags:
   - webgpu
   - wgsl
@@ -22,10 +24,7 @@ draft: true
 
 > [!note]
 >
-> - https://chatgpt.com/c/6806e75b-a60c-8000-a5e8-66fb838d8749
-> - https://chatgpt.com/c/6807595b-4fe4-8000-bf42-24caa3c7069b
 > - https://chatgpt.com/c/68083090-b328-8000-85a5-10762d0c16d0
-> - https://chatgpt.com/c/680b171a-f2f4-8000-acee-572a8eb01376
 
 import DemoLinkWithResult from "$/components/demo/DemoLinkWithResult.astro"
 
@@ -39,38 +38,10 @@ import img_WebGPUTriangleVertexBuffer from "../../../assets/recipes/webgpu-conce
 シェーダは、コンパイルしてパイプラインに組み込むことで、初めて利用できるようになります。
 WebGPUのパイプライン作成はそれなりに重い処理であり、図形ごとにシェーダとパイプラインを用意して切り替えながら描画するのは非効率です。
 
-そこで、GPUにデータを渡すための仕組みとして、==バッファ==を導入します。
+そこで今回は、JavaScript側で頂点座標を定義するようにコードを書き換えていきます。
+そして、JavaScript側で用意した頂点座標のデータをGPU（シェーダ）に渡すための仕組みとして、==バッファ==を導入します。
 
-## バッファを介したデータのやり取り
-
-一般に、==バッファ==とは、直接やり取りするには速度やタイミングが合わない時に、=p=データを一時的にためておく場所==（メモリ領域）を指します。
-
-==バッファ==とは、GPUからアクセスできるメモリ上のデータ列を表すオブジェクトです。簡単に言えば**GPUに渡すためのデータを入れておく箱のようなもの**です。もう少し正確に言うと、**GPUが使うためのメモリ領域**を意味します。
-
-頂点の座標や色などの情報は、普通はシェーダとは別にデータとして用意して、シェーダに渡します。
-
-しかし、シェーダは普通のプログラムと違い、CPU上ではなくGPU上で動くプログラムです。そのため、普通のメモリ上にある変数の値などは基本的に読み込めません。
-シェーダにデータを渡すためには、データを==GPUからアクセスできるメモリ==に置いておく必要があります。
-
-GPUから普通のメモリの内容は参照できないため、シェーダで使いたいデータがある場合、まずGPUからアクセス可能なメモリに移す必要があります。そしてそれはプログラムの上では「バッファに書き込む」「バッファに書き込んで転送する」という形になります。
-
-### WebGPUが扱うメモリ
-
-WebGPUは大きく分けて、2種類のメモリを扱っていると考えることができます。
-
-- ==GPUからアクセス可能==なメモリ
-- ==CPUからアクセス可能==で、GPUに効率よくコピーできるメモリ
-
-シェーダからデータにアクセスしたいときは、そのデータは==GPUからアクセス可能なメモリ==にある必要があります。
-一方、JavaScriptからデータにアクセスしたい場合は、そのデータは==CPUからアクセス可能なメモリ==に存在している必要があります。
-
-### 補足：互換性という「Webらしさ」
-
-スマートフォンなど一部のデバイスでは、GPUとCPUが同じメモリを共有していることもあります。
-しかし、WebGPUはWeb上で動くAPIなので、=p=なるべく多くの種類のデバイスで同じコードが動作する==ことを重視します。
-そのため、WebGPUはすべての環境が「GPUとCPUが別々のメモリを持っている」と仮定してコードを書かせるようになっています。あとは、WebGPU内部で環境に応じて最適化をしてくれるわけです。
-
-## JS側で頂点データを定義する
+## JavaScript側で頂点データを用意する
 
 前回実装した三角形を描画するコードでは、頂点シェーダ内で定義した`pos{:wgsl}`という配列に、3つの頂点の座標を定義していました。
 
@@ -91,7 +62,7 @@ fn vs_main(in: VertexInput) -> VertexOutput {
 
 この頂点の座標（`pos{:wgsl}`の中身）を、JavaScript側で定義するようにしましょう。
 
-愚直に写し書きするだけなら、次のようなコードが思い浮かぶかもしれません。1つの頂点の座標を1つの配列とし、それを3つ並べた「配列の配列」です。
+単純に移植しようとすると、次のようなコードが思い浮かぶかもしれません。1つの頂点の座標を1つの配列とし、それを3つ並べた「配列の配列」です。
 
 ```js title="❌ JSによる頂点座標の定義"
 const vertices = [
@@ -102,7 +73,7 @@ const vertices = [
 ```
 
 1つの頂点ごとの座標をそれぞれ配列でまとめたこのコードは、人間にとってはわかりやすいものです。
-しかし、GPUにバッファとして渡すときは、次のようにフラット（flat）な1次元配列で定義するようにします。GPUからアクセスできるメモリ上にデータを並べる上で、そのほうが都合がよいのです。
+しかし、GPU（シェーダ）に渡す場合は、次のようにフラット（flat）な1次元配列で定義するようにします。GPUのメモリ上にデータを並べる上で、そのほうが都合がよいのです。
 
 ```js title="❌ JSによる頂点座標の定義"
 const vertices = [0.0, 0.5, -0.5, -0.5, 0.5, -0.5]
@@ -128,19 +99,70 @@ struct VertexOutput {
 const vertices = new Float32Array([0.0, 0.5, -0.5, -0.5, 0.5, -0.5])
 ```
 
-## 頂点データのためのバッファを作る
+## CPUとGPUはメモリが分かれている
 
-この`vertices{:js}`配列をGPUに渡すためには、バッファを作成して、そこにデータを書き込んでおく必要があります。
+JavaScript側で頂点座標を定義した場合、厄介な問題に直面します。
+それは、JavaScriptはCPU側で動くプログラムであり、一方でシェーダはGPU側で動くプログラムであるため、データの管理場所（メモリ空間）が異なることです。
 
-WebGPUでバッファを作るには、`device.createBuffer()` という関数を使います。このとき、どのような使い方をするかを `usage` というフラグで明示します。たとえば：
+基本的にCPU側のメモリとGPU側のメモリ（==デバイスメモリ==）は分かれていることが多く、GPU（シェーダ）からCPU側のメモリの内容（JavaScript側で定義したデータ）を直接参照することはできません。
 
-- **`VERTEX`**：頂点データとして使う
-- **`COPY_SRC` / `COPY_DST`**：他のバッファやテクスチャとの間でコピーするために使う
+JavaScript側で用意した頂点座標のデータをシェーダで使うためには、そのデータをGPUからアクセスできるメモリにコピーする必要があります。
 
-このように、**どう使うかを最初から明示する**のがWebGPUの基本スタイルです。
+## バッファを介したデータのやり取り
 
-```js
-const vertices = new Float32Array([0.0, 0.5, -0.5, -0.5, 0.5, -0.5])
+CPUとGPUの間でデータをやりとりする操作は、WebGPUでは「==バッファ==というオブジェクト（`GPUBuffer{:js}`）にデータを書き込む」という形で表現されます。
+
+> [!note]
+> 一般に、==バッファ==という言葉は、「データを一時的にためておく場所（メモリ領域）」という意味で使われます。
+
+### バッファの作成
+
+WebGPUのバッファを作成するには、`device.createBuffer(){:js}`メソッドを使います。
+
+```js title="バッファを作成する"
+const vertexBuffer = device.createBuffer({
+  size: vertices.byteLength,
+  usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
+})
+```
+
+バッファを作成する際には、「どこに」「どのくらいの」メモリ領域を確保したいのかを指定する必要があります。
+WebGPUが「どこに」を判断するヒントとなるのが`usage{:js}`で、「どのくらいの」を明示するのが`size{:js}`です。
+
+CPU用とGPU用のメモリが分かれているだけでなく、GPU側のメモリも用途に応じて分かれているため、GPUプログラミングでは、データをどのメモリ領域に置くかを明確に区別する必要があります。
+
+WebGPUでは、バッファの作成時に`usage{:js}`フラグを指定することで、どのメモリ領域にデータを置くかをWebGPU側で判断してくれるようになっています。
+フラグを複数指定する場合は、`|{:js}`（ビットOR）演算子でつなげて指定します。
+
+- `VERTEX`：頂点データとして使う（GPU側のメモリを確保する）
+- `COPY_DST`：コピー先（書き込み対象）として使う
+
+今回は、`GPUBufferUsage.VERTEX{:js}`と`GPUBufferUsage.COPY_DST{:js}`という、2つのフラグを指定しました。
+この組み合わせによって、「GPU側のメモリに頂点データ用の領域を確保し、CPU側からその領域にデータをコピーする」という意図をWebGPUに伝えています。
+
+さて、バッファを作成しただけでは、バッファはただの空箱にすぎません。
+作成したバッファにデータを書き込むには、`device.queue{:js}`が持つ`writeBuffer(){:js}`メソッドを使うのが便利です。
+
+```js title="バッファにデータを書き込む"
+device.queue.writeBuffer(vertexBuffer, 0, vertices)
+```
+
+`writeBuffer(){:js}`メソッドでは、ブラウザが最も効率のよい方法を判断し、データの書き込みを行ってくれます。
+
+### 補足：互換性という「Webらしさ」
+
+デバイスの種類に応じて、メモリの構成は異なります。スマートフォンなど一部のデバイスでは、GPUとCPUが同じメモリを共有していることもあります。
+
+しかし、WebGPUのコードを書く上でそのような差異を気にする必要はありません。
+WebGPUでは、すべての環境が「GPUとCPUが別々のメモリを持っている」という想定でコードを書くことができます。あとは、WebGPU側が動作環境に応じて最適化をしてくれるわけです。
+
+このような設計になっているのは、WebGPUがWebブラウザ上で動くAPIだからです。WebGPU APIは、なるべく多くの種類のデバイスで同じコードが動作することを重視した設計になっています。
+
+### 発展：作成時にマッピングして書き込む方法
+
+先ほど解説したコードをまとめると、次のようなコードで頂点バッファの作成・書き込みを行っていました。
+
+```js title="頂点バッファを作成して書き込む（非マップ方式）"
 const vertexBuffer = device.createBuffer({
   size: vertices.byteLength,
   usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
@@ -148,44 +170,173 @@ const vertexBuffer = device.createBuffer({
 device.queue.writeBuffer(vertexBuffer, 0, vertices)
 ```
 
-## 発展：バッファへの書き込み手法いろいろ
+このコードの代わりに、次のようなコードスニペットによって、頂点バッファの作成・書き込みを行うこともできます。
 
-以後変更されないバッファは、`mappedAtCreation: true`を指定して、バッファを作成したときにマッピングする方法も使える
-この方法は、CPU側で動的に頂点データを生成する場合に効率がよい
-
-```js
+```js title="頂点バッファを作成して書き込む（作成時マッピング方式）"
 const vertexBuffer = device.createBuffer({
   size: vertices.byteLength,
-  usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+  usage: GPUBufferUsage.VERTEX,
   mappedAtCreation: true
 })
 new Float32Array(vertexBuffer.getMappedRange()).set(vertices)
 vertexBuffer.unmap()
 ```
 
-よく使われるのが、`mappedAtCreation: true` を指定して作成時にマッピングし、JavaScript側からバッファのメモリに直接書き込む方法です。
+インターネットで調べると出てくるWebGPUのサンプルコードでは、むしろこちらのコードスニペットの方がよく見かけるかもしれません。
 
-ここで `getMappedRange()` によって得られるのは、生のメモリ領域です。そこに `Float32Array` などを使ってデータを書き込み、`unmap()` を呼ぶことで、GPU側で利用可能な状態になります。
+この新たな方法に登場する、未知の部分に注目してみましょう。
 
-なお、バッファを使い回して内容だけ書き換えるような場合には、非マップ方式で `queue.writeBuffer()` を使う方法もあります。
+```js title="頂点バッファを作成して書き込む（作成時マッピング方式）" {4,6-9}
+const vertexBuffer = device.createBuffer({
+  size: vertices.byteLength,
+  usage: GPUBufferUsage.VERTEX,
+  mappedAtCreation: true
+})
+new Float32Array(vertexBuffer.getMappedRange()).set(vertices)
+vertexBuffer.unmap()
+```
+
+まず、`mappedAtCreation: true{:js}`を指定することで、バッファの作成時に==マッピング==も同時に行います。
+==マッピング==とは、GPU側のメモリをCPUから直接アクセスできるようにし、まるでCPUメモリの一部のように扱える状態にすることです。
+
+```js {4}
+const vertexBuffer = device.createBuffer({
+  size: vertices.byteLength,
+  usage: GPUBufferUsage.VERTEX,
+  mappedAtCreation: true
+})
+```
+
+これで、バッファの作成後すぐに、JavaScript側から中身を直接書き込めるようになります。実際にデータの書き込みを行っているのが、次の行です。
+
+```js
+new Float32Array(vertexBuffer.getMappedRange()).set(vertices)
+```
+
+`getMappedRange(){:js}`メソッドでは、バッファの書き込み可能な範囲のメモリ領域をJavaScriptの`ArrayBuffer{:js}`オブジェクトとして取得します。
+
+```js
+vertexBuffer.getMappedRange()
+```
+
+ただし、`ArrayBuffer{:js}`オブジェクトが扱うのは、ただのバイナリデータです。
+何バイトで1つの数値を表すのかは数値型によって異なるため、このバイナリデータを意味のある値として扱うためには、型付き配列でラップする必要があります。
+
+ここでは、得られたメモリ領域を32ビット浮動小数点数の配列として扱うために、`Float32Array{:js}`コンストラクタでラップしています。
+
+```js
+new Float32Array(vertexBuffer.getMappedRange())
+```
+
+これで、GPU側のメモリ領域を、JavaScript側から32ビット浮動小数点数の配列として扱えるようになりました。
+あとは、`set(){:js}`メソッドを使って、JavaScript側で用意した頂点データ（`vertices{:js}`）を直接書き込みます。
+
+```js
+new Float32Array(vertexBuffer.getMappedRange()).set(vertices)
+```
+
+書き込みが終わったら、マッピングを解除して、GPUにメモリのアクセス権を返します。
+WebGPUでは、マッピング状態のままだとGPU側がそのバッファを使えないので、次の`unmap(){:js}`でロックを外す必要があります。
+
+```js
+vertexBuffer.unmap()
+```
+
+最後に、`usage{:js}`フラグから`COPY_DST{:js}`を外していることに注意してください。
+GPU側のメモリに直接書き込むこの方式では、CPU側からGPU側へのデータのコピーが行われないため、`COPY_DST{:js}`は不要になります。
+
+```js {3}
+const vertexBuffer = device.createBuffer({
+  size: vertices.byteLength,
+  usage: GPUBufferUsage.VERTEX,
+  mappedAtCreation: true
+})
+```
+
+この作成時マッピング方式は、特にCPU側で動的に頂点データを生成する場合に効率がよい方法です。
+JavaScriptの配列を作ってからGPU側のメモリにコピーするのではなく、GPU側のメモリへ直接書き込みながら処理を進めることで、余計なメモリコピーを省くことができます。
+
+```js title="例：トーラスの頂点バッファを作成する" showLineNumbers {7-11,13,31-34,38}
+function generateTorusVertexBuffer({
+  radius = 1.0, // トーラスの中心からチューブ中心までの距離
+  tubeRadius = 0.4, // チューブ自体の半径
+  radialSegments = 32, // 外側リングの分割数
+  tubularSegments = 24 // チューブ側の分割数
+} = {}) {
+  const vertexBuffer = device.createBuffer({
+    size: Float32Array.BYTES_PER_ELEMENT * 3 * (radialSegments + 1) * (tubularSegments + 1),
+    usage: GPUBufferUsage.VERTEX,
+    mappedAtCreation: true
+  })
+
+  const vertices = new Float32Array(vertexBuffer.getMappedRange())
+
+  for (let j = 0; j <= radialSegments; j++) {
+    const v = (j / radialSegments) * Math.PI * 2
+
+    const cosV = Math.cos(v)
+    const sinV = Math.sin(v)
+
+    for (let i = 0; i <= tubularSegments; i++) {
+      const u = (i / tubularSegments) * Math.PI * 2
+
+      const cosU = Math.cos(u)
+      const sinU = Math.sin(u)
+
+      const x = (radius + tubeRadius * cosV) * cosU
+      const y = (radius + tubeRadius * cosV) * sinU
+      const z = tubeRadius * sinV
+
+      // 直接書き込み
+      vertices[(j * (tubularSegments + 1) + i) * 3 + 0] = x
+      vertices[(j * (tubularSegments + 1) + i) * 3 + 1] = y
+      vertices[(j * (tubularSegments + 1) + i) * 3 + 2] = z
+    }
+  }
+
+  vertexBuffer.unmap()
+
+  return vertexBuffer
+}
+```
+
+注意点として、`mappedAtCreation: true{:js}`による作成時マッピング方式は、バッファの内容を後から変更しない場合にしか使うことができません。
+バッファを使い回して内容だけ書き換えるような場合には、`queue.writeBuffer(){:js}`による非マップ方式を使う必要があります。
+
+> [!warning]
+> 実は、ここでの説明はかなり簡略化してしまっています。
+> 実際は、GPU側のメモリに直接書き込むことはできません。CPUからアクセスできる中間メモリ（==ステージングバッファ==）に対してマッピング・書き込みを行い、そこからGPU側のメモリにコピーするという仕組みになっています。
+> 現時点ではステージングバッファの存在を意識する必要はないため、このような説明に留めておきました。
+> 後のコンピュートシェーダに関する回では、ステージングバッファを介したデータのやり取りについてもう少し深掘りすることになります。
 
 ## バッファの中身とレイアウト
 
-バッファの中身は、**ただの連続したバイナリデータ**です。たとえば、`[0.0, 1.0, 0.0, 1.0]` のような浮動小数点数（`Float32`）がずらっと並んでいたり、`[1, 2, 3, 4]` のような整数列だったりします。
+バッファの中身は、ただの連続したバイナリデータです。たとえば、`[0.0, 1.0, 0.0, 1.0]` のような浮動小数点数（`Float32`）がずらっと並んでいたり、`[1, 2, 3, 4]` のような整数列だったりします。
 
-でもGPUはそれを「色」や「座標」として直接理解してくれるわけではないので、**「このバッファのこの場所には、何のデータが入っているのか」を一緒に伝える必要**があります。
+しかし、GPUはそれを「色」や「座標」として直接理解してくれるわけではありません。「このバッファのこの位置には、何のデータが入っているのか」を一緒に伝える必要があります。
 
 これが「レイアウト（layout）」です。たとえば「1つの頂点には、位置が3つ（X, Y, Z）、色が4つ（R, G, B, A）あります」というような情報を、プログラム側で教えてあげることで、GPUはバッファの中身を正しく解釈できます。
 
-- パイプラインレイアウトについても触れる（`auto`ではない書き方）
+- 属性記述子：ひとつの属性（例：位置や色）の「場所（`@location`）」や「データ型（`vec3<f32>` など）」を記述するものです。
+- レイアウト記述子：多くの頂点がまとめて格納されたバッファから、「各頂点のデータをどう取り出すか」というルールを定義するものです。
 
-## 補足：なぜ明示的な管理が必要なのか？
+GPU に頂点データを送るとき、通常は 複数の頂点をまとめた大きなバッファ を一気に送信します。
+第1章で説明したように、少量のデータを小分けで送るのは効率が悪いため、バッチ送信が基本です。
 
-WebGLでは、バッファを作るときや使うときにあまり多くの情報を指定する必要はありませんでした。`gl.createBuffer()`で作り、`gl.bufferData()`で書き込むだけです。ただしその裏では、多くの状態や挙動が暗黙的に処理されており、「なぜこの描画が失敗したのか」がわかりづらいこともよくありました。
+このバッファには、各頂点の 位置、色、テクスチャ座標 などが混在して入っている場合もあります。
+また、属性ごとに別々のバッファを用意することも可能です。
 
-WebGPUでは逆に、**バッファを作成する時点で細かい指定が必要**になります。その分、開発者が意図をはっきり伝えることができ、GPU側でも最適なリソースの準備がしやすくなります。これはパフォーマンスやメモリ効率の面でも重要なポイントです。
+一方、頂点シェーダーが実行される時点では「一つの頂点ずつ」しか処理されません。
+つまり、バッファ全体の情報を一度に見ることはできません。
+このような並列処理に対応するために、GPU は「各頂点に必要なデータ」をバッファから 自動的に切り出す 仕組みを持っており、そのために レイアウト記述子の情報が必要になります。
 
-## 実装：頂点バッファを使った三角形の描画
+## 用意した頂点バッファを使う
+
+### 頂点バッファを使って描画するように設定
+
+### シェーダで頂点データを受け取る
+
+## 実装コード全文：頂点バッファを使った三角形の描画
 
 ```wgsl title="WGSLによるシェーダのコード" showLineNumbers {2,12}
 struct VertexInput {

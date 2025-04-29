@@ -1,22 +1,31 @@
 ---
 import { Icon } from "astro-icon/components"
+import { marked } from "marked"
 
 interface Props {
-  references: { title: string; url: string }[]
+  references: { title: string; url: string; summary: string }[]
 }
 
 const { references } = Astro.props
 ---
 
-<h2 class="title">References</h2>
+<h2 class="title">Deep Dive</h2>
 <ul class="RefList">
   {
     references.map((reference) => (
       <li class="RefList-item">
-        <Icon class="ref-icon" name="game-icons:spell-book" size={32} />
-        <a class="no-marker" href={reference.url} target="_blank" rel="noopener noreferrer">
-          {reference.title}
-        </a>
+        <div class="item-title">
+          <Icon class="ref-icon" name="game-icons:spell-book" size={24} />
+          <a class="no-marker ref-title" href={reference.url} target="_blank" rel="noopener noreferrer">
+            {reference.title}
+          </a>
+        </div>
+        {reference.summary && (
+          <div class="item-subinfo">
+            <Icon class="sub-icon" name="stash:corner-down-right" size={18} />
+            <p set:html={marked.parseInline(reference.summary)} />
+          </div>
+        )}
       </li>
     ))
   }
@@ -24,11 +33,17 @@ const { references } = Astro.props
 
 <style>
   .RefList {
+    display: grid;
+    gap: 0.5rem;
     padding: 0;
     list-style: none;
   }
-
   .RefList-item {
+    display: grid;
+    gap: 0.5em;
+  }
+
+  .item-title {
     display: flex;
     align-items: flex-start;
     gap: 0.5em;
@@ -37,5 +52,34 @@ const { references } = Astro.props
 
   .ref-icon {
     flex-shrink: 0;
+  }
+  .ref-title {
+    line-height: 1.5;
+  }
+
+  .item-subinfo {
+    display: grid;
+    grid-template-columns: 24px auto;
+    align-items: center;
+    gap: 0.5em;
+    color: var(--slate-500);
+    font-size: 0.9em;
+  }
+
+  .RefList-item:has(.item-subinfo) {
+    margin-block: 0.5rem;
+  }
+  .RefList-item:has(.item-subinfo) + .RefList-item:has(.item-subinfo) {
+    margin-block-start: 0;
+  }
+
+  .item-subinfo p {
+    margin: 0;
+    line-height: 1.5;
+  }
+  .sub-icon {
+    justify-self: flex-end;
+    align-self: flex-start;
+    color: var(--slate-400);
   }
 </style>
