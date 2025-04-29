@@ -4,7 +4,7 @@ import RecipeLayout from "$/layouts/recipe.astro"
 import { and, filterPublic } from "$/lib/filter"
 import { getLastSlug } from "$/lib/url"
 
-import "$/styles/prose/use-marker.css"
+import "$/styles/prose-use-marker.css"
 
 export async function getStaticPaths() {
   const filterSeries = (entry: CollectionEntry<"recipe">) => {
