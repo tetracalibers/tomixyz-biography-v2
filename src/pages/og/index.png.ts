@@ -1,10 +1,5 @@
-import { defaultOGP } from "$/lib/og"
+import { defaultOGP, OG_RESPONSE_HEADERS } from "$/lib/og"
 
 export async function GET() {
-  return new Response(defaultOGP, {
-    headers: {
-      "Content-Type": "image/png",
-      "Cache-Control": "public, max-age=31536000, immutable"
-    }
-  })
+  return new Response(defaultOGP, { headers: OG_RESPONSE_HEADERS })
 }

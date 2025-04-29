@@ -35,3 +35,8 @@ export const makeCategoryIndexPageOGP = (category: string) => {
 export const makeCategoryLowerPageOGP = (category: string, title: string) => {
   return makeCustomOGP(title, `${SITE.name} - ${category}`)
 }
+
+export const OG_RESPONSE_HEADERS: HeadersInit = {
+  "Content-Type": "image/png",
+  "Cache-Control": "public, max-age=31536000, immutable"
+}
