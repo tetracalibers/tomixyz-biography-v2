@@ -15,8 +15,8 @@ const { references } = Astro.props
     references.map((reference) => (
       <li class="RefList-item">
         <div class="item-title">
-          <Icon class="ref-icon" name="game-icons:spell-book" size={32} />
-          <a class="no-marker" href={reference.url} target="_blank" rel="noopener noreferrer">
+          <Icon class="ref-icon" name="game-icons:spell-book" size={24} />
+          <a class="no-marker ref-title" href={reference.url} target="_blank" rel="noopener noreferrer">
             {reference.title}
           </a>
         </div>
@@ -34,7 +34,7 @@ const { references } = Astro.props
 <style>
   .RefList {
     display: grid;
-    gap: 0.25rem;
+    gap: 0.5rem;
     padding: 0;
     list-style: none;
   }
@@ -53,16 +53,26 @@ const { references } = Astro.props
   .ref-icon {
     flex-shrink: 0;
   }
+  .ref-title {
+    line-height: 1.5;
+  }
 
   .item-subinfo {
     display: grid;
-    grid-template-columns: 32px auto;
+    grid-template-columns: 24px auto;
     align-items: center;
     gap: 0.5em;
     color: var(--slate-500);
     font-size: 0.9em;
-    margin-block-end: 0.75rem;
   }
+
+  .RefList-item:has(.item-subinfo) {
+    margin-block: 0.5rem;
+  }
+  .RefList-item:has(.item-subinfo) + .RefList-item:has(.item-subinfo) {
+    margin-block-start: 0;
+  }
+
   .item-subinfo p {
     margin: 0;
     line-height: 1.5;
