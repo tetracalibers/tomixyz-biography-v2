@@ -115,7 +115,7 @@ export const layoutForCategoryTopPage = ({ title, subtitle, logo }: LayoutParams
   const gap = rem2px(1)
 
   const slot = /* xml */ `
-    <g transform="translate(${OG_WIDTH * 0.5} ${OG_HEIGHT * 0.4})">
+    <g transform="translate(${OG_WIDTH * 0.5} ${OG_HEIGHT * 0.375})">
       <g transform="translate(${-s * 0.5} ${-s * 0.5})">
         <image width="${s}" height="${s}" href="${logo}" />
       </g>
