@@ -1,17 +1,10 @@
 import React from "react"
 import { Background } from "../components/background"
 import { SITE } from "$/config"
-import fs from "node:fs/promises"
-
-const logoPath = import.meta.env.DEV
-  ? "../../../assets/profiles/pastel-tomixy_op.png"
-  : "../../../src/assets/profiles/pastel-tomixy_op.png"
-const logo = await fs.readFile(new URL(logoPath, import.meta.url), { encoding: "base64" })
-const logoDataUrl = `data:image/png;base64,${logo}`
 
 const TXT_COLOR = "#64748b"
 
-export const OgImage = (
+export const createDefaultOgImage = (logoDataUrl: string) => (
   <div
     lang="ja-JP"
     style={{
