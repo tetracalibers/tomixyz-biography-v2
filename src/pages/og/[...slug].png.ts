@@ -4,6 +4,8 @@ import { createDefaultOgImage } from "$/lib/og/default"
 import { createCategoryTopOgImage } from "$/lib/og/category-top"
 import { CATEGORY_META } from "$/config"
 import fs from "node:fs/promises"
+import { getCollection } from "astro:content"
+import { createCategoryChildOgImage } from "$/lib/og/category-child"
 
 interface DefaultOgMeta {
   type: "default"
@@ -13,8 +15,13 @@ interface CategoryTopOgMeta {
   title: string
   subtitle: string
 }
+interface CategoryChildOgMeta {
+  type: "category-child"
+  title: string
+  category: string
+}
 
-type OgMeta = DefaultOgMeta | CategoryTopOgMeta
+type OgMeta = DefaultOgMeta | CategoryTopOgMeta | CategoryChildOgMeta
 
 type Props = OgMeta & {
   logoDataUrl: string
@@ -67,7 +74,41 @@ export async function getStaticPaths() {
     }
   }))
 
-  return [defaultOgPath, ...categoryTopOgPaths]
+  const blogOgPaths = (await getCollection("blog")).map((entry) => {
+    return {
+      params: { slug: "blog/" + entry.id },
+      props: {
+        type: "category-child",
+        title: entry.data.title,
+        category: CATEGORY_META.blog.title,
+        ...commonProps
+      }
+    }
+  })
+  const projectsOgPaths = (await getCollection("project")).map((entry) => {
+    return {
+      params: { slug: "projects/" + entry.id },
+      props: {
+        type: "category-child",
+        title: entry.data.title,
+        category: CATEGORY_META.projects.title,
+        ...commonProps
+      }
+    }
+  })
+  const eventsOgPaths = (await getCollection("event")).map((entry) => {
+    return {
+      params: { slug: "events/" + entry.id },
+      props: {
+        type: "category-child",
+        title: entry.data.title,
+        category: CATEGORY_META.events.title,
+        ...commonProps
+      }
+    }
+  })
+
+  return [defaultOgPath, ...categoryTopOgPaths, ...blogOgPaths, ...projectsOgPaths, ...eventsOgPaths]
 }
 
 export async function GET({ props }: APIContext<Props>) {
@@ -77,6 +118,8 @@ export async function GET({ props }: APIContext<Props>) {
         return createDefaultOgImage(props.logoDataUrl)
       case "category-top":
         return createCategoryTopOgImage(props.logoDataUrl, props.title, props.subtitle)
+      case "category-child":
+        return createCategoryChildOgImage(props.logoDataUrl, props.title, props.category)
     }
   })()
 
