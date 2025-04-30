@@ -1,7 +1,7 @@
 import type { APIContext } from "astro"
 import { ImageResponse } from "@vercel/og"
-import { createDefaultOgImage } from "$/lib/og/pages"
-import { createCategoryTopOgImage } from "$/lib/og/pages/CategoryTop"
+import { createDefaultOgImage } from "$/lib/og/default"
+import { createCategoryTopOgImage } from "$/lib/og/category-top"
 import { CATEGORY_META } from "$/config"
 import fs from "node:fs/promises"
 

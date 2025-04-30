@@ -1,5 +1,5 @@
 import React from "react"
-import { Background } from "../components/background"
+import { Background } from "./components/background"
 import { SITE } from "$/config"
 
 const TXT_COLOR = "#64748b"
