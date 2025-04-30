@@ -116,7 +116,7 @@ export async function getStaticPaths() {
   })
 
   const recipesOgPaths = await Promise.all(
-    (await getCollection("recipe")).map(async (entry) => {
+    (await getCollection("recipe", (entry) => !entry.data.draft)).map(async (entry) => {
       if (!entry.data.series) {
         return {
           params: { slug: "recipes/" + entry.id },
