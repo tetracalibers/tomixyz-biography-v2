@@ -24,13 +24,15 @@ export const adjustMixedLangText = (input: string) => {
     return <>{input}</>
   }
   const firstJapaneseIndex = getFirstJapaneseIndex(input)
-  if (firstJapaneseIndex !== null) {
-    const enPart = input.slice(0, firstJapaneseIndex)
-    const jaPart = input.slice(firstJapaneseIndex)
-    return (
-      <>
-        {enPart} {jaPart}
-      </>
-    )
+  if (firstJapaneseIndex === null) {
+    return <>{input}</>
   }
+
+  const enPart = input.slice(0, firstJapaneseIndex)
+  const jaPart = input.slice(firstJapaneseIndex)
+  return (
+    <>
+      {enPart} {jaPart}
+    </>
+  )
 }
