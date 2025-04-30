@@ -36,7 +36,7 @@ export const OgImage = (
         color: TXT_COLOR
       }}
     >
-      <div style={{ display: "flex" }}>
+      <div style={{ display: "flex", filter: "contrast(1.1)" }}>
         <img src={logoDataUrl} width={200} />
       </div>
       <div
