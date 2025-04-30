@@ -51,7 +51,7 @@ export const createCategoryGroupedChildOgImage = (
             flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
-            gap: "0.5rem"
+            gap: "0.75rem"
           }}
         >
           <div
