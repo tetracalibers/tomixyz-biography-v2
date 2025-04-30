@@ -12,15 +12,15 @@ const getFirstJapaneseIndex = (input: string) => {
   return null
 }
 
-const startsWithAlphabet = (input: string) => {
-  return /^[A-Za-z]/.test(input)
+const startsWithAlphaNum = (input: string) => {
+  return /^[a-zA-Z0-9]/.test(input)
 }
 
 // 「ABCあいうえお」のような、英語始まりで日本語が混在しているテキストは、
 // 全体に英語フォントが適用されてしまい、文字によっては「NoGlyph」と表示されてしまう
 // 英語部分と日本語部分の間に空白を入れると、この問題を回避できる
 export const adjustMixedLangText = (input: string) => {
-  if (!startsWithAlphabet(input)) {
+  if (!startsWithAlphaNum(input)) {
     return <>{input}</>
   }
   const firstJapaneseIndex = getFirstJapaneseIndex(input)
