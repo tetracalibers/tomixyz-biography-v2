@@ -1,6 +1,7 @@
 import React from "react"
 import { Background } from "./components/background"
 import { SITE } from "$/config"
+import { adjustMixedLangText } from "./components/text"
 
 const TXT_COLOR = "#64748b"
 
@@ -40,7 +41,18 @@ export const createCategoryChildOgImage = (logoDataUrl: string, title: string, c
         }}
       >
         <div style={{ display: "flex", fontSize: "2.5rem" }}>{category}</div>
-        <div style={{ display: "flex", fontSize: "2.25rem", maxWidth: "550px", textAlign: "center" }}>{title}</div>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "flex-start",
+            fontSize: "2.25rem",
+            maxWidth: "550px",
+            textAlign: "center"
+          }}
+        >
+          {adjustMixedLangText(title)}
+        </div>
       </div>
       <div
         style={{
