@@ -141,8 +141,28 @@ export async function getStaticPaths() {
       }
     })
   )
+  const seriesOgPaths = (await getCollection("series")).map((entry) => {
+    return {
+      params: { slug: "recipes/" + entry.id },
+      props: {
+        type: "category-grouped-child",
+        title: entry.data.title,
+        category: CATEGORY_META.recipes.title,
+        subcategory: "シリーズ記事一覧",
+        ...commonProps
+      }
+    }
+  })
 
-  return [defaultOgPath, ...categoryTopOgPaths, ...blogOgPaths, ...projectsOgPaths, ...eventsOgPaths, ...recipesOgPaths]
+  return [
+    defaultOgPath,
+    ...categoryTopOgPaths,
+    ...blogOgPaths,
+    ...projectsOgPaths,
+    ...eventsOgPaths,
+    ...recipesOgPaths,
+    ...seriesOgPaths
+  ]
 }
 
 export async function GET({ props }: APIContext<Props>) {
