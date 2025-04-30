@@ -4,8 +4,9 @@ import { createDefaultOgImage } from "$/lib/og/default"
 import { createCategoryTopOgImage } from "$/lib/og/category-top"
 import { CATEGORY_META } from "$/config"
 import fs from "node:fs/promises"
-import { getCollection } from "astro:content"
+import { getCollection, getEntry } from "astro:content"
 import { createCategoryChildOgImage } from "$/lib/og/category-child"
+import { createCategoryGroupedChildOgImage } from "$/lib/og/category-grouped-child"
 
 interface DefaultOgMeta {
   type: "default"
@@ -20,8 +21,14 @@ interface CategoryChildOgMeta {
   title: string
   category: string
 }
+interface CategoryGroupedChildOgMeta {
+  type: "category-grouped-child"
+  title: string
+  category: string
+  subcategory: string
+}
 
-type OgMeta = DefaultOgMeta | CategoryTopOgMeta | CategoryChildOgMeta
+type OgMeta = DefaultOgMeta | CategoryTopOgMeta | CategoryChildOgMeta | CategoryGroupedChildOgMeta
 
 type Props = OgMeta & {
   logoDataUrl: string
@@ -108,7 +115,34 @@ export async function getStaticPaths() {
     }
   })
 
-  return [defaultOgPath, ...categoryTopOgPaths, ...blogOgPaths, ...projectsOgPaths, ...eventsOgPaths]
+  const recipesOgPaths = await Promise.all(
+    (await getCollection("recipe")).map(async (entry) => {
+      if (!entry.data.series) {
+        return {
+          params: { slug: "recipes/" + entry.id },
+          props: {
+            type: "category-child",
+            title: entry.data.title,
+            category: CATEGORY_META.recipes.title,
+            ...commonProps
+          }
+        }
+      }
+      const series = await getEntry("series", entry.data.series.id)!
+      return {
+        params: { slug: "recipes/" + entry.id },
+        props: {
+          type: "category-grouped-child",
+          title: entry.data.title,
+          category: CATEGORY_META.recipes.title,
+          subcategory: series.data.title,
+          ...commonProps
+        }
+      }
+    })
+  )
+
+  return [defaultOgPath, ...categoryTopOgPaths, ...blogOgPaths, ...projectsOgPaths, ...eventsOgPaths, ...recipesOgPaths]
 }
 
 export async function GET({ props }: APIContext<Props>) {
@@ -120,6 +154,8 @@ export async function GET({ props }: APIContext<Props>) {
         return createCategoryTopOgImage(props.logoDataUrl, props.title, props.subtitle)
       case "category-child":
         return createCategoryChildOgImage(props.logoDataUrl, props.title, props.category)
+      case "category-grouped-child":
+        return createCategoryGroupedChildOgImage(props.logoDataUrl, props.title, props.category, props.subcategory)
     }
   })()
 
