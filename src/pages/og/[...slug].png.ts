@@ -40,6 +40,11 @@ type Props = OgMeta & {
 }
 
 export async function getStaticPaths() {
+  // プレビューブランチへのデプロイ時はOGP画像生成をスキップ
+  if (import.meta.env.CF_PAGES == 1 && import.meta.env.CF_PAGES_BRANCH !== "main") {
+    return []
+  }
+
   const logoPath = "../../../src/assets/profiles/pastel-tomixy_op.png"
   const logo = await fs.readFile(new URL(logoPath, import.meta.url), { encoding: "base64" })
   const logoDataUrl = `data:image/png;base64,${logo}`
