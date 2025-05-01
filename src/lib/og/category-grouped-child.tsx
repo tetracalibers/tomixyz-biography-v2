@@ -3,6 +3,7 @@ import { adjustMixedLangText } from "./components/text"
 import { LayoutRoot } from "./components/layout-root"
 import { Logo } from "./components/logo"
 import { SiteName } from "./components/site-name"
+import { CategoryName } from "./components/category-name"
 
 export const createCategoryGroupedChildOgImage = (
   logoDataUrl: string,
@@ -38,20 +39,7 @@ export const createCategoryGroupedChildOgImage = (
             gap: "0.75rem"
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "2rem",
-              background: "linear-gradient(-225deg, #2CD8D5 0%, #C5C1FF 56%, #FFBAC3 100%);",
-              backgroundClip: "text",
-              color: "transparent",
-              filter: "saturate(2)"
-            }}
-          >
-            {category}
-          </div>
+          <CategoryName fontSize="2rem" text={category} />
           <div
             style={{
               display: "flex",
