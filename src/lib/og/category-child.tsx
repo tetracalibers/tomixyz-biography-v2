@@ -1,8 +1,8 @@
 import React from "react"
-import { SITE } from "$/config"
 import { adjustMixedLangText } from "./components/text"
 import { LayoutRoot } from "./components/layout-root"
 import { Logo } from "./components/logo"
+import { SiteName } from "./components/site-name"
 
 export const createCategoryChildOgImage = (logoDataUrl: string, title: string, category: string) => (
   <LayoutRoot>
@@ -58,18 +58,7 @@ export const createCategoryChildOgImage = (logoDataUrl: string, title: string, c
           gap: "1rem"
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            fontSize: "2rem",
-            background: "linear-gradient(50deg, #6BBBFF 0%, #B8DCFF 48%, #6BBBFF 100%)",
-            backgroundClip: "text",
-            color: "rgba(253, 183, 234, 0.6)",
-            filter: "saturate(2)"
-          }}
-        >
-          {SITE.name}
-        </div>
+        <SiteName fontSize="2rem" />
         <Logo logoDataUrl={logoDataUrl} width={150} />
       </div>
     </div>
