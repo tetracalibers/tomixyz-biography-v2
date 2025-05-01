@@ -1,38 +1,49 @@
 import React from "react"
 
-const getFirstJapaneseIndex = (input: string) => {
-  const japaneseRegex = /[\u3040-\u30FF\u4E00-\u9FFFー々]/
+const splitByLangBoundary = (input: string) => {
+  const pattern = /([A-Za-z0-9\-\_\.\s]+|[^\x00-\x7F]+)/g
+  const result: { type: "en" | "ja"; text: string }[] = []
+  let match
 
-  for (let i = 0; i < input.length; i++) {
-    if (japaneseRegex.test(input[i])) {
-      return i
+  while ((match = pattern.exec(input)) !== null) {
+    const current = match[0]
+
+    // 前後とも日本語：直前に結合
+    if (result.length > 0 && /[^\x00-\x7F]/.test(result[result.length - 1].text) && /[^\x00-\x7F]/.test(current)) {
+      result[result.length - 1].text += current
+      continue
     }
+
+    // 前が日本語で、今が数字：直前に結合
+    if (result.length > 0 && /[^\x00-\x7F]/.test(result[result.length - 1].text) && /[0-9]/.test(current)) {
+      result[result.length - 1].text += current
+      continue
+    }
+
+    result.push({
+      type: /[^\x00-\x7F]/.test(current) ? "ja" : "en",
+      text: current
+    })
   }
 
-  return null
+  return result
 }
 
-const startsWithAlphaNum = (input: string) => {
-  return /^[a-zA-Z0-9]/.test(input)
-}
-
-// 「ABCあいうえお」のような、英語始まりで日本語が混在しているテキストは、
+// 「ABCあいうえお」のような、英数字始まりで日本語が混在しているテキストは、
 // 全体に英語フォントが適用されてしまい、文字によっては「NoGlyph」と表示されてしまう
-// 英語部分と日本語部分の間に空白を入れると、この問題を回避できる
+// 英語部分と日本語部分の間に空白を入れることで、この問題を回避する
 export const adjustMixedLangText = (input: string) => {
-  if (!startsWithAlphaNum(input)) {
-    return <>{input}</>
-  }
-  const firstJapaneseIndex = getFirstJapaneseIndex(input)
-  if (firstJapaneseIndex === null) {
+  const splittedList = splitByLangBoundary(input)
+
+  if (splittedList.length < 2) {
     return <>{input}</>
   }
 
-  const enPart = input.slice(0, firstJapaneseIndex)
-  const jaPart = input.slice(firstJapaneseIndex)
   return (
     <>
-      {enPart} {jaPart}
+      {splittedList.map((part) => {
+        return part.type === "en" ? " " + part.text + " " : part.text
+      })}
     </>
   )
 }
