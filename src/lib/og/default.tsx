@@ -1,6 +1,7 @@
 import React from "react"
 import { SITE } from "$/config"
 import { LayoutRoot } from "./components/layout-root"
+import { Logo } from "./components/logo"
 
 export const createDefaultOgImage = (logoDataUrl: string) => (
   <LayoutRoot>
@@ -15,9 +16,7 @@ export const createDefaultOgImage = (logoDataUrl: string) => (
         height: "100%"
       }}
     >
-      <div style={{ display: "flex", filter: "contrast(1.1)" }}>
-        <img src={logoDataUrl} width={200} />
-      </div>
+      <Logo logoDataUrl={logoDataUrl} width={200} />
       <div
         style={{
           display: "flex",

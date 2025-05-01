@@ -2,6 +2,7 @@ import React from "react"
 import { SITE } from "$/config"
 import { adjustMixedLangText } from "./components/text"
 import { LayoutRoot } from "./components/layout-root"
+import { Logo } from "./components/logo"
 
 export const createCategoryGroupedChildOgImage = (
   logoDataUrl: string,
@@ -94,14 +95,7 @@ export const createCategoryGroupedChildOgImage = (
         >
           {SITE.name}
         </div>
-        <div
-          style={{
-            display: "flex",
-            filter: "contrast(1.1)"
-          }}
-        >
-          <img src={logoDataUrl} width={150} />
-        </div>
+        <Logo logoDataUrl={logoDataUrl} width={150} />
       </div>
     </div>
   </LayoutRoot>

@@ -1,6 +1,7 @@
 import React from "react"
 import { SITE } from "$/config"
 import { LayoutRoot } from "./components/layout-root"
+import { Logo } from "./components/logo"
 
 export const createCategoryTopOgImage = (logoDataUrl: string, title: string, subtitle: string) => (
   <LayoutRoot>
@@ -11,14 +12,7 @@ export const createCategoryTopOgImage = (logoDataUrl: string, title: string, sub
         alignItems: "center"
       }}
     >
-      <div
-        style={{
-          display: "flex",
-          filter: "contrast(1.1)"
-        }}
-      >
-        <img src={logoDataUrl} width={180} />
-      </div>
+      <Logo logoDataUrl={logoDataUrl} width={180} />
       <div
         style={{
           display: "flex",
