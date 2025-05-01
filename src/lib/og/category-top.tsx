@@ -45,7 +45,18 @@ export const createCategoryTopOgImage = (logoDataUrl: string, title: string, sub
           gap: "1rem"
         }}
       >
-        <div style={{ display: "flex", fontSize: "4rem" }}>{title}</div>
+        <div
+          style={{
+            display: "flex",
+            fontSize: "4rem",
+            background: "linear-gradient(-225deg, #2CD8D5 0%, #C5C1FF 56%, #FFBAC3 100%);",
+            backgroundClip: "text",
+            color: "transparent",
+            filter: "saturate(2)"
+          }}
+        >
+          {title}
+        </div>
         <div style={{ display: "flex", fontSize: "1.5rem" }}>{subtitle}</div>
         <div
           style={{

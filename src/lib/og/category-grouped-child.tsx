@@ -59,7 +59,11 @@ export const createCategoryGroupedChildOgImage = (
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: "1.85rem"
+              fontSize: "2rem",
+              background: "linear-gradient(-225deg, #2CD8D5 0%, #C5C1FF 56%, #FFBAC3 100%);",
+              backgroundClip: "text",
+              color: "transparent",
+              filter: "saturate(2)"
             }}
           >
             {category}
