@@ -42,7 +42,7 @@ export const createCategoryTopOgImage = (logoDataUrl: string, title: string, sub
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          gap: "1rem"
+          gap: "1.1rem"
         }}
       >
         <div
