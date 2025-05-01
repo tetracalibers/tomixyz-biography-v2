@@ -65,9 +65,6 @@ export default defineConfig({
   devToolbar: {
     enabled: false
   },
-  server: {
-    port: 3000
-  },
   markdown: {
     syntaxHighlight: false, // Disable syntax built-in syntax hightlighting from astro
     rehypePlugins: [

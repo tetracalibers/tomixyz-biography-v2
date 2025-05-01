@@ -36,12 +36,11 @@ interface Props {
 }
 
 const { articles, tag } = Astro.props
-const { tag: tagId } = Astro.params
 
 const title = tag.name
 const description = `${tag.name}を扱った作品や記事`
 const meta = {
-  ogimage: `/og-image/tags/${tagId}.png`
+  ogimage: `/og/default.png`
 }
 
 const renderer = new marked.Renderer()

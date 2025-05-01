@@ -23,7 +23,7 @@ const { Content } = await render(page)
 const { data } = page
 const { title, description, meta } = data
 
-const ogimage = `/og-image/${slug}.png`
+const ogimage = `/og/${slug}.png`
 ---
 
 <DefaultPageLayout content={{ title, description }} meta={{ ogimage, ...meta }}>

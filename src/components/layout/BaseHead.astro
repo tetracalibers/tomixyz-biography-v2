@@ -18,7 +18,7 @@ export type Props = {
 }
 
 const { title: _title, description, permalink, image, noindex } = Astro.props
-const ogimage = image ? `${SITE.url}${image}` : `${SITE.url}/og-image.png`
+const ogimage = image ? `${SITE.url}${image}` : `${SITE.url}/og/default.png`
 
 const isTopPage = judgeIsTopPage(Astro.url.pathname)
 const title = isTopPage ? SITE.title : `${_title} | ${SITE.title}`

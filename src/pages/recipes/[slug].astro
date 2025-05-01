@@ -27,7 +27,7 @@ const { meta } = data
 
 const { Content, headings } = await render(page)
 
-const ogimage = `/og-image/recipes/${slug}.png`
+const ogimage = `/og/recipes/${slug}.png`
 ---
 
 <RecipeLayout entry={page} meta={{ ogimage, ...meta }} headings={headings}>

@@ -26,7 +26,7 @@ const { meta } = data
 
 const { Content } = await render(page)
 
-const ogimage = `/og-image/projects/${slug}.png`
+const ogimage = `/og/projects/${slug}.png`
 ---
 
 <ProjectLayout content={page.data} meta={{ ogimage, ...meta }}>

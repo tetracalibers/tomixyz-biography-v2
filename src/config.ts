@@ -1,5 +1,32 @@
 import type { NavItems } from "./types"
 
+export const CATEGORY_META = {
+  writing: {
+    title: "Writing",
+    subtitle: "書いたもの"
+  },
+  like: {
+    title: "Like",
+    subtitle: "好きなことと展望"
+  },
+  blog: {
+    title: "Blog",
+    subtitle: "考えていること"
+  },
+  events: {
+    title: "Events",
+    subtitle: "携わったイベントや発表"
+  },
+  projects: {
+    title: "Projects",
+    subtitle: "個人で開発しているもの"
+  },
+  recipes: {
+    title: "Recipes",
+    subtitle: "学びやアイデアの記録"
+  }
+}
+
 export const NAV_ITEMS: NavItems = {
   about: {
     path: "/",
