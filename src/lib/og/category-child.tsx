@@ -1,34 +1,17 @@
 import React from "react"
-import { Background } from "./components/background"
 import { SITE } from "$/config"
 import { adjustMixedLangText } from "./components/text"
-
-const TXT_COLOR = "#64748b"
+import { LayoutRoot } from "./components/layout-root"
 
 export const createCategoryChildOgImage = (logoDataUrl: string, title: string, category: string) => (
-  <div
-    lang="ja-JP"
-    style={{
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      width: "100%",
-      height: "100%",
-      fontFamily: '"Ysabeau Office","TsukuBRdGothic"'
-    }}
-  >
-    <div style={{ display: "flex", position: "absolute", inset: 0 }}>
-      <Background />
-    </div>
-
+  <LayoutRoot>
     <div
       style={{
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        gap: "2rem",
-        color: TXT_COLOR
+        gap: "2rem"
       }}
     >
       <div
@@ -96,5 +79,5 @@ export const createCategoryChildOgImage = (logoDataUrl: string, title: string, c
         </div>
       </div>
     </div>
-  </div>
+  </LayoutRoot>
 )

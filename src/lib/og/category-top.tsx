@@ -1,31 +1,14 @@
 import React from "react"
-import { Background } from "./components/background"
 import { SITE } from "$/config"
-
-const TXT_COLOR = "#64748b"
+import { LayoutRoot } from "./components/layout-root"
 
 export const createCategoryTopOgImage = (logoDataUrl: string, title: string, subtitle: string) => (
-  <div
-    lang="ja-JP"
-    style={{
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      width: "100%",
-      height: "100%",
-      fontFamily: '"Ysabeau Office","TsukuBRdGothic"'
-    }}
-  >
-    <div style={{ display: "flex", position: "absolute", inset: 0 }}>
-      <Background />
-    </div>
-
+  <LayoutRoot>
     <div
       style={{
         display: "flex",
         flexDirection: "column",
-        alignItems: "center",
-        color: TXT_COLOR
+        alignItems: "center"
       }}
     >
       <div
@@ -72,5 +55,5 @@ export const createCategoryTopOgImage = (logoDataUrl: string, title: string, sub
         </div>
       </div>
     </div>
-  </div>
+  </LayoutRoot>
 )
