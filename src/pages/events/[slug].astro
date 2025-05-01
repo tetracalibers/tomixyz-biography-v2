@@ -26,7 +26,7 @@ const { meta } = data
 
 const { Content } = await render(page)
 
-const ogimage = `/og-image/events/${slug}.png`
+const ogimage = `/og/events/${slug}.png`
 ---
 
 <EventLayout content={page.data} meta={{ ogimage, ...meta }}>
