@@ -5,9 +5,10 @@ import { getEntry } from "astro:content"
 interface Props {
   tagId: string
   small?: boolean
+  count?: number
 }
 
-const { tagId, small } = Astro.props
+const { tagId, small, count } = Astro.props
 
 const hue = Math.floor(Math.random() * 360) + "deg"
 const href = SITE.base + "/tags/" + tagId
@@ -15,14 +16,18 @@ const tag = await getEntry("tag", tagId)
 ---
 
 <a href={href} class:list={["Tag", { "-small": small }]}>
-  {tag!.data.name}
+  <span>{tag!.data.name}</span>
+  {count && <span class="count">({count})</span>}
 </a>
 
 <style define:vars={{ hue, "dark-twinkle-width": small ? "0.5rem" : "1rem" }}>
   .Tag {
     --twinkle-width: 24%;
 
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25em;
     color: light-dark(var(--slate-600), white);
     background-image: repeating-linear-gradient(
       225deg,
@@ -56,5 +61,11 @@ const tag = await getEntry("tag", tagId)
     line-height: 1.5rem;
     padding-inline: 0.5rem;
     padding-block: 0;
+  }
+
+  .count {
+    font-size: 0.75em;
+    font-family: "Oldenburg", serif;
+    color: light-dark(var(--slate-400), var(--slate-300));
   }
 </style>

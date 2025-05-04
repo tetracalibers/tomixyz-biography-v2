@@ -26,6 +26,22 @@ export const collectTagIds = (targets: RefTagEntry[]) => {
   return [...uniquedTagIds]
 }
 
+export const collectTagIdsWithCount = (targets: RefTagEntry[]) => {
+  const tagIdCountMap = targets.reduce((acc, entry) => {
+    const tags = entry.data.tags ?? []
+    tags.forEach((tag) => {
+      if (acc.has(tag.id)) {
+        acc.set(tag.id, acc.get(tag.id)! + 1)
+      } else {
+        acc.set(tag.id, 1)
+      }
+    })
+    return acc
+  }, new Map<string, number>())
+
+  return [...tagIdCountMap.entries()].map(([id, count]) => ({ id, count }))
+}
+
 export const includeTag = (tagId: string) => {
   return (entry: { data: { tags: ReferenceDataEntry<"tag">[] } }) => {
     const tags = entry.data.tags ?? []
