@@ -1,16 +1,16 @@
 ---
 import TagLink from "$components/tag/TagLink.astro"
-import { collectTagIds, getRefTagCollection } from "$/lib/tag"
+import { collectTagIdsWithCount, getRefTagCollection } from "$/lib/tag"
 
 const targets = await getRefTagCollection()
-const tagIds = collectTagIds(targets).sort((a, b) => a.localeCompare(b))
+const tags = collectTagIdsWithCount(targets).sort((a, b) => a.id.localeCompare(b.id))
 ---
 
 <ul class="TagsList">
   {
-    tagIds.map((tagId) => (
+    tags.map((tag) => (
       <li>
-        <TagLink tagId={tagId} />
+        <TagLink tagId={tag.id} count={tag.count} />
       </li>
     ))
   }
