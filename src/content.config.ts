@@ -1,19 +1,6 @@
 import { defineCollection, reference, z } from "astro:content"
 import { file, glob } from "astro/loaders"
 
-const page = defineCollection({
-  loader: glob({ pattern: "**/*.mdx", base: "./src/content/page" }),
-  schema: z.object({
-    title: z.string(),
-    description: z.string(),
-    meta: z
-      .object({
-        description: z.string()
-      })
-      .optional()
-  })
-})
-
 const like = defineCollection({
   loader: glob({ pattern: "**/*.mdx", base: "./src/content/like" }),
   schema: () =>
@@ -147,4 +134,4 @@ const tag = defineCollection({
     })
 })
 
-export const collections = { page, like, project, event, blog, recipe, series, writing, tag }
+export const collections = { like, project, event, blog, recipe, series, writing, tag }
