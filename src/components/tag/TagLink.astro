@@ -23,6 +23,7 @@ const tag = await getEntry("tag", tagId)
 <style define:vars={{ hue, "dark-twinkle-width": small ? "0.5rem" : "1rem" }}>
   .Tag {
     --twinkle-width: 24%;
+    --border-radius: clamp(1.25rem, 1.106rem + 0.616vw, 1.5rem);
 
     display: inline-flex;
     align-items: baseline;
@@ -40,10 +41,10 @@ const tag = await getEntry("tag", tagId)
     );
     filter: hue-rotate(var(--hue));
     text-decoration: none;
-    border-bottom-right-radius: 1.5rem;
-    border-top-left-radius: 1.5rem;
-    font-size: 1.25rem;
-    line-height: 1.75rem;
+    border-bottom-right-radius: var(--border-radius);
+    border-top-left-radius: var(--border-radius);
+    font-size: clamp(1rem, 0.856rem + 0.616vw, 1.25rem);
+    line-height: 1.4;
     padding-inline: 1rem;
     padding-block: 0.25rem;
   }
