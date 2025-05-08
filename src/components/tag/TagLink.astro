@@ -25,7 +25,7 @@ const tag = await getEntry("tag", tagId)
     --twinkle-width: 24%;
 
     display: inline-flex;
-    align-items: center;
+    align-items: baseline;
     justify-content: center;
     gap: 0.25em;
     color: light-dark(var(--slate-600), white);
@@ -66,6 +66,7 @@ const tag = await getEntry("tag", tagId)
   .count {
     font-size: 0.75em;
     font-family: "Oldenburg", serif;
+    line-height: 1em;
     color: light-dark(var(--slate-400), var(--slate-300));
   }
 </style>
