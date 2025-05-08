@@ -1,0 +1,40 @@
+---
+import DefaultPageLayout from "$/layouts/default.astro"
+import Prose from "$/components/prose/Prose.astro"
+import WritingPreviewList from "$/components/preview/writing/WritingPreviewList.astro"
+
+const title = "Writing"
+const description = "書いたもの"
+const meta = {
+  ogimage: "/og/writing.png"
+}
+---
+
+<DefaultPageLayout content={{ title, description }} meta={{ ...meta }}>
+  <Prose>
+    <section>
+      <h2>メディアでの技術記事執筆</h2>
+      <WritingPreviewList id="codegrid" />
+    </section>
+
+    <section>
+      <h2>インタビュー・対談</h2>
+      <WritingPreviewList id="interview" />
+    </section>
+
+    <section>
+      <h2>技術系勉強会用に制作した資料</h2>
+      <WritingPreviewList id="textbook" />
+    </section>
+
+    <section>
+      <h2>高校時代の活動アカウント</h2>
+      <WritingPreviewList id="archive" />
+    </section>
+
+    <section>
+      <h2>その他、自分用ノートなど</h2>
+      <WritingPreviewList id="note" />
+    </section>
+  </Prose>
+</DefaultPageLayout>
