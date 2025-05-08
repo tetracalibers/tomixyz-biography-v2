@@ -1,3 +1,8 @@
 lite-youtube {
   margin-inline: auto;
 }
+
+/** .prose配下で指定されている外部リンクアイコンを表示しない */
+lite-youtube a::after {
+  display: none;
+}
