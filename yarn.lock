@@ -445,13 +445,6 @@
   dependencies:
     "@iconify/types" "*"
 
-"@iconify-json/line-md@^1.2.5":
-  version "1.2.5"
-  resolved "https://registry.npmjs.org/@iconify-json/line-md/-/line-md-1.2.5.tgz"
-  integrity sha512-6zFKhs6g++kFJLLi+ye5nPoHgjYh44yVLjua0tmbxH1HdImMQZ6rkRsPnBgxADY4bQWiapXBzfoiz7+UBXgtWg==
-  dependencies:
-    "@iconify/types" "*"
-
 "@iconify-json/lucide@^1.2.34":
   version "1.2.34"
   resolved "https://registry.npmjs.org/@iconify-json/lucide/-/lucide-1.2.34.tgz"
