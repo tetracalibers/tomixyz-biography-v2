@@ -5,10 +5,8 @@ import BlogPreviewList from "$components/preview/blog/BlogPreviewList.astro"
 import Paginator from "$/components/pagination/Paginator.astro"
 import { compareDateForSort } from "$/lib/sort"
 import type { GetStaticPaths, Page } from "astro"
-import { PAGE_SIZE } from "$/config"
+import { CATEGORY_META, PAGE_SIZE } from "$/config"
 
-const title = "Blog"
-const description = "考えていること"
 const meta = {
   ogimage: "/og/blog.png"
 }
@@ -25,7 +23,7 @@ interface Props {
 const { page } = Astro.props
 ---
 
-<DefaultPageLayout content={{ title, description }} meta={{ ...meta }}>
+<DefaultPageLayout content={{ ...CATEGORY_META.blog }} meta={{ ...meta }}>
   <BlogPreviewList entries={page.data} />
   {PAGE_SIZE < page.total && <Paginator page={page} />}
 </DefaultPageLayout>

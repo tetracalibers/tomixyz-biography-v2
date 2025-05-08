@@ -5,11 +5,9 @@ import Paginator from "$/components/pagination/Paginator.astro"
 import { compareDateForSort } from "$/lib/sort"
 import type { GetStaticPaths, Page } from "astro"
 import RecipePreviewList from "$components/preview/recipe/RecipePreviewList.astro"
-import { PAGE_SIZE } from "$/config"
+import { CATEGORY_META, PAGE_SIZE } from "$/config"
 import { filterPublic } from "$/lib/filter"
 
-const title = "Recipes"
-const description = "学びやアイデアの記録"
 const meta = {
   ogimage: "/og/recipe.png"
 }
@@ -26,7 +24,7 @@ interface Props {
 const { page } = Astro.props
 ---
 
-<DefaultPageLayout content={{ title, description }} meta={{ ...meta }}>
+<DefaultPageLayout content={{ ...CATEGORY_META.recipes }} meta={{ ...meta }}>
   <RecipePreviewList entries={page.data} />
   {PAGE_SIZE < page.total && <Paginator page={page} />}
 </DefaultPageLayout>

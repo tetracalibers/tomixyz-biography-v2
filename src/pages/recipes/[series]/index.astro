@@ -36,13 +36,13 @@ const { recipes, series } = Astro.props
 const { Content } = await render(series)
 
 const title = series.data.title
-const description = "シリーズ記事一覧"
+const subtitle = "シリーズ記事一覧"
 const meta = {
   ogimage: `/og/recipes/${series}.png`
 }
 ---
 
-<DefaultPageLayout content={{ title, description }} meta={{ ...meta }} style={{ title_small: true }}>
+<DefaultPageLayout content={{ title, subtitle }} meta={{ ...meta }} style={{ title_small: true }}>
   <div class="Layout-inner">
     <Prose>
       <div class="series-summary"><Content /></div>

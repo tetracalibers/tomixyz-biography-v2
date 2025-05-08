@@ -8,7 +8,7 @@ import Prose from "$components/prose/Prose.astro"
 import TagsList from "$components/pages/index/TagsList.astro"
 
 const title = "tomixy"
-const description = "I'm a front-end developer in Japan."
+const subtitle = "I'm a front-end developer in Japan."
 
 const meta = {
   ogimage: "/og/default.png"
@@ -77,7 +77,7 @@ const history = [
 ]
 ---
 
-<DefaultPageLayout content={{ title, description }} meta={meta}>
+<DefaultPageLayout content={{ title, subtitle }} meta={meta}>
   <Prose>
     <div class="section -profile">
       <Fragment set:html={marked.parse(profile)} />
