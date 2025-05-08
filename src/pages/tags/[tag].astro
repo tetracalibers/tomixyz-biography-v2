@@ -38,7 +38,7 @@ interface Props {
 const { articles, tag } = Astro.props
 
 const title = tag.name
-const description = `${tag.name}を扱った作品や記事`
+const subtitle = `${tag.name}を扱った作品や記事`
 const meta = {
   ogimage: `/og/default.png`
 }
@@ -50,7 +50,7 @@ const subtitleMd = `[${tag.name}](${tag.url})を扱った作品や記事`
 const subtitleHtml = marked.parseInline(subtitleMd, { renderer })
 ---
 
-<DefaultPageLayout content={{ title, description }} meta={{ ...meta }}>
+<DefaultPageLayout content={{ title, subtitle }} meta={{ ...meta }}>
   <Fragment slot="subtitle" set:html={subtitleHtml} />
   <ArticlePreviewList entries={articles} />
 </DefaultPageLayout>

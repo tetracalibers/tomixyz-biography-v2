@@ -2,15 +2,14 @@
 import DefaultPageLayout from "$/layouts/default.astro"
 import Prose from "$/components/prose/Prose.astro"
 import WritingPreviewList from "$/components/preview/writing/WritingPreviewList.astro"
+import { CATEGORY_META } from "$/config"
 
-const title = "Writing"
-const description = "書いたもの"
 const meta = {
   ogimage: "/og/writing.png"
 }
 ---
 
-<DefaultPageLayout content={{ title, description }} meta={{ ...meta }}>
+<DefaultPageLayout content={{ ...CATEGORY_META.writing }} meta={{ ...meta }}>
   <Prose>
     <section>
       <h2>メディアでの技術記事執筆</h2>

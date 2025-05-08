@@ -4,9 +4,8 @@ import LikeSection from "$components/pages/like/LikeSection.astro"
 import { getCollection } from "astro:content"
 
 import "$/styles/prose-use-marker.css"
+import { CATEGORY_META } from "$/config"
 
-const title = "Like"
-const description = "好きなことと展望"
 const meta = {
   ogimage: "/og/like.png"
 }
@@ -14,6 +13,6 @@ const meta = {
 const sections = (await getCollection("like")).sort((a, b) => a.data.order - b.data.order)
 ---
 
-<DefaultPageLayout content={{ title, description }} meta={{ ...meta }}>
+<DefaultPageLayout content={{ ...CATEGORY_META.like }} meta={{ ...meta }}>
   {sections.map((section) => <LikeSection section={section} />)}
 </DefaultPageLayout>

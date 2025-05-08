@@ -7,7 +7,7 @@ import Body from "$components/layout/Body.astro"
 interface Props {
   content: {
     title: string
-    description: string
+    subtitle: string
   }
   meta?: {
     description?: string
@@ -26,7 +26,7 @@ const { content, meta, style } = Astro.props
   <head>
     <BaseHead
       title={content.title}
-      description={meta?.description ?? content.description}
+      description={meta?.description ?? content.subtitle}
       image={meta?.ogimage ?? "/og-image.png"}
     />
   </head>
@@ -35,7 +35,7 @@ const { content, meta, style } = Astro.props
       <div class="MainLayout-inner" class:list={[{ "-title-small": style?.title_small }]}>
         <PageHeader title={content.title} style={style}>
           <slot name="subtitle">
-            {content.description}
+            {content.subtitle}
           </slot>
         </PageHeader>
         <div class="slot-wrapper"><slot /></div>
