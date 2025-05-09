@@ -46,12 +46,10 @@ const indexInSeries = series && series.data.articles.findIndex((article) => arti
     <MainLayout>
       <div class="MainLayout-inner">
         <ArticleHeaderBlock date={content.date} updated={content.updated}>
-          <Fragment slot="content">
-            {series && <SeriesTitle title={series.data.title} seriesId={series.id} indexInSeries={indexInSeries!} />}
-            <ArticleTitle title={content.title} />
-            <ArticleSummary summary={content.description} />
-            <TagList tags={content.tags} />
-          </Fragment>
+          {series && <SeriesTitle title={series.data.title} seriesId={series.id} indexInSeries={indexInSeries!} />}
+          <ArticleTitle title={content.title} />
+          <ArticleSummary summary={content.description} />
+          <TagList tags={content.tags} />
         </ArticleHeaderBlock>
         {content.draft && <DraftAlert />}
         <RecipeToc headings={headings} current={entry.id} series={series} />

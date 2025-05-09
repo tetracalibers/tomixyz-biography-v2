@@ -36,10 +36,8 @@ const { content, headings, meta } = Astro.props
     <MainLayout>
       <div class="MainLayout-inner">
         <ArticleHeaderBlock date={content.date}>
-          <Fragment slot="content">
-            <ArticleTitle title={content.title} />
-            <ArticleSummary summary={content.description} />
-          </Fragment>
+          <ArticleTitle title={content.title} />
+          <ArticleSummary summary={content.description} />
         </ArticleHeaderBlock>
         <ArticleTocBlock>
           <TocList headings={headings} />
