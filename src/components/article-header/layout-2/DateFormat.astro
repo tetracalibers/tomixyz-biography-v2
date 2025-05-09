@@ -1,13 +1,15 @@
 ---
+import { formatDate } from "$/lib/date"
+
 interface Props {
-  date: string
+  date: Date
 }
 
 const { date } = Astro.props
 ---
 
-<time class="DateFormat" datetime={date}>
-  {date.replaceAll(/-/g, ".")}
+<time class="DateFormat" datetime={formatDate(date, "-")}>
+  {formatDate(date, ".")}
 </time>
 
 <style>

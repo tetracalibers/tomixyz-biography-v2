@@ -2,6 +2,7 @@
 import type { CollectionEntry } from "astro:content"
 import { SITE } from "$/config"
 import { Icon } from "astro-icon/components"
+import { formatDate } from "$/lib/date"
 
 interface Props {
   entry: CollectionEntry<"recipe">
@@ -14,8 +15,6 @@ const {
 } = Astro.props
 
 const pageUrl = SITE.base + "/recipes/" + id
-
-const formatDate = (date: string) => date.replaceAll("-", ".")
 ---
 
 <div class="RecipePreview">
@@ -24,7 +23,7 @@ const formatDate = (date: string) => date.replaceAll("-", ".")
       <Icon name="arcticons:pocketbook" size={16} stroke-width={2} />
       <span>第{indexOfList + 1}回</span>
     </div>
-    <time class="date" datetime={recipe.date}>{formatDate(recipe.date)}</time>
+    <time class="date" datetime={formatDate(recipe.date, "-")}>{formatDate(recipe.date, ".")}</time>
   </div>
   <div class="content">
     <h2 class="title">

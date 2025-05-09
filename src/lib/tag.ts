@@ -2,7 +2,7 @@ import type { ReferenceDataEntry } from "astro:content"
 import { getCollection } from "astro:content"
 import { filterPublic } from "./filter"
 
-type RefTagEntry = { data: { tags: ReferenceDataEntry<"tag">[]; date: string } }
+type RefTagEntry = { data: { tags: ReferenceDataEntry<"tag">[]; date: Date } }
 
 export const getRefTagCollection = async () => {
   const projects = await getCollection("project")

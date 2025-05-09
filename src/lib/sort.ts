@@ -1,7 +1,7 @@
-export const compareDateForSort = <T extends { data: { date: string } }>(a: T, b: T) => {
-  return +new Date(b.data.date) - +new Date(a.data.date)
+export const compareDateForSort = <T extends { data: { date: Date } }>(a: T, b: T) => {
+  return +b.data.date - +a.data.date
 }
 
-export const compareDateForSortAsc = <T extends { data: { date: string } }>(a: T, b: T) => {
-  return +new Date(a.data.date) - +new Date(b.data.date)
+export const compareDateForSortAsc = <T extends { data: { date: Date } }>(a: T, b: T) => {
+  return +a.data.date - +b.data.date
 }

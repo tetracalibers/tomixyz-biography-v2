@@ -3,8 +3,8 @@ import DateFormat from "./DateFormat.astro"
 import AvatarImage from "./AvatarImage.astro"
 
 interface Props {
-  date: string
-  updated?: string
+  date: Date
+  updated?: Date
 }
 
 const { date, updated } = Astro.props
