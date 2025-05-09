@@ -84,7 +84,8 @@ const recipe = defineCollection({
         })
         .optional(),
       tags: z.array(reference("tag")).default([]),
-      date: z.string(),
+      created: z.string().date(),
+      updated: z.string().date().optional(),
       series: reference("series").optional(),
       references: z
         .object({
