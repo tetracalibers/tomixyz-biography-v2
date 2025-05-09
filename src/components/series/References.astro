@@ -3,7 +3,7 @@ import { Icon } from "astro-icon/components"
 import { marked } from "marked"
 
 interface Props {
-  references: { title: string; url: string; summary: string }[]
+  references: { title: string; url: string; summary?: string }[]
 }
 
 const { references } = Astro.props
