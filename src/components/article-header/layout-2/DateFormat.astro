@@ -6,12 +6,12 @@ interface Props {
 const { date } = Astro.props
 ---
 
-<time class="PublishDate" datetime={date}>
+<time class="DateFormat" datetime={date}>
   {date.replaceAll(/-/g, ".")}
 </time>
 
 <style>
-  .PublishDate {
+  .DateFormat {
     display: block;
     color: light-dark(var(--slate-400), var(--slate-300));
     font-weight: bold;

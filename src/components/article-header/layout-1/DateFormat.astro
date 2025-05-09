@@ -1,0 +1,21 @@
+---
+interface Props {
+  date: string
+}
+
+const { date } = Astro.props
+---
+
+<time class="DateFormat" datetime={date}>
+  {new Intl.DateTimeFormat("en-US", { dateStyle: "long" }).format(new Date(date))}
+</time>
+
+<style>
+  .DateFormat {
+    display: block;
+    color: light-dark(var(--slate-400), var(--slate-300));
+    font-weight: bold;
+    font-style: italic;
+    text-align: end;
+  }
+</style>

@@ -3,7 +3,7 @@ import type { CollectionEntry } from "astro:content"
 import MainLayout from "$/components/layout/MainLayout.astro"
 import BaseHead from "$/components/layout/BaseHead.astro"
 import TagList from "$/components/article-header/TagList.astro"
-import PublishDate from "$/components/article-header/PublishDate.astro"
+import DateFormat from "$/components/article-header/layout-1/DateFormat.astro"
 import CoverImage from "$/components/article-header/layout-1/CoverImage.astro"
 import IconLinkList from "$/components/article-header/IconLinkList.astro"
 import ArticleHeaderContentBlock from "$/components/article-header/layout-1/ArticleHeaderContentBlock.astro"
@@ -53,7 +53,7 @@ const { content, meta } = Astro.props
         </ArticleHeaderContentBlock>
         <div slot="image">
           <CoverImage src={content.image} alt={content.title} />
-          <PublishDate date={content.date} />
+          <DateFormat date={content.date} />
         </div>
       </ArticleHeaderBlock>
       <ProseGridFill>

@@ -1,5 +1,5 @@
 ---
-import PublishDate from "../PublishDate.astro"
+import DateFormat from "./DateFormat.astro"
 import AvatarImage from "./AvatarImage.astro"
 
 interface Props {
@@ -17,11 +17,11 @@ const { date, updated } = Astro.props
   <div class="meta">
     <AvatarImage />
     <div class="meta-content">
-      <span class="date">Published: <PublishDate date={date} /></span>
+      <span class="date">Published: <DateFormat date={date} /></span>
       {
         updated && (
           <span class="date">
-            Last Updated: <PublishDate date={updated} />
+            Last Updated: <DateFormat date={updated} />
           </span>
         )
       }
