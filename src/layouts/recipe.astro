@@ -3,7 +3,6 @@ import type { CollectionEntry } from "astro:content"
 import MainLayout from "$/components/layout/MainLayout.astro"
 import BaseHead from "$/components/layout/BaseHead.astro"
 import ProseGridFill from "$/components/prose/ProseGridFill.astro"
-import AvatarImage from "$components/article-header/layout-2/AvatarImage.astro"
 import type { MarkdownHeading } from "astro"
 import Body from "$components/layout/Body.astro"
 import ArticleTitle from "$components/article-header/layout-2/ArticleTitle.astro"
@@ -53,7 +52,6 @@ const indexInSeries = series && series.data.articles.findIndex((article) => arti
             <ArticleSummary summary={content.description} />
             <TagList tags={content.tags} />
           </Fragment>
-          <Fragment slot="avatar"><AvatarImage /></Fragment>
         </ArticleHeaderBlock>
         {content.draft && <DraftAlert />}
         <RecipeToc headings={headings} current={entry.id} series={series} />
