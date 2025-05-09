@@ -1,11 +1,8 @@
 ---
 import type { CollectionEntry } from "astro:content"
-import { SITE } from "$/config"
 import MainLayout from "$/components/layout/MainLayout.astro"
 import BaseHead from "$/components/layout/BaseHead.astro"
 import ProseGridFill from "$/components/prose/ProseGridFill.astro"
-import AvatarImage from "$components/article-header/layout-2/AvatarImage.astro"
-import PublishDate from "$components/article-header/PublishDate.astro"
 import type { MarkdownHeading } from "astro"
 import Body from "$components/layout/Body.astro"
 import ArticleTitle from "$components/article-header/layout-2/ArticleTitle.astro"
@@ -32,8 +29,6 @@ const { entry, headings, meta } = Astro.props
 const { data: content } = entry
 const { series: seriesOrNone, references } = content
 
-const AUTHOR_NAME = SITE.author
-
 const series = seriesOrNone ? await collectSeriesArticles(seriesOrNone.id) : null
 const indexInSeries = series && series.data.articles.findIndex((article) => article.id === entry.id)
 ---
@@ -50,16 +45,11 @@ const indexInSeries = series && series.data.articles.findIndex((article) => arti
   <Body>
     <MainLayout>
       <div class="MainLayout-inner">
-        <ArticleHeaderBlock>
-          <Fragment slot="content">
-            {series && <SeriesTitle title={series.data.title} seriesId={series.id} indexInSeries={indexInSeries!} />}
-            <ArticleTitle title={content.title} />
-            <ArticleSummary summary={content.description} />
-            <TagList tags={content.tags} />
-          </Fragment>
-          <Fragment slot="avatar"><AvatarImage /></Fragment>
-          <Fragment slot="author">{AUTHOR_NAME}</Fragment>
-          <Fragment slot="publish"><PublishDate date={content.date} /></Fragment>
+        <ArticleHeaderBlock date={content.date} updated={content.updated}>
+          {series && <SeriesTitle title={series.data.title} seriesId={series.id} indexInSeries={indexInSeries!} />}
+          <ArticleTitle title={content.title} />
+          <ArticleSummary summary={content.description} />
+          <TagList tags={content.tags} />
         </ArticleHeaderBlock>
         {content.draft && <DraftAlert />}
         <RecipeToc headings={headings} current={entry.id} series={series} />

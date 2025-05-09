@@ -1,11 +1,8 @@
 ---
 import type { CollectionEntry } from "astro:content"
-import { SITE } from "$/config"
 import MainLayout from "$/components/layout/MainLayout.astro"
 import BaseHead from "$/components/layout/BaseHead.astro"
 import ProseGridFill from "$/components/prose/ProseGridFill.astro"
-import AvatarImage from "$components/article-header/layout-2/AvatarImage.astro"
-import PublishDate from "$components/article-header/PublishDate.astro"
 import type { MarkdownHeading } from "astro"
 import Body from "$components/layout/Body.astro"
 import ArticleTitle from "$components/article-header/layout-2/ArticleTitle.astro"
@@ -24,8 +21,6 @@ interface Props {
 }
 
 const { content, headings, meta } = Astro.props
-
-const AUTHOR_NAME = SITE.author
 ---
 
 <!doctype html>
@@ -40,14 +35,9 @@ const AUTHOR_NAME = SITE.author
   <Body>
     <MainLayout>
       <div class="MainLayout-inner">
-        <ArticleHeaderBlock>
-          <Fragment slot="content">
-            <ArticleTitle title={content.title} />
-            <ArticleSummary summary={content.description} />
-          </Fragment>
-          <Fragment slot="avatar"><AvatarImage /></Fragment>
-          <Fragment slot="author">{AUTHOR_NAME}</Fragment>
-          <Fragment slot="publish"><PublishDate date={content.date} /></Fragment>
+        <ArticleHeaderBlock date={content.date}>
+          <ArticleTitle title={content.title} />
+          <ArticleSummary summary={content.description} />
         </ArticleHeaderBlock>
         <ArticleTocBlock>
           <TocList headings={headings} />
