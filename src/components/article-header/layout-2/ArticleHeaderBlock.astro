@@ -1,3 +1,14 @@
+---
+import PublishDate from "../PublishDate.astro"
+
+interface Props {
+  date: string
+  updated?: string
+}
+
+const { date, updated } = Astro.props
+---
+
 <div class="ArticleHeaderBlock">
   <div class="content">
     <slot name="content" />
@@ -5,8 +16,14 @@
   <div class="meta">
     <slot name="avatar" />
     <div class="meta-content">
-      <span class="author"><slot name="author" /></span>
-      <slot name="publish" />
+      <span class="date">Published: <PublishDate date={date} /></span>
+      {
+        updated && (
+          <span class="date">
+            Last Updated: <PublishDate date={updated} />
+          </span>
+        )
+      }
     </div>
   </div>
 </div>
@@ -54,11 +71,16 @@
     border-inline-start-style: solid;
     border-inline-start-width: 2px;
     border-inline-start-color: light-dark(var(--slate-200), var(--slate-500));
+    align-items: end;
+    justify-content: flex-start;
+    padding-block: 0.5rem;
   }
 
-  .author {
+  .date {
     color: light-dark(var(--slate-400), var(--slate-300));
     font-weight: bold;
-    font-style: italic;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1ch;
   }
 </style>
