@@ -1,12 +1,13 @@
 ---
-import { getCollection, render, type CollectionEntry } from "astro:content"
+import { getCollection, render } from "astro:content"
 import RecipeLayout from "$/layouts/recipe.astro"
 import { filterPublic } from "$/lib/filter"
+import { type RecipeNotComingSoon, isNotComingSoon } from "$/lib/collection"
 
 import "$/styles/prose-use-marker.css"
 
 export async function getStaticPaths() {
-  const collection = await getCollection("recipe", filterPublic)
+  const collection = (await getCollection("recipe", filterPublic)).filter(isNotComingSoon)
   return collection.map((page) => {
     return {
       params: { slug: page.id },
@@ -16,7 +17,7 @@ export async function getStaticPaths() {
 }
 
 interface Props {
-  page: CollectionEntry<"recipe">
+  page: RecipeNotComingSoon
 }
 
 const { page } = Astro.props

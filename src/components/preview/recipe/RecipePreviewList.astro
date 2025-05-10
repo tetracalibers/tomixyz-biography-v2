@@ -1,9 +1,9 @@
 ---
-import type { CollectionEntry } from "astro:content"
 import RecipePreview from "./RecipePreview.astro"
+import type { RecipeNotComingSoon } from "$/lib/collection"
 
 interface Props {
-  entries: CollectionEntry<"recipe">[]
+  entries: RecipeNotComingSoon[]
 }
 
 const { entries } = Astro.props

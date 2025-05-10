@@ -1,12 +1,12 @@
 ---
-import type { CollectionEntry } from "astro:content"
 import PublishDate from "./PublishDate.astro"
 import { SITE } from "$/config"
 import { getEntry } from "astro:content"
 import { Icon } from "astro-icon/components"
+import type { RecipeNotComingSoon } from "$/lib/collection"
 
 interface Props {
-  entry: CollectionEntry<"recipe">
+  entry: RecipeNotComingSoon
 }
 
 const {

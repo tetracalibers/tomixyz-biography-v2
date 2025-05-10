@@ -69,3 +69,5 @@ export const SITE = {
 }
 
 export const PAGE_SIZE = 10
+
+export const COMING_SOON_KEY = "coming-soon"

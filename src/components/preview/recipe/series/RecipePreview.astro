@@ -3,18 +3,16 @@ import type { CollectionEntry } from "astro:content"
 import { SITE } from "$/config"
 import { Icon } from "astro-icon/components"
 import { formatDate } from "$/lib/date"
+import { isNotComingSoon } from "$/lib/collection"
 
 interface Props {
   entry: CollectionEntry<"recipe">
   indexOfList: number
 }
 
-const {
-  entry: { data: recipe, id },
-  indexOfList
-} = Astro.props
+const { entry, indexOfList } = Astro.props
 
-const pageUrl = SITE.base + "/recipes/" + id
+const pageUrl = SITE.base + "/recipes/" + entry.id
 ---
 
 <div class="RecipePreview">
@@ -23,14 +21,22 @@ const pageUrl = SITE.base + "/recipes/" + id
       <Icon name="arcticons:pocketbook" size={16} stroke-width={2} />
       <span>第{indexOfList + 1}回</span>
     </div>
-    <time class="date" datetime={formatDate(recipe.date, "-")}>{formatDate(recipe.date, ".")}</time>
+    {
+      isNotComingSoon(entry) ? (
+        <time class="date" datetime={formatDate(entry.data.date, "-")}>
+          {formatDate(entry.data.date, ".")}
+        </time>
+      ) : (
+        <span class="coming-soon">Coming Soon</span>
+      )
+    }
   </div>
   <div class="content">
     <h2 class="title">
-      <a href={pageUrl}>{recipe.title}</a>
+      <a href={pageUrl}>{entry.data.title}</a>
     </h2>
     <p class="desc">
-      {recipe.description}
+      {entry.data.description}
     </p>
   </div>
 </div>

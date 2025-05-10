@@ -1,3 +1,5 @@
+import { COMING_SOON_KEY } from "$/config"
+import type { RequiredByKeys, ReplaceKeys } from "$/types"
 import { type CollectionEntry, type CollectionKey } from "astro:content"
 
 export const makeEntryMap = <T extends CollectionKey>(collection: CollectionEntry<T>[]) => {
@@ -5,4 +7,12 @@ export const makeEntryMap = <T extends CollectionKey>(collection: CollectionEntr
     acc.set(entry.id, entry)
     return acc
   }, new Map<string, CollectionEntry<T>>())
+}
+
+export type RecipeNotComingSoon = {
+  data: RequiredByKeys<ReplaceKeys<CollectionEntry<"recipe">["data"], "date", { date: Date }>, "date">
+} & Omit<CollectionEntry<"recipe">, "data">
+export const isNotComingSoon = (entry: CollectionEntry<"recipe">): entry is RecipeNotComingSoon => {
+  if (!entry.data.date) return false
+  return entry.data.date !== COMING_SOON_KEY
 }

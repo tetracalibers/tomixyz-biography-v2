@@ -1,5 +1,4 @@
 ---
-import type { CollectionEntry } from "astro:content"
 import MainLayout from "$/components/layout/MainLayout.astro"
 import BaseHead from "$/components/layout/BaseHead.astro"
 import ProseGridFill from "$/components/prose/ProseGridFill.astro"
@@ -15,9 +14,10 @@ import NextStep from "$components/series/NextStep.astro"
 import SeriesTitle from "$components/series/SeriesTitle.astro"
 import References from "$components/series/References.astro"
 import DraftAlert from "$components/dev-alert/DraftAlert.astro"
+import type { RecipeNotComingSoon } from "$/lib/collection"
 
 interface Props {
-  entry: CollectionEntry<"recipe">
+  entry: RecipeNotComingSoon
   headings: MarkdownHeading[]
   meta?: {
     description?: string
