@@ -1,7 +1,6 @@
 import type { ReferenceDataEntry } from "astro:content"
 import { getCollection } from "astro:content"
-import { filterPublic } from "./filter"
-import { isNotComingSoon } from "$/lib/collection"
+import { isNotDraft } from "$/lib/collection"
 import type { COMING_SOON_KEY } from "$/config"
 
 type RefTagEntryWithComingSoon = { data: { tags: ReferenceDataEntry<"tag">[]; date: Date | typeof COMING_SOON_KEY } }
@@ -10,7 +9,7 @@ type RefTagEntry = { data: { tags: ReferenceDataEntry<"tag">[]; date: Date } }
 export const getRefTagCollection = async (): Promise<RefTagEntry[]> => {
   const projects = await getCollection("project")
   const events = await getCollection("event")
-  const recipes = (await getCollection("recipe", filterPublic)).filter(isNotComingSoon)
+  const recipes = (await getCollection("recipe")).filter(isNotDraft)
   const writings = (await getCollection("writing")).flatMap((file) =>
     file.data.map((data) => ({ data: { ...data }, collection: "writing" }))
   )

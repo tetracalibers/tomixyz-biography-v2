@@ -1,9 +1,10 @@
 ---
 import DateFormat from "./DateFormat.astro"
 import AvatarImage from "./AvatarImage.astro"
+import { COMING_SOON_KEY } from "$/config"
 
 interface Props {
-  date: Date
+  date: Date | typeof COMING_SOON_KEY
   updated?: Date
 }
 
@@ -17,7 +18,15 @@ const { date, updated } = Astro.props
   <div class="meta">
     <AvatarImage />
     <div class="meta-content">
-      <span class="date">Published: <DateFormat date={date} /></span>
+      {
+        date === COMING_SOON_KEY ? (
+          <span class="date">Coming Soon</span>
+        ) : (
+          <span class="date">
+            Published: <DateFormat date={date} />
+          </span>
+        )
+      }
       {
         updated && (
           <span class="date">

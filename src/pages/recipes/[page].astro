@@ -6,15 +6,14 @@ import { compareDateForSort } from "$/lib/sort"
 import type { GetStaticPaths, Page } from "astro"
 import RecipePreviewList from "$components/preview/recipe/RecipePreviewList.astro"
 import { CATEGORY_META, PAGE_SIZE } from "$/config"
-import { filterPublic } from "$/lib/filter"
-import { isNotComingSoon, type RecipeNotComingSoon } from "$/lib/collection"
+import { isNotDraft, type RecipeNotComingSoon } from "$/lib/collection"
 
 const meta = {
   ogimage: "/og/recipe.png"
 }
 
 export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
-  const collection = (await getCollection("recipe", filterPublic)).filter(isNotComingSoon).sort(compareDateForSort)
+  const collection = (await getCollection("recipe", isNotDraft)).sort(compareDateForSort)
   return paginate(collection, { pageSize: PAGE_SIZE })
 }
 

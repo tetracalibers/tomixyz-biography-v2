@@ -1,6 +1,5 @@
 import type { AstroComponentFactory } from "astro/runtime/server/index.js"
 import { getEntries, getEntry, render, type CollectionEntry } from "astro:content"
-import { filterPublic } from "./filter"
 
 type SeriesArticle = CollectionEntry<"recipe">
 export type SeriesArticleSlug = SeriesArticle["id"]
@@ -25,7 +24,7 @@ export const collectSeriesArticles = async (seriesId: string): Promise<SeriesArt
   const { Content } = await render(series)
 
   const seriesArticles = series.data.articles.map((article) => ({ collection: article.collection, id: article.id }))
-  const articleEntries = (await getEntries(seriesArticles)).filter(filterPublic)
+  const articleEntries = await getEntries(seriesArticles)
 
   const slugs = seriesArticles.map((article) => article.id)
 

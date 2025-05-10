@@ -18,3 +18,7 @@ export const isNotComingSoon = (entry: CollectionEntry<"recipe">): entry is Reci
 export const isComingSoon = (entry: CollectionEntry<"recipe">) => {
   return entry.data.date === COMING_SOON_KEY
 }
+
+export const isNotDraft = (entry: CollectionEntry<"recipe">): entry is RecipeNotComingSoon => {
+  return !entry.data.draft
+}
