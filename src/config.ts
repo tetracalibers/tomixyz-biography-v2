@@ -44,17 +44,17 @@ export const NAV_ITEMS: NavItems = {
     path: "/events/1",
     title: "events"
   },
-  writing: {
-    path: "/writing/",
-    title: "writing"
+  recipes: {
+    path: "/recipes/1",
+    title: "recipes"
   },
   blog: {
     path: "/blog/1",
     title: "blog"
   },
-  recipes: {
-    path: "/recipes/1",
-    title: "recipes"
+  writing: {
+    path: "/writing/",
+    title: "writing"
   }
 }
 
