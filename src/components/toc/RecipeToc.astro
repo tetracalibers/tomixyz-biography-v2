@@ -54,7 +54,7 @@ const getRecipePageUrl = (articleId: string) => SITE.base + `/recipes/${articleI
                   {isComingSoon(article) ? (
                     <span class="toc-item-coming-soon">
                       <Icon name="carbon:construction" aria-label="coming soon" />
-                      {!isProdBranch() ? (
+                      {isDev() || !isProdBranch() ? (
                         <a class="toc-item-link" href={getRecipePageUrl(article.id)}>
                           {article.data.title}
                         </a>
