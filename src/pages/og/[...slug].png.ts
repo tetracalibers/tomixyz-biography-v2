@@ -7,6 +7,7 @@ import fs from "node:fs/promises"
 import { getCollection, getEntry } from "astro:content"
 import { createCategoryChildOgImage } from "$/lib/og/category-child"
 import { createCategoryGroupedChildOgImage } from "$/lib/og/category-grouped-child"
+import { isNotComingSoon } from "$/lib/collection"
 
 interface DefaultOgMeta {
   type: "default"
@@ -121,7 +122,7 @@ export async function getStaticPaths() {
   })
 
   const recipesOgPaths = await Promise.all(
-    (await getCollection("recipe", (entry) => !entry.data.draft)).map(async (entry) => {
+    (await getCollection("recipe", (entry) => !entry.data.draft)).filter(isNotComingSoon).map(async (entry) => {
       if (!entry.data.series) {
         return {
           params: { slug: "recipes/" + entry.id },
