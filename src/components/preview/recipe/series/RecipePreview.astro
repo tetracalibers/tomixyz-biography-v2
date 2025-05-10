@@ -3,7 +3,7 @@ import type { CollectionEntry } from "astro:content"
 import { SITE } from "$/config"
 import { Icon } from "astro-icon/components"
 import { formatDate } from "$/lib/date"
-import { isNotComingSoon } from "$/lib/collection"
+import { isComingSoon, isNotComingSoon } from "$/lib/collection"
 
 interface Props {
   entry: CollectionEntry<"recipe">
@@ -15,7 +15,7 @@ const { entry, indexOfList } = Astro.props
 const pageUrl = SITE.base + "/recipes/" + entry.id
 ---
 
-<div class="RecipePreview">
+<div class="RecipePreview" class:list={{ "-coming-soon": isComingSoon(entry) }}>
   <div class="header">
     <div class="series-title">
       <Icon name="arcticons:pocketbook" size={16} stroke-width={2} />
@@ -33,7 +33,7 @@ const pageUrl = SITE.base + "/recipes/" + entry.id
   </div>
   <div class="content">
     <h2 class="title">
-      <a href={pageUrl}>{entry.data.title}</a>
+      {isComingSoon(entry) ? <>{entry.data.title}</> : <a href={pageUrl}>{entry.data.title}</a>}
     </h2>
     <p class="desc">
       {entry.data.description}
@@ -121,7 +121,7 @@ const pageUrl = SITE.base + "/recipes/" + entry.id
       text-align: left;
     }
   }
-  .title a {
+  :is(.title, .title a) {
     font-size: 1.5rem;
     line-height: 2rem;
     font-weight: 600;
@@ -138,5 +138,11 @@ const pageUrl = SITE.base + "/recipes/" + entry.id
     hyphens: auto;
     word-break: auto-phrase;
     color: light-dark(var(--slate-800), white);
+  }
+
+  .-coming-soon {
+    opacity: 0.8;
+    filter: grayscale(1);
+    mix-blend-mode: multiply;
   }
 </style>
