@@ -98,7 +98,7 @@ const _recipePublic = _recipeBase.extend({
   draft: z.literal(false).optional()
 })
 const _recipeDraft = _recipeBase.extend({
-  date: z.coerce.date().or(z.literal(COMING_SOON_KEY)).optional(),
+  date: z.coerce.date().or(z.literal(COMING_SOON_KEY)),
   draft: z.literal(true)
 })
 
