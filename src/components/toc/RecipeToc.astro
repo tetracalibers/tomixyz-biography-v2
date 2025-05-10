@@ -6,6 +6,7 @@ import { Icon } from "astro-icon/components"
 import TocList from "./TocList.astro"
 import { SITE } from "$/config"
 import Prose from "$components/prose/Prose.astro"
+import { isComingSoon } from "$/lib/collection"
 
 interface Props {
   headings: MarkdownHeading[]
@@ -49,9 +50,16 @@ const getRecipePageUrl = (articleId: string) => SITE.base + `/recipes/${articleI
             ) : (
               <li class="toc-item">
                 <h3 class="toc-item-heading">
-                  <a class="toc-item-link" href={getRecipePageUrl(article.id)}>
-                    {article.data.title}
-                  </a>
+                  {isComingSoon(article) ? (
+                    <span class="toc-item-coming-soon">
+                      <Icon name="carbon:construction" />
+                      {article.data.title}
+                    </span>
+                  ) : (
+                    <a class="toc-item-link" href={getRecipePageUrl(article.id)}>
+                      {article.data.title}
+                    </a>
+                  )}
                 </h3>
               </li>
             )
@@ -174,5 +182,15 @@ const getRecipePageUrl = (articleId: string) => SITE.base + `/recipes/${articleI
     text-decoration-style: dotted;
     text-decoration-thickness: 1px;
     text-underline-offset: 4px;
+  }
+
+  .toc-item-coming-soon {
+    display: inline-flex;
+    gap: 0.25rem;
+    align-items: center;
+  }
+  .toc-item-coming-soon :global(svg) {
+    font-size: 1.25em;
+    color: var(--zinc-400);
   }
 </style>
