@@ -7,6 +7,7 @@ import TocList from "./TocList.astro"
 import { SITE } from "$/config"
 import Prose from "$components/prose/Prose.astro"
 import { isComingSoon } from "$/lib/collection"
+import { isDev, isProdBranch } from "$/lib/environment"
 
 interface Props {
   headings: MarkdownHeading[]
@@ -53,7 +54,13 @@ const getRecipePageUrl = (articleId: string) => SITE.base + `/recipes/${articleI
                   {isComingSoon(article) ? (
                     <span class="toc-item-coming-soon">
                       <Icon name="carbon:construction" aria-label="coming soon" />
-                      {article.data.title}
+                      {!isProdBranch() ? (
+                        <a class="toc-item-link" href={getRecipePageUrl(article.id)}>
+                          {article.data.title}
+                        </a>
+                      ) : (
+                        <>{article.data.title}</>
+                      )}
                     </span>
                   ) : (
                     <a class="toc-item-link" href={getRecipePageUrl(article.id)}>

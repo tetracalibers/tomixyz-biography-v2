@@ -1,6 +1,7 @@
 ---
 import { SITE } from "$/config"
 import { isComingSoon } from "$/lib/collection"
+import { isProdBranch } from "$/lib/environment"
 import type { SeriesArticleSlug, SeriesArticles } from "$/lib/series"
 import { Icon } from "astro-icon/components"
 
@@ -22,7 +23,13 @@ const getRecipePageUrl = (articleId: string) => SITE.base + `/recipes/${articleI
       {isComingSoon(nextArticle) ? (
         <div class="Next-item coming-soon">
           <Icon name="carbon:construction" size={24} aria-label="coming soon" />
-          {nextArticle.data.title}
+          {!isProdBranch() ? (
+            <a class="no-marker" href={getRecipePageUrl(nextArticle.id)}>
+              {nextArticle.data.title}
+            </a>
+          ) : (
+            <>{nextArticle.data.title}</>
+          )}
         </div>
       ) : (
         <div class="Next-item">
