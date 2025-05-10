@@ -1,5 +1,6 @@
 ---
 import { SITE } from "$/config"
+import { isComingSoon } from "$/lib/collection"
 import type { SeriesArticleSlug, SeriesArticles } from "$/lib/series"
 import { Icon } from "astro-icon/components"
 
@@ -18,12 +19,19 @@ const getRecipePageUrl = (articleId: string) => SITE.base + `/recipes/${articleI
   nextArticle && (
     <>
       <h2>Next Step</h2>
-      <div class="Next-item">
-        <Icon class="next-icon" name="hugeicons:trade-up" size={32} />
-        <a class="no-marker" href={getRecipePageUrl(nextArticle.id)}>
+      {isComingSoon(nextArticle) ? (
+        <div class="Next-item coming-soon">
+          <Icon name="carbon:construction" size={24} aria-label="coming soon" />
           {nextArticle.data.title}
-        </a>
-      </div>
+        </div>
+      ) : (
+        <div class="Next-item">
+          <Icon class="next-icon" name="hugeicons:trade-up" size={32} />
+          <a class="no-marker" href={getRecipePageUrl(nextArticle.id)}>
+            {nextArticle.data.title}
+          </a>
+        </div>
+      )}
     </>
   )
 }
@@ -33,10 +41,18 @@ const getRecipePageUrl = (articleId: string) => SITE.base + `/recipes/${articleI
     display: flex;
     align-items: flex-start;
     gap: 0.5em;
+    color: light-dark(#475569, #e2e8f0);
+    font-weight: 500;
+  }
+  .Next-item :global(svg) {
+    flex-shrink: 0;
     color: var(--slate-400);
   }
 
-  .next-icon {
-    flex-shrink: 0;
+  .coming-soon {
+    align-items: center;
+  }
+  .coming-soon :global(svg) {
+    color: var(--zinc-400);
   }
 </style>
