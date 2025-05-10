@@ -1,13 +1,15 @@
 ---
+import { formatDate } from "$/lib/date"
+
 interface Props {
-  date: string
+  date: Date
 }
 
 const { date } = Astro.props
 ---
 
-<time class="DateFormat" datetime={date}>
-  {new Intl.DateTimeFormat("en-US", { dateStyle: "long" }).format(new Date(date))}
+<time class="DateFormat" datetime={formatDate(date, "-")}>
+  {new Intl.DateTimeFormat("en-US", { dateStyle: "long" }).format(date)}
 </time>
 
 <style>

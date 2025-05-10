@@ -1,5 +1,6 @@
 import { defineCollection, reference, z } from "astro:content"
 import { file, glob } from "astro/loaders"
+import { COMING_SOON_KEY } from "./config"
 
 const like = defineCollection({
   loader: glob({ pattern: "**/*.mdx", base: "./src/content/like" }),
@@ -22,7 +23,7 @@ const project = defineCollection({
         })
         .optional(),
       tags: z.array(reference("tag")).default([]),
-      date: z.string().date(),
+      date: z.coerce.date(),
       image: image(),
       url: z.string().url().optional(),
       github: z.string().url().optional(),
@@ -46,7 +47,7 @@ const event = defineCollection({
           description: z.string()
         })
         .optional(),
-      date: z.string().date(),
+      date: z.coerce.date(),
       image: image(),
       url: z.string().url().optional(),
       slide: z.string().optional(),
@@ -68,35 +69,42 @@ const blog = defineCollection({
           description: z.string()
         })
         .optional(),
-      date: z.string().date()
+      date: z.coerce.date()
     })
+})
+
+const _recipeBase = z.object({
+  title: z.string().max(100, "The title length must be less than or equal to 100 chars"),
+  description: z.string(),
+  meta: z
+    .object({
+      description: z.string()
+    })
+    .optional(),
+  tags: z.array(reference("tag")).default([]),
+  updated: z.coerce.date().optional(),
+  series: reference("series").optional(),
+  references: z
+    .object({
+      title: z.string(),
+      url: z.string().url(),
+      summary: z.string().optional()
+    })
+    .array()
+    .optional()
+})
+const _recipePublic = _recipeBase.extend({
+  date: z.coerce.date(),
+  draft: z.literal(false).optional()
+})
+const _recipeDraft = _recipeBase.extend({
+  date: z.coerce.date().or(z.literal(COMING_SOON_KEY)),
+  draft: z.literal(true)
 })
 
 const recipe = defineCollection({
   loader: glob({ pattern: "**/*.mdx", base: "./src/content/recipe" }),
-  schema: () =>
-    z.object({
-      title: z.string().max(100, "The title length must be less than or equal to 100 chars"),
-      description: z.string(),
-      meta: z
-        .object({
-          description: z.string()
-        })
-        .optional(),
-      tags: z.array(reference("tag")).default([]),
-      date: z.string().date(),
-      updated: z.string().date().optional(),
-      series: reference("series").optional(),
-      references: z
-        .object({
-          title: z.string(),
-          url: z.string().url(),
-          summary: z.string().optional()
-        })
-        .array()
-        .optional(),
-      draft: z.boolean().default(false)
-    })
+  schema: () => z.discriminatedUnion("draft", [_recipePublic, _recipeDraft])
 })
 
 const series = defineCollection({
@@ -120,7 +128,7 @@ const writing = defineCollection({
         title: z.string(),
         sublabel: z.string().optional(),
         url: z.string(),
-        date: z.string().date(),
+        date: z.coerce.date(),
         tags: z.array(reference("tag")).default([])
       })
       .array()

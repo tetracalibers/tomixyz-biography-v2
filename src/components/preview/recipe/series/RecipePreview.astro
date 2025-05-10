@@ -2,36 +2,41 @@
 import type { CollectionEntry } from "astro:content"
 import { SITE } from "$/config"
 import { Icon } from "astro-icon/components"
+import { formatDate } from "$/lib/date"
+import { isComingSoon, isNotComingSoon } from "$/lib/collection"
 
 interface Props {
   entry: CollectionEntry<"recipe">
   indexOfList: number
 }
 
-const {
-  entry: { data: recipe, id },
-  indexOfList
-} = Astro.props
+const { entry, indexOfList } = Astro.props
 
-const pageUrl = SITE.base + "/recipes/" + id
-
-const formatDate = (date: string) => date.replaceAll("-", ".")
+const pageUrl = SITE.base + "/recipes/" + entry.id
 ---
 
-<div class="RecipePreview">
+<div class="RecipePreview" class:list={{ "-coming-soon": isComingSoon(entry) }}>
   <div class="header">
     <div class="series-title">
       <Icon name="arcticons:pocketbook" size={16} stroke-width={2} />
       <span>第{indexOfList + 1}回</span>
     </div>
-    <time class="date" datetime={recipe.date}>{formatDate(recipe.date)}</time>
+    {
+      isNotComingSoon(entry) ? (
+        <time class="date" datetime={formatDate(entry.data.date, "-")}>
+          {formatDate(entry.data.date, ".")}
+        </time>
+      ) : (
+        <span class="coming-soon">Coming Soon</span>
+      )
+    }
   </div>
   <div class="content">
     <h2 class="title">
-      <a href={pageUrl}>{recipe.title}</a>
+      {isComingSoon(entry) ? <>{entry.data.title}</> : <a href={pageUrl}>{entry.data.title}</a>}
     </h2>
     <p class="desc">
-      {recipe.description}
+      {entry.data.description}
     </p>
   </div>
 </div>
@@ -116,7 +121,7 @@ const formatDate = (date: string) => date.replaceAll("-", ".")
       text-align: left;
     }
   }
-  .title a {
+  :is(.title, .title a) {
     font-size: 1.5rem;
     line-height: 2rem;
     font-weight: 600;
@@ -133,5 +138,11 @@ const formatDate = (date: string) => date.replaceAll("-", ".")
     hyphens: auto;
     word-break: auto-phrase;
     color: light-dark(var(--slate-800), white);
+  }
+
+  .-coming-soon {
+    opacity: 0.8;
+    filter: grayscale(1);
+    mix-blend-mode: multiply;
   }
 </style>

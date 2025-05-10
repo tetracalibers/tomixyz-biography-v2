@@ -8,7 +8,7 @@ import { marked } from "marked"
 import { collectTagIds, getRefTagCollection, filterByTag } from "$/lib/tag"
 import { setExternalLinkRenderer } from "$/lib/marked"
 import { getCollection } from "astro:content"
-import { makeEntryMap } from "$/lib/collection"
+import { makeEntryMap, type RecipeNotComingSoon } from "$/lib/collection"
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const targets = await getRefTagCollection()
@@ -32,7 +32,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 interface Props {
   tag: CollectionEntry<"tag">["data"]
-  articles: CollectionEntry<"project" | "event" | "recipe">[]
+  articles: CollectionEntry<"project" | "event">[] | RecipeNotComingSoon[]
 }
 
 const { articles, tag } = Astro.props

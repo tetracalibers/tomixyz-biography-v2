@@ -1,8 +1,10 @@
 ---
 import { getCollection, render, type CollectionEntry } from "astro:content"
 import RecipeLayout from "$/layouts/recipe.astro"
-import { and, filterPublic } from "$/lib/filter"
 import { getLastSlug } from "$/lib/url"
+import { type RecipeNotComingSoon, isNotDraft } from "$/lib/collection"
+import { and, or } from "$/lib/filter"
+import { isDev, isPreviewBranch } from "$/lib/environment"
 
 import "$/styles/prose-use-marker.css"
 
@@ -11,7 +13,7 @@ export async function getStaticPaths() {
     return !!entry.data.series
   }
 
-  const collection = await getCollection("recipe", and(filterPublic, filterSeries))
+  const collection = await getCollection("recipe", and(filterSeries, or(isDev, isPreviewBranch, isNotDraft)))
   return collection.map((page) => {
     return {
       params: { series: page.data.series!.id, slug: getLastSlug(page.id) },
@@ -21,7 +23,7 @@ export async function getStaticPaths() {
 }
 
 interface Props {
-  page: CollectionEntry<"recipe">
+  page: RecipeNotComingSoon
 }
 
 const { page } = Astro.props

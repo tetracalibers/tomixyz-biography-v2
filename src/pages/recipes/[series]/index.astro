@@ -6,14 +6,13 @@ import RecipePreviewList from "$components/preview/recipe/series/RecipePreviewLi
 import { render } from "astro:content"
 import Prose from "$components/prose/Prose.astro"
 import { getEntries } from "astro:content"
-import { filterPublic } from "$/lib/filter"
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const series = await getCollection("series")
 
   return Promise.all(
     series.map(async (series) => {
-      const recipes = (await getEntries(series.data.articles)).filter(filterPublic)
+      const recipes = await getEntries(series.data.articles)
 
       return {
         params: { series: series.id },
