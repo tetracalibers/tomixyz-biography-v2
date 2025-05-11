@@ -73,6 +73,9 @@ rust:
 slidev:
   name: Slidev
   url: https://sli.dev/
+starlight:
+  name: Starlight
+  url: https://starlight.astro.build/ja/
 svelte:
   name: Svelte
   url: https://svelte.jp/
@@ -85,6 +88,12 @@ svg:
 svg-filter:
   name: SVG Filter
   url: https://developer.mozilla.org/ja/docs/Web/SVG/Tutorials/SVG_from_scratch/Filter_effects
+tailwind-css:
+  name: Tailwind CSS
+  url: https://tailwindcss.com/
+tikz:
+  name: TikZ
+  url: https://texwiki.texjp.org/TikZ
 typescript:
   name: TypeScript
   url: https://www.typescriptlang.org/
