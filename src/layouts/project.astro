@@ -46,6 +46,7 @@ const { content, meta } = Astro.props
               links={[
                 { url: content.url, icon: "line-md/external-link-rounded", label: "Visit Site" },
                 { url: content.github, icon: "mingcute:github-line", label: "GitHub" },
+                { url: content.npm, icon: "ri:npmjs-line", label: "npm" },
                 { url: content.pdf?.file, icon: "ph:file-pdf", label: content.pdf?.label ?? "PDF" }
               ]}
             />

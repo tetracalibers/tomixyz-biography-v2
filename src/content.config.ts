@@ -27,6 +27,7 @@ const project = defineCollection({
       image: image(),
       url: z.string().url().optional(),
       github: z.string().url().optional(),
+      npm: z.string().url().optional(),
       pdf: z
         .object({
           file: z.string().endsWith(".pdf"),
