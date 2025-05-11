@@ -7,5 +7,37 @@ url: https://cgmonolog-english.pages.dev/
 tags:
   - svelte
   - astro
-description: TODO
+  - web-speech-api
+  - view-transition-api
+description: 英語でつぶやく「CGエンジニアのひとり言」集
 ---
+
+CG分野の洋書を読むことが好きですが、まだまだ知らないフレーズばかりで苦労しています。
+英語の語彙力を高めたい、でも巷の英単語集や英語フレーズ集に載っている日常生活を題材にした例文は正直退屈で…
+
+そこで、CG用語が多く登場する、CG開発の文脈で使われそうな例文を集めていくことにしました。
+
+## 文中での役割ごとにフレーズを分類
+
+- ページの構成
+- View Transition API
+
+## 読む力を鍛える「和訳を隠す」モード
+
+私の英語学習の一番の目的は、読んで理解できる英文の幅を広げることです。
+そこで、真っ先に搭載したのが「和訳を隠す」モードでした。
+
+- スクショ
+
+## Web Speech APIを使った読み上げ機能
+
+- リピート再生、速度調整
+- Svelte 5で実装
+
+## SVGアイコン管理
+
+なるべくスプライト化したいため、astroファイルではastro-iconを使用
+
+しかしastro-iconはsvelteファイルでは使えないため、unplugin-iconも併用している
+
+どちらもローカルに`npm install`した`@iconify-json/*`パッケージからアイコンを取得する仕組みになっているため、親和性が高い

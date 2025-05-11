@@ -6,5 +6,37 @@ image: ../../assets/projects/tomixyz-biography-v2/like-page.png
 tags:
   - astro
   - svelte
+  - svg-js
+  - typescript
+  - cf-pages
+  - css
+  - rehype-pretty-code
 description: TODO
 ---
+
+コンテンツコレクション周りが大きく進化したAstro 5、シンタックスがRuneによって一新されたSvelte 5、設定ファイル周りの仕様が大きく変わったtailwind 4、…
+
+これらが出揃ったタイミングで、tomixyz-biographyを最新の技術スタックで一から作り直すことを決めた
+
+更新することが楽しくなるように、また、新機能も追加しやすいように再構築した
+
+## 少し遊び心を加えたデザイン
+
+## likeページを新設
+
+## tailwind cssから乗り換え
+
+新しいCSSを積極的に試す場にもしたいため、tailwind cssは剥がし、スタイルはすべて素のCSSでリライト。
+layerやlight-darkなどのモダンなCSSにより、v1と比べてスタイル管理の見通しが良くなった。
+
+## OGP画像の生成には@vercel/ogを使用
+
+## Cloudflare pagesでデプロイ
+
+公開前のプレビュー環境を整えるため、github pagesからCloudflare pagesに移行。
+
+プレビューブランチではOGP画像の生成をスキップするなど、cf-pagesが提供する環境変数によって柔軟な制御ができるのも魅力
+
+## シリーズ機能
+
+## 図版はSVG.jsで

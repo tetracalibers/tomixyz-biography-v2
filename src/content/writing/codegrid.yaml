@@ -12,6 +12,7 @@
   date: "2024-05-30"
   tags:
     - "rehypejs"
+    - "rehype-pretty-code"
 
 - title: "会社サイトリニューアルの検討と実際：実装編"
   sublabel: "CodeGrid"
