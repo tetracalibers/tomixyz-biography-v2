@@ -97,9 +97,6 @@ sveltekit:
 svg:
   name: SVG
   url: https://developer.mozilla.org/ja/docs/Web/SVG
-svg-filter:
-  name: SVG Filter
-  url: https://developer.mozilla.org/ja/docs/Web/SVG/Tutorials/SVG_from_scratch/Filter_effects
 svg-js:
   name: SVG.js
   url: https://svgjs.dev
