@@ -11,31 +11,39 @@ tags:
   - cf-pages
   - css
   - rehype-pretty-code
-description: 経歴、活動の記録やブログがすべて詰まった当サイト
+description: 経歴、活動の記録やブログを統合した当サイト
 ---
 
-コンテンツコレクション周りが大きく進化したAstro 5、シンタックスがRuneによって一新されたSvelte 5、設定ファイル周りの仕様が大きく変わったtailwind 4、…
+[tomixy's biography](/projects/tomixyz-biography)というポートフォリオサイトを長く運用してきましたが、Astroのテーマを上書きしていたこともあり、だんだんとスタイルや機能の拡張が難しくなってきていました。
 
-これらが出揃ったタイミングで、tomixyz-biographyを最新の技術スタックで一から作り直すことを決めた
+そんな頃、サイトで利用していた技術にも大きな変化が訪れました。
+コンテンツコレクション周りが大きく進化した[Astro 5.0](https://astro.build/blog/astro-5/)、シンタックスが[Rune](https://svelte.jp/docs/svelte/what-are-runes)によって一新された[Svelte 5](https://svelte.jp/)、設定ファイル周りの仕様も大きく変わった[Tailwind CSS v4.0](https://tailwindcss.com/blog/tailwindcss-v4)、…
+
+これらが出揃ったタイミングで、tomixy's biographyを最新の技術スタックで一から作り直すことを決めました。
+そうしてできたのが、当サイトです。
+
+## 情報の分類を見直し
 
 更新することが楽しくなるように、また、新機能も追加しやすいように再構築した
 
-## 少し遊び心を加えたデザイン
+- TutorialはRecipeに改名
 
-## likeページを新設
+## Likeページを新設
 
-## tailwind cssから乗り換え
+## 少し遊び心を加えたデザインに
 
-新しいCSSを積極的に試す場にもしたいため、tailwind cssは剥がし、スタイルはすべて素のCSSでリライト。
+## Tailwind CSSを剥がす
+
+新しいCSSの機能による設計を積極的に試す場にもしたいため、Tailwind CSSは剥がし、スタイルはすべて素のCSSでリライトしました。
 layerやlight-darkなどのモダンなCSSにより、v1と比べてスタイル管理の見通しが良くなった。
 
 ## OGP画像の生成には@vercel/ogを使用
 
-## Cloudflare pagesでデプロイ
+## Cloudflare Pagesでデプロイ
 
-公開前のプレビュー環境を整えるため、github pagesからCloudflare pagesに移行。
+公開前のプレビュー環境を整えるため、GitHub PagesからCloudflare Pagesに移行。
 
-プレビューブランチではOGP画像の生成をスキップするなど、cf-pagesが提供する環境変数によって柔軟な制御ができるのも魅力
+プレビューブランチではOGP画像の生成をスキップするなど、Cloudflare Pagesが提供する環境変数によって柔軟な制御ができるのも魅力
 
 ## シリーズ機能
 
