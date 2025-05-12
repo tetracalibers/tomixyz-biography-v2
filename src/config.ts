@@ -19,7 +19,7 @@ export const CATEGORY_META = {
   },
   projects: {
     title: "Projects",
-    subtitle: "個人で開発しているもの"
+    subtitle: "個人的に作ったもの"
   },
   recipes: {
     title: "Recipes",
