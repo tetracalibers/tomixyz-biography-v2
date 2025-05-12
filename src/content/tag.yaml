@@ -31,6 +31,9 @@ glsl:
 graphql:
   name: GraphQL
   url: https://graphql.org/
+hast:
+  name: hast
+  url: https://github.com/syntax-tree/hast
 html:
   name: HTML
   url: https://developer.mozilla.org/ja/docs/Web/HTML
