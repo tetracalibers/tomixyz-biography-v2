@@ -11,6 +11,55 @@ tags:
   - css
   - vuejs
   - slidev
+  - devtools
 ---
 
-[独自のアニメーションパフォーマンス計測結果](https://github.com/tetracalibers/parse-chrome-performance-profile)を交えながら、CSSのレンダリングの仕組みを図解し、暗記不要なパフォーマンス改善の原理を解説。
+import { Image } from "astro:assets"
+import FigureBox from "$/components/image-wrapper/FigureBox.astro"
+import GridGallery from "$/components/placement/GridGallery.astro"
+import VStack from "$/components/placement/VStack.astro"
+import img_04 from "../../assets/events/techfeed-14/export-04.png"
+import img_08 from "../../assets/events/techfeed-14/export-08.png"
+import img_06 from "../../assets/events/techfeed-14/export-06.png"
+import img_07 from "../../assets/events/techfeed-14/export-07.png"
+import img_09 from "../../assets/events/techfeed-14/export-09.png"
+import img_10 from "../../assets/events/techfeed-14/export-10.png"
+import img_11 from "../../assets/events/techfeed-14/export-11.png"
+import img_12 from "../../assets/events/techfeed-14/export-12.png"
+import img_13 from "../../assets/events/techfeed-14/export-13.png"
+
+[TechFeed Experts Night 14](https://techfeed.io/events/techfeed-experts-night-14)というオンラインイベントで、人生初登壇を果たしました。
+
+CSSのレンダリングの仕組みを解説した上で、バグを踏まずにパフォーマンスも良好なCSSアニメーションの手法を紹介するという、8分間で「暗記不要なパフォーマンス改善の原理を理解する」コンセプトでLTを行いました。
+
+<FigureBox src={img_04} />
+
+## CSSのレンダリングの仕組みを図解
+
+<GridGallery col={4} sp_col={1}>
+  <Image src={img_06} class="-c-span-2 -sp-c-span-1" alt="" />
+  <Image src={img_07} class="-c-span-2 -sp-c-span-1" alt="" />
+  <Image src={img_09} class="-c-span-2-4 -sp-c-span-1" alt="" />
+</GridGallery>
+
+## なぜ`top`ではなく`translate`を使うべきか？
+
+<VStack>
+  <GridGallery col={4} sp_col={1}>
+    <Image src={img_10} class="-c-span-2-4 -sp-c-span-1" alt="" />
+    <Image src={img_11} class="-c-span-2 -sp-c-span-1" alt="" />
+    <Image src={img_12} class="-c-span-2 -sp-c-span-1" alt="" />
+  </GridGallery>
+
+  <Image src={img_13} alt="" />
+</VStack>
+
+## Chrome DevToolsのProfile.jsonを解析して実証
+
+Chromeのパフォーマンス計測で取得できるProfile.jsonを解析し、CSSのレンダリング各フェーズごとにかかっている時間を抽出するスクリプトを自作
+
+- [GitHub: Profile.jsonの解析スクリプトと計測結果](https://github.com/tetracalibers/parse-chrome-performance-profile)
+
+## 余談：「blurは重い」から広がった興味
+
+<FigureBox src={img_08} />
