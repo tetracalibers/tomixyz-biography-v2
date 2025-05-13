@@ -8,6 +8,7 @@ github: https://github.com/codegrid/codegrid-12th-movie-opening
 tags:
   - react
   - remotion
+  - svg
 description: "テトリス風オープニング動画をReactで実装"
 ---
 
@@ -15,19 +16,19 @@ import { YouTube } from "astro-embed"
 import ContentWithImage from "$/components/image-wrapper/ContentWithImage.astro"
 import img_OpeningMoviewGif from "../../assets/events/codegrid-12th-party/opening-movie.gif"
 
-2024年5月10日に開催された[CodeGrid12周年記念パーティー](https://www.codegrid.net/events/12/)にスタッフとして出席。
+2024年5月10日に開催された[CodeGrid12周年記念パーティー](https://www.codegrid.net/events/12/)にスタッフとして初参加しました。
 
 ## 記念動画をYouTubeで公開中
 
-過去に何度も開催されたCodeGridパーティーだが、今回は初の試みとして、LTなどを収録したオリジナル動画を制作。
+過去に何度も開催されたCodeGridパーティーですが、今回は初の試みとして、LTなどを収録したオリジナル動画を制作しました。
 
 <YouTube id="adLpGIU1oSA" />
 
 ## テトリス風のオープニング制作を担当
 
-私は動画の冒頭部分、テトリス風のCodeGridロゴムービーの制作を担当した。
+私は動画の冒頭部分、テトリス風のCodeGridロゴムービーの制作を担当しています。
 
 <ContentWithImage src={img_OpeningMoviewGif} optimization={false} />
 
-このテトリス風動画は、[Remotion](https://www.remotion.dev/)というReactライブラリを使って実装している。
-テトリスの各ブロックはSVGで描画し、落下中のブロック位置などもすべてコーディングによって制御した。
+このテトリス風動画は、実は[Remotion](https://www.remotion.dev/)というReactライブラリを使って実装しています。
+テトリスの各ブロックはSVGで描画し、落下中のブロック位置などもすべてプログラムによって制御しました。
