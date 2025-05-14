@@ -10,17 +10,19 @@ interface Props {
     maxHeight: string
     bgColor: string
   }
+  maxWidth?: string
 }
 
-const { src, alt = "", caption, optimization = true, responsive } = Astro.props
+const { src, alt = "", caption, optimization = true, responsive, maxWidth } = Astro.props
 ---
 
-<figure class="FigureBox" class:list={[{ "-responsive": responsive }]}>
+<figure class="FigureBox" class:list={[{ "-responsive": responsive, "-has-max-width": maxWidth }]}>
   {caption && <figcaption class="_caption">{caption}</figcaption>}
   {optimization ? <Image src={src} alt={alt} /> : <img src={src.src} alt={alt} />}
 </figure>
 
-<style define:vars={{ "r-max-height": responsive?.maxHeight, "r-bg-color": responsive?.bgColor }}>
+<style define:vars={{ "max-width": maxWidth, "r-max-height": responsive?.maxHeight, "r-bg-color": responsive?.bgColor }}
+>
   .FigureBox {
     --_title-border: #6e85b7;
     --_padding: clamp(0.2rem, 2.5vw, 0.75rem);
@@ -93,5 +95,10 @@ const { src, alt = "", caption, optimization = true, responsive } = Astro.props
     box-sizing: border-box;
     object-position: center;
     background-color: var(--r-bg-color);
+  }
+
+  .-has-max-width {
+    max-width: var(--max-width);
+    margin-inline: auto;
   }
 </style>
