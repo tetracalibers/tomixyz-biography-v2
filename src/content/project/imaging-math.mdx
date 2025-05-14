@@ -10,8 +10,31 @@ tags:
 description: LaTeXで組版されたグラフィカルな数学ノート
 ---
 
-### 3部構成で独自のストーリーを展開
+import { Image } from "astro:assets"
+import FigureBox from "$/components/image-wrapper/FigureBox.astro"
+import VStack from "$/components/placement/VStack.astro"
+import img_DefinitionBox from "../../assets/projects/imaging-math/definition-box.png"
+import img_TheoremBox from "../../assets/projects/imaging-math/theorem-box.png"
+import img_ProofBox from "../../assets/projects/imaging-math/proof-box.png"
+import img_ReviewBox from "../../assets/projects/imaging-math/review-box.png"
+import img_SupplenoteBox from "../../assets/projects/imaging-math/supplnote-box.png"
+import img_EmphasisBox from "../../assets/projects/imaging-math/emphasis-box.png"
 
-### subfilesで分割して管理
+## 3部構成で独自のストーリーを展開
 
-### 図版はすべてTikZで
+## subfilesで分割して管理
+
+## tcolorboxで独自の枠を作成
+
+<VStack>
+  <FigureBox src={img_DefinitionBox} maxWidth="800px" />
+  <FigureBox src={img_TheoremBox} maxWidth="800px" />
+  <FigureBox src={img_ProofBox} maxWidth="800px" />
+  <FigureBox src={img_ReviewBox} maxWidth="800px" />
+  <FigureBox src={img_SupplenoteBox} maxWidth="800px" />
+  <FigureBox src={img_EmphasisBox} maxWidth="800px" />
+</VStack>
+
+## 図版はすべてTikZで
+
+## 章ごとのコンパイルと公開用HTMLの生成
