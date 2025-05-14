@@ -1,0 +1,145 @@
+---
+title: CSS Animation パフォーマンスを考える原理
+date: "2023-03-01"
+description: TODO
+tags:
+  - css
+draft: true
+---
+
+import FigureBox from "$/components/image-wrapper/FigureBox.astro"
+import img_03 from "../../assets/topics/techfeed-14-slides/slide-03.png"
+import img_04 from "../../assets/topics/techfeed-14-slides/slide-04.png"
+import img_06 from "../../assets/topics/techfeed-14-slides/slide-06.png"
+import img_07 from "../../assets/topics/techfeed-14-slides/slide-07.png"
+import img_08 from "../../assets/topics/techfeed-14-slides/slide-08.png"
+import img_09 from "../../assets/topics/techfeed-14-slides/slide-09.png"
+import img_10 from "../../assets/topics/techfeed-14-slides/slide-10.png"
+import img_11 from "../../assets/topics/techfeed-14-slides/slide-11.png"
+import img_12 from "../../assets/topics/techfeed-14-slides/slide-12.png"
+import img_13 from "../../assets/topics/techfeed-14-slides/slide-13.png"
+import img_14 from "../../assets/topics/techfeed-14-slides/slide-14.png"
+import img_15 from "../../assets/topics/techfeed-14-slides/slide-15.png"
+import img_16 from "../../assets/topics/techfeed-14-slides/slide-16.png"
+import img_17 from "../../assets/topics/techfeed-14-slides/slide-17.png"
+
+> [!important]
+> この記事は、[TechFeed Experts Night 14](/events/techfeed-14)でのLT発表をベースに文章を再編成したものです。
+
+ブラウザのレンダリングの大まかな仕組みから、CSSアニメーションのパフォーマンスを予測できるようになろう、というお話をしたいと思います。
+
+実際にChromeで計測した数値を交えながら、使うプロパティによってどれだけパフォーマンスの差が生まれるか、なぜ違いが生まれるのかを解明し、最後に未来のお話にも触れていきます。
+
+## Webページはデジタル絵画
+
+ブラウザで表示されたWebサイトを、一枚のデジタル絵画に見立てて考えてみることにしましょう。
+
+すると、アニメーションとは、
+
+> 完成された絵画の一部を破壊し、新しく書き換えることを瞬時に何度も繰り返して行うこと
+
+という解釈を与えることができます。
+
+<FigureBox src={img_04} />
+
+絵を描くことは、下書き、ペン入れ、色塗り、あとは別レイヤーで用意した部品を重ねる合成処理など、いくつかの段階を踏んで行われます。
+
+下書きからやり直すとなると、当然時間がかかります。
+
+このCSSプロパティの値を変えたときに、絵画がどこまで壊れるか、どの段階からやり直さなければならないか、を知ることで、CSSアニメーションのパフォーマンスを予測できるようになります。
+
+## CSSの描画手順
+
+CSSが解釈された後に、Webページが描かれていく過程は、人間が絵を描く手順と大体同じです。
+
+<FigureBox src={img_06} />
+
+まずはレイアウト、各要素の位置と大きさを決めて、要素のボックスを並べていきます。
+
+位置と構成が決まったら、次はペイント、実際に輪郭を描いたり、色を塗ったりしていきます。
+
+最後に、レイヤーに分けて描いていた各部品を合成して、完成です。
+
+### 1. Layout
+
+Layout段階で適用されるプロパティは、いずれも値を変更すれば周囲の要素の位置や大きさにも影響が及ぶものです。
+
+<FigureBox src={img_07} />
+
+ここで登場したプロパティをアニメーションさせると、ドミノ倒しのように周辺のパーツが壊れてしまい、広範囲にわたって下書きからすべてやり直すことになります。
+
+### 2. Paint
+
+Paint段階で適用されるのは、各要素に閉じたスタイルなので、値を変えたときにレイアウトをやり直す必要はありません。
+
+しかし、領域内のピクセル一つ一つを塗りつぶす処理が走ることになるので、Paintはレンダリングの中でも最も時間がかかります。
+
+<FigureBox src={img_08} />
+
+ペイント処理が必要になるプロパティの中でも、特に重いものが、`box-shadow{:css}`です。
+
+影は無数のピクセルによって構成されていますが、そのピクセルごとに、ぼかし半径分だけ周囲のピクセルを調べて、色を混合する処理が発生します。
+
+ぼかし半径が大きければ大きいほど、膨大な数のピクセルを調べることになるので、当然重くなります。
+
+<FigureBox src={img_09} />
+
+また、`border-radius{:css}`と併用すると、曲線を滑らかにするためにさらにピクセルを細分化して濃淡をつける処理が発生するため、ますます重くなります。
+
+<FigureBox src={img_10} />
+
+`box-shadow{:css}`をアニメーションさせたい時は、あらかじめ擬似要素に`box-shadow{:css}`を設定しておいて、その擬似要素の`opacity{:css}`をアニメーションさせると良いでしょう。
+
+また、たくさんの要素に影をつけたい場合には、影をSVGやCSSでブラウザに描画させるのではなく、画像として用意するようにします。
+
+### 3. Composite
+
+最後のステップは、レイヤーの合成です。
+
+ブラウザは、要素を適宜==PaintLayer==と呼ばれる別なレイヤーに振り分けて描画し、それらレイヤーを最後に重ね合わせることによって、最終的な画面を構築します。
+
+<FigureBox src={img_11} />
+
+ところで、アニメーションでCPUに負荷がかかると、CPUが他に行うべきJavaScriptなどの処理が進まなくなってしまうことがあります。
+
+そこで、一定の条件を満たすPaintLayerは、GPUにレンダリング処理を外注するようにします。
+
+このような特別なレイヤーを==合成レイヤー==と呼び、GPUに処理を外注することを==ハードウェアアクセラレーション==と言います。
+
+<FigureBox src={img_12} />
+
+例えば、`transform{:css}`をアニメーションさせた場合、一時的に合成レイヤーが生成されます。
+
+まず、`translate{:css}`させたい要素だけを別のレイヤーに書き出し、それをGPUに送信します。
+
+<FigureBox src={img_13} />
+
+レイヤーには`translate{:css}`させる要素しか描画されておらず、そのほかの部分は透明です。
+
+なので、レイヤーごとちょっとずらして重ね合わせるだけで移動したように見せることができます。
+
+透明フィルムを上から貼り付けるようなイメージです。
+
+<FigureBox src={img_14} />
+
+仮に、`transform{:css}`ではなく、`top{:css}`や`left{:css}`を`transition{:css}`させると、Layout自体が壊れてしまいます。
+
+ブラウザは影響範囲をチェックし、再レンダリングは壊れた箇所だけにとどめようとしますが、それでもペイント処理は広範囲に及びます。
+
+<FigureBox src={img_15} />
+
+再レンダリング処理にかかった時間を計測すると、`top{:css}`と`transform{:css}`では、これほどの違いが生まれます。
+
+<FigureBox src={img_16} />
+
+`transform{:css}`を使った場合は、別レイヤーに書き出すときにしかペイント処理が発生しないので、再レンダリングがかなり短い時間で済むことがわかります。
+
+レイヤーの合成だけで済ませることで、処理は確かに軽くなりますが、レイヤーの存在自体は非常に重く、メモリを大量に消費するものです。
+
+わざと3Dの指定を入れたり、will-changeプロパティを指定することで、レイヤーを無理やり生成させる手法は、スマートフォンではむしろ負荷が大きくなるリスクがあります。
+
+iOSのChromeでは、GPU処理を伴うtransform、opacityなどをtransitionさせたときに、フレームレートが落ちて瞬時にアニメーション終了後の表示になってしまうバグに遭遇することもあります。
+
+とはいえ、このバグも解決の未来は近そうです。
+
+<FigureBox src={img_17} />
