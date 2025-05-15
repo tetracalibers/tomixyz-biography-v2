@@ -1,21 +1,7 @@
-<div class="DraftAlert prose markdown-alert markdown-alert-caution">
-  <p>
-    この記事は<code>draft</code>に設定されています。<wbr />プロダクションビルド時には除外されます。
-  </p>
-</div>
+---
+import DevAlertBase from "./DevAlertBase.astro"
+---
 
-<style>
-  .DraftAlert {
-    margin-block: 0;
-    margin-inline: calc(50% - 50vw);
-    background: var(--alert-theme-color);
-    text-align: center;
-    font-weight: bold;
-  }
-  .DraftAlert p {
-    color: aliceblue;
-    font-size: clamp(1rem, 0.965rem + 0.15vw, 1.1rem);
-    word-break: keep-all;
-    overflow-wrap: anywhere;
-  }
-</style>
+<DevAlertBase>
+  この記事は<code>draft</code>に設定されているため、プロダクションビルド時には除外されます。
+</DevAlertBase>
