@@ -16,9 +16,6 @@ devtools:
 excel:
   name: Excel
   url: https://www.microsoft.com/ja-jp/microsoft-365/excel
-gh-pages:
-  name: GitHub Pages
-  url: https://docs.github.com/ja/pages
 git:
   name: Git
   url: https://git-scm.com/
