@@ -11,7 +11,7 @@ interface Props {
 
 const { links } = Astro.props
 
-const isEmpty = links.some((link) => !link.url)
+const isEmpty = links.every((link) => !link.url)
 ---
 
 {
