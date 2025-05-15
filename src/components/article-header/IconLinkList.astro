@@ -10,20 +10,24 @@ interface Props {
 }
 
 const { links } = Astro.props
+
+const isEmpty = links.some((link) => !link.url)
 ---
 
-<ul class="IconLinkList">
-  {
-    links.map(
-      ({ url, label, icon }) =>
-        url && (
-          <li>
-            <IconLink url={url} label={label} icon={icon} />
-          </li>
-        )
-    )
-  }
-</ul>
+{
+  !isEmpty && (
+    <ul class="IconLinkList">
+      {links.map(
+        ({ url, label, icon }) =>
+          url && (
+            <li>
+              <IconLink url={url} label={label} icon={icon} />
+            </li>
+          )
+      )}
+    </ul>
+  )
+}
 
 <style>
   .IconLinkList {
