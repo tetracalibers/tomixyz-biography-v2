@@ -1,0 +1,62 @@
+---
+title: cgmonolog-english
+date: "2025-05-01"
+image: ../../assets/projects/cgmonolog-english/take-out-of-context-page.png
+url: https://cgmonolog-english.pages.dev/
+#github: https://github.com/tetracalibers/cgmonolog-english
+tags:
+  - svelte
+  - astro
+  - web-speech-api
+description: 英語でつぶやく「CGエンジニアのひとり言」集
+---
+
+import { Image } from "astro:assets"
+import GridGallery from "$/components/placement/GridGallery.astro"
+import FigureBox from "$/components/image-wrapper/FigureBox.astro"
+
+import img_PieceTypes from "../../assets/projects/cgmonolog-english/piece-types.png"
+import img_MorePiecePage from "../../assets/projects/cgmonolog-english/more-piece-page.png"
+import img_BeforeHideJapanese from "../../assets/projects/cgmonolog-english/before-hide-japanese.png"
+import img_AfterHideJapanese from "../../assets/projects/cgmonolog-english/after-hide-japanese.png"
+import img_RepeatOnSpeed075x from "../../assets/projects/cgmonolog-english/repeat-on-speed-075x.png"
+
+CG分野の洋書を読むことが好きですが、まだまだ知らないフレーズばかりで苦労しています。
+英語の語彙力を高めたい、でも巷の英単語集や英語フレーズ集に載っている日常生活を題材にした例文は正直退屈で…
+
+そこで、ChatGPTの力を借りながら、CG用語が多く登場する、CG開発の文脈で使われそうな例文を集めていくことにしました。
+
+## 文中での役割ごとにフレーズを分類
+
+Haru先生の[パズル英会話](https://www.puzzle-eikaiwa.com/)の考え方に則って、自分でフレーズの位置付けを考えながら整理しています。
+
+<FigureBox src={img_PieceTypes} responsive={{ maxHeight: "360px", bgColor: "white" }} />
+
+## 読む力を鍛える「和訳を隠す」モード
+
+私の英語学習の一番の目的は、読んで理解できる英文の幅を広げることです。
+そこで、赤シートのような「和訳を隠す」モードを用意しました。
+
+<GridGallery col={8} sp_col={2}>
+  <Image class="-c-span-3-5 -sp-c-span-1" alt="" src={img_BeforeHideJapanese} />
+  <Image class="-c-span-3 -sp-c-span-1" alt="" src={img_AfterHideJapanese} />
+</GridGallery>
+
+## Web Speech APIを使った音声読み上げ
+
+[Web Speech API](https://developer.mozilla.org/ja/docs/Web/API/Web_Speech_API)の音声合成機能（`SpeechSynthesis{:js}`）を利用して、リスニング練習のための音声読み上げ機能も実装しました。
+再生ボタンをはじめとするコントロールUIはSvelteで実装し、リピート再生と5段階の速度調整にも対応しています。
+
+<FigureBox src={img_RepeatOnSpeed075x} responsive={{ maxHeight: "250px", bgColor: "white" }} />
+
+## SVGアイコンの管理とスプライト化
+
+このサイトではSVGアイコンを多用するため、ページ内の同じアイコンを自動的にスプライト化してくれる[Astro Icon](https://www.astroicon.dev/)というライブラリを利用しています。
+
+<FigureBox src={img_MorePiecePage} responsive={{ maxHeight: "330px", bgColor: "white" }} />
+
+しかし、Astro Iconのアイコン表示コンポーネントは、`.svelte`ファイルでは使えません。
+`.svelte`ファイルでは、[Unplugin Icons](https://iconify.design/docs/usage/svg/unplugin/)というライブラリを使ってSVGアイコンを表示しています。
+
+Astro IconやUnplugin Iconsを利用することで、[iconify](https://icon-sets.iconify.design/)にあるアイコンを簡単に利用できるようになります。
+どちらもローカルに`npm install`した`@iconify-json/*`パッケージからアイコンを取得する仕組みになっているため、アイコンのデータを二重に持つ必要もなく、共存が可能です。

@@ -1,6 +1,7 @@
 ---
 import { getCollection, type CollectionEntry, render } from "astro:content"
 import ProjectLayout from "$/layouts/project.astro"
+import { isDev, isPreviewBranch } from "$/lib/environment"
 
 import "$/styles/prose-use-marker.css"
 
@@ -22,13 +23,14 @@ const { page } = Astro.props
 const { slug } = Astro.params
 
 const { data } = page
-const { meta } = data
+const { meta, editing } = data
 
 const { Content } = await render(page)
+const isShowContent = isDev() || isPreviewBranch() || !editing
 
 const ogimage = `/og/projects/${slug}.png`
 ---
 
 <ProjectLayout content={page.data} meta={{ ogimage, ...meta }}>
-  <Content />
+  {isShowContent && <Content />}
 </ProjectLayout>

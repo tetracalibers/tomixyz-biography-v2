@@ -194,6 +194,12 @@ pre[data-language="css"]::before {
 pre[data-language="svg"]::before {
   content: "SVG";
 }
+pre[data-language="md"]::before {
+  content: "Markdown";
+}
+pre[data-language="mdx"]::before {
+  content: "MDX";
+}
 pre[data-language="rs"]::before {
   content: "Rust";
 }

@@ -2,15 +2,86 @@
 title: TechFeed Experts Night 14
 date: "2023-03-01"
 url: https://techfeed.io/events/techfeed-experts-night-14
-slide: https://tetracalibers.github.io/TechFeedEN-14-LT/
+slide: /pdf/techfeed-14.pdf
 github: https://github.com/tetracalibers/TechFeedEN-14-LT
 archive: https://techfeed.io/entries/642a4f645522db5e89a6640c
-image: ../../assets/events/techfeed-14/1.png
+image: "../../assets/topics/techfeed-14-slides/slide-01.png"
 description: LT「CSS Animation パフォーマンスを考える原理」
 tags:
   - css
   - vuejs
   - slidev
+  - devtools
 ---
 
-[独自のアニメーションパフォーマンス計測結果](https://github.com/tetracalibers/parse-chrome-performance-profile)を交えながら、CSSのレンダリングの仕組みを図解し、暗記不要なパフォーマンス改善の原理を解説。
+import { Image } from "astro:assets"
+import FigureBox from "$/components/image-wrapper/FigureBox.astro"
+import GridGallery from "$/components/placement/GridGallery.astro"
+import VStack from "$/components/placement/VStack.astro"
+import img_04 from "../../assets/topics/techfeed-14-slides/slide-04.png"
+import img_09 from "../../assets/topics/techfeed-14-slides/slide-09.png"
+import img_07 from "../../assets/topics/techfeed-14-slides/slide-07.png"
+import img_08 from "../../assets/topics/techfeed-14-slides/slide-08.png"
+import img_11 from "../../assets/topics/techfeed-14-slides/slide-11.png"
+import img_12 from "../../assets/topics/techfeed-14-slides/slide-12.png"
+import img_13 from "../../assets/topics/techfeed-14-slides/slide-13.png"
+import img_14 from "../../assets/topics/techfeed-14-slides/slide-14.png"
+import img_15 from "../../assets/topics/techfeed-14-slides/slide-15.png"
+import img_16 from "../../assets/events/techfeed-14/slide-16.png"
+
+[TechFeed Experts Night 14](https://techfeed.io/events/techfeed-experts-night-14)というオンラインイベントで、人生初登壇を果たしました。
+
+CSSのレンダリングの仕組みを解説した上で、バグを踏まずにパフォーマンスも良好なCSSアニメーションの手法を紹介するという、8分間で「暗記不要なパフォーマンス改善の原理を理解する」コンセプトでLTを行いました。
+
+<Image src={img_04} alt="" />
+
+## CSSのレンダリングの仕組みを図解
+
+CSSアニメーションのパフォーマンスを考察するには、「このCSSプロパティの値を変更すると、どの描画ステップまで影響を及ぼすか？」という視点を持つことが大切だと考えています。
+
+そこで、ブラウザの描画がどのような手順で行われるのか、関連するCSSプロパティと合わせて解説を行いました。
+
+<GridGallery col={4} sp_col={1}>
+  <Image src={img_07} class="-c-span-2 -sp-c-span-1" alt="" />
+  <Image src={img_08} class="-c-span-2 -sp-c-span-1" alt="" />
+  <Image src={img_11} class="-c-span-2-4 -sp-c-span-1" alt="" />
+</GridGallery>
+
+## なぜ`top`ではなく`translate`を使うべきか？
+
+位置を移動させるアニメーションでは、`top{:css}`プロパティや`left{:css}`プロパティよりも、transformプロパティを使うべきだと言われています。
+
+今回のLTでは、それはなぜなのか？という原理まで踏み込んだ解説を盛り込みました。
+
+<VStack>
+  <GridGallery col={4} sp_col={1}>
+    <Image src={img_12} class="-c-span-2-4 -sp-c-span-1" alt="" />
+    <Image src={img_13} class="-c-span-2 -sp-c-span-1" alt="" />
+    <Image src={img_14} class="-c-span-2 -sp-c-span-1" alt="" />
+  </GridGallery>
+
+  <Image src={img_15} alt="" />
+</VStack>
+
+## Chrome DevToolsのProfile.jsonを解析して実証
+
+概念的な説明だけでなく、数値でも比較することで、より実感を得られる構成にしました。
+
+CSSのレンダリング各フェーズごとにかかっている時間は、Chromeのパフォーマンス計測で取得できるProfile.jsonを独自のスクリプトで解析することで算出しています。
+
+- [Profile.jsonの解析スクリプトと計測結果 - GitHub](https://github.com/tetracalibers/parse-chrome-performance-profile)
+
+<Image src={img_16} alt="" />
+
+## 余談：「blurは重い」から広がった興味
+
+<Image src={img_09} alt="" />
+
+このような内容の発表に至ったのは、会社の先輩から「blurは重い」という話を聞いたことがきっかけでした。
+
+それまでの私にとって、ブラウザは完全なブラックボックスで、CSSは絵を描いてくれる魔法でしかなかったのです。
+画面の裏では膨大な処理が走っていて、CSSプロパティごとにその「重さ」が異なるということに、目を向けたことはありませんでした。
+
+それ以来、ブラウザのレンダリングの仕組みに興味を持ち、個人的に調べた内容をわかりやすい図解でまとめようと試みたのが、今回のLTです。
+
+このLT発表を経て、さらにレンダリングへの興味は加速しました。「blurは重い」ということを体感するために、GLSLでblurを再現実装する…などといった実験もするようになりましたが、それはまた別の機会にお話ししようと思います。

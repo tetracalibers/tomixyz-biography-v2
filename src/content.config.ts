@@ -27,12 +27,14 @@ const project = defineCollection({
       image: image(),
       url: z.string().url().optional(),
       github: z.string().url().optional(),
+      npm: z.string().url().optional(),
       pdf: z
         .object({
           file: z.string().endsWith(".pdf"),
           label: z.string()
         })
-        .optional()
+        .optional(),
+      editing: z.boolean().default(false)
     })
 })
 
@@ -54,7 +56,8 @@ const event = defineCollection({
       archive: z.string().url().optional(),
       youtube: z.string().url().optional(),
       github: z.string().url().optional(),
-      tags: z.array(reference("tag")).default([])
+      tags: z.array(reference("tag")).default([]),
+      editing: z.boolean().default(false)
     })
 })
 

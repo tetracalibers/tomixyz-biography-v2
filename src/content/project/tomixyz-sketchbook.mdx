@@ -1,0 +1,27 @@
+---
+title: tomixy's sketchbook
+date: "2025-04-21"
+image: ../../assets/projects/tomixyz-sketchbook/webgpu-waved-circular-lined-texture-page.png
+url: https://tomixyz-sketchbook.pages.dev/
+#github: https://github.com/tetracalibers/tomixyz-sketchbook
+tags:
+  - webgpu
+  - wgsl
+  - astro
+  - starlight
+description: 主にWebGPUの素振りをするためのデモ置き場
+---
+
+import FigureBox from "$/components/image-wrapper/FigureBox.astro"
+
+import img_PageSample from "../../assets/projects/tomixyz-sketchbook/compute-visualize-workgroup-global-page.png"
+
+当サイトの[Recipes](/recipes/1)で執筆しているWebGPU記事のデモを置くために作成したサイトです。
+
+## デモとコードを合わせて掲載
+
+Astroベースのドキュメントサイトジェネレータ[Starlight](https://starlight.astro.build/ja/)を利用し、デモとそのコードを合わせて確認できるようにしています。
+
+Starlightでは、タブパネルやコピペ機能付きのコードブロックなど、便利なコンポーネントがあらかじめ用意されています。これらの組み込みコンポーネントを利用することで、タブ切り替えにより複数ファイルのコードを確認できる表示も簡単に実現できました。
+
+<FigureBox src={img_PageSample} />

@@ -1,0 +1,29 @@
+---
+import { isDev, isPreviewBranch } from "$/lib/environment"
+
+const isShowAlert = isDev() || isPreviewBranch()
+---
+
+{
+  isShowAlert && (
+    <div class="DevAlert prose markdown-alert markdown-alert-caution">
+      <p>
+        <slot />
+      </p>
+    </div>
+  )
+}
+
+<style>
+  .DevAlert {
+    margin-block: 0;
+    margin-inline: calc(50% - 50vw);
+    background: var(--alert-theme-color);
+    text-align: center;
+    font-weight: bold;
+  }
+  .DevAlert p {
+    color: aliceblue;
+    font-size: clamp(1rem, 0.965rem + 0.15vw, 1.1rem);
+  }
+</style>

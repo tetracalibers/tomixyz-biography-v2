@@ -1,0 +1,51 @@
+---
+title: tomixy's biography
+date: "2023-07-29"
+image: ../../assets/projects/tomixyz-biography/top-page-light-en.png
+url: https://tetracalibers.github.io/tomixyz-biography/
+github: https://github.com/tetracalibers/tomixyz-biography
+tags:
+  - astro
+  - svelte
+  - tailwind-css
+  - rehype-pretty-code
+  - gh-pages
+  - css
+  - svg
+description: 当サイトの旧バージョン
+editing: true
+---
+
+import { Image } from "astro:assets"
+import FigureBox from "$/components/image-wrapper/FigureBox.astro"
+import GridGallery from "$/components/placement/GridGallery.astro"
+import VStack from "$/components/placement/VStack.astro"
+
+import img_CodeBlockColorPreview from "../../assets/projects/tomixyz-biography/code-block-color-preview.png"
+import img_TagsLight from "../../assets/projects/tomixyz-biography/tags-light.png"
+import img_TagsDark from "../../assets/projects/tomixyz-biography/tags-dark.png"
+
+元々は活動経歴などをNotionで公開していましたが、Web制作者たるもの、自分で作ったサイトを持ちたくなるものです。
+Astroが手に馴染んできたこともあり、[Astro Ink](https://astro.build/themes/details/astro-ink/)というAstroのテーマをベースとしたポートフォリオサイトを制作しました。
+
+## 情報の分類
+
+## Light/Darkで異なる魅力を放つデザインに
+
+特にタグと背景グラデーションにこだわった
+
+<VStack>
+  <FigureBox src={img_TagsLight} />
+  <FigureBox src={img_TagsDark} />
+</VStack>
+
+## コードブロックの色プレビューは自作
+
+コードブロックのシンタックスハイライトには[Rehype Pretty Code](https://rehype-pretty.pages.dev/)を採用。
+色プレビューは独自のプラグインとして実装している。
+
+<FigureBox src={img_CodeBlockColorPreview} responsive={{ maxHeight: "230px", bgColor: "#FAFBFC" }} />
+
+## OGP画像はSVG文字列から生成
+
+## 幻の英語版

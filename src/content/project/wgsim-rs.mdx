@@ -1,0 +1,201 @@
+---
+title: wgsim
+date: "2024-12-29"
+image: ../../assets/projects/wgsim-rs/github-opengraph.png
+github: https://github.com/tetracalibers/wgsim-rs
+tags:
+  - rust
+  - wgpu
+  - winit
+description: wgpuとwinitのコードをシンプルに書くためのラッパー
+---
+
+wgsimは、wgpuとwinitを組み合わせて、ウィンドウに描画するためのラッパーライブラリです。
+wgsimの開発を通して、winitで生成したウィンドウに対してwgpuで描画を行う処理を、もっとシンプルに書けないものかと模索しています。
+
+## wgpuとwinitの連携が悩ましい
+
+WebGPU APIのRust実装である[wgpu](https://wgpu.rs/)では、OSウィンドウに描画することもできます。
+
+このとき、OSウィンドウの生成・管理を行うためによく使われるのが、[winit](https://docs.rs/winit/latest/winit/)というクレートです。
+しかし、winitはv0.30からAPIが大きく変更され、winitのコードとwgpuのコードを分けて書くことが難しくなったと感じています。
+
+```rs showLineNumbers {38,41} title="winitでウィンドウを作成するコード（抜粋）"
+use winit::application::ApplicationHandler;
+use winit::dpi::LogicalSize;
+use winit::event::{ElementState, KeyEvent, WindowEvent};
+use winit::event_loop::ActiveEventLoop;
+use winit::keyboard::{KeyCode, PhysicalKey};
+use winit::window::{Window, WindowId};
+
+impl<'a> ApplicationHandler for App<'a> {
+  fn resumed(&mut self, event_loop: &ActiveEventLoop) {
+    let mut window_attributes =
+      Window::default_attributes().with_title(self.window_title);
+
+    if let Some(window_size) = self.window_size {
+      window_attributes = window_attributes.with_max_inner_size(window_size);
+    }
+
+    let window = event_loop.create_window(window_attributes).unwrap();
+    self.window = Some(Arc::new(window));
+  }
+
+  fn window_event(
+    &mut self,
+    event_loop: &ActiveEventLoop,
+    window_id: WindowId,
+    event: WindowEvent,
+  ) {
+    let window = self.window();
+    let window = match &window {
+      Some(window) => window,
+      None => return,
+    };
+    if window.id() != window_id {
+      return;
+    }
+
+    match event {
+      WindowEvent::Resized(_new_size) => {
+        // [wgpuのコード] テクスチャのリサイズなど
+      }
+      WindowEvent::RedrawRequested => {
+        // [wgpuのコード] 状態の更新、描画など
+      }
+      WindowEvent::CloseRequested => {
+        event_loop.exit();
+      }
+      WindowEvent::KeyboardInput {
+        event:
+          KeyEvent {
+            physical_key: PhysicalKey::Code(KeyCode::Escape),
+            state: ElementState::Pressed,
+            ..
+          },
+        ..
+      } => {
+        event_loop.exit();
+      }
+      _ => {}
+    }
+  }
+
+  fn about_to_wait(&mut self, _event_loop: &ActiveEventLoop) {
+    let window = self.window();
+    let window = match &window {
+      Some(window) => window,
+      None => return,
+    };
+    window.request_redraw();
+  }
+}
+```
+
+winitで作成したウィンドウに対してwgpuで描画を行いたい場合、上のコード例の38行目や41行目などに直接wgpuのコードを記述することになります。
+
+しかし、winitのコードもwgpuのコードも、そこそこ長いコードになりがちです。
+これらのコードを混ぜずに、どうにか分けて管理できるようにしようとしたのが、このwgsimというラッパーモジュールです。
+
+## wgsimのコード構造
+
+wgsimでは、winitを使った処理をなるべく隠蔽し、wgpuのコードに集中できるようにしています。
+wgsimを使ってウィンドウに描画を行う完全なコードは、次のような構造になります。
+
+```rust showLineNumbers title="wgsimを使う場合の雛形コード"
+use std::error::Error;
+use std::time::Duration;
+
+use wgsim::app::App;
+use wgsim::ctx::DrawingContext;
+use wgsim::primitive::Size;
+use wgsim::render::Render;
+
+use winit::event::WindowEvent;
+
+// エントリーポイント
+fn main() -> Result<(), Box<dyn Error>> {
+  env_logger::init();
+
+  let initial = setup();
+
+  // wgsim経由でウィンドウを生成し、描画処理を開始
+  let mut app: App<State> = App::new("<window-title>", initial);
+  app.run()?;
+
+  Ok(())
+}
+
+// 初期化時に使うパラメータ群を生成
+fn setup() -> Initial {
+
+  // ex. 画像の読み込みとか
+
+  Initial {}
+}
+
+// 初期化時に使うパラメータを格納する構造体
+struct Initial {}
+
+// 描画時に使うデータを格納する構造体
+struct State {}
+
+// wgsimのRenderトレイトを実装することで、描画サイクルを定義
+impl<'a> Render<'a> for State {
+  // new関数のinitial引数の型を、上で定義したInitial構造体の型に設定
+  type Initial = Initial;
+
+  // 初期化処理はnew関数に書く（必須）
+  async fn new(ctx: &DrawingContext<'a>, initial: &Self::Initial) -> Self {
+    //
+    // deviceやqueueはwgsim側で生成され、ctxに含まれている
+    // ここで自前で行うのは、例えば次の処理
+    // - テクスチャの生成
+    // - バインドグループの作成
+    // - バッファの初期化
+    // - パイプラインの作成
+    // etc.
+    //
+
+    // new関数はState構造体を返すように実装する
+    Self {}
+  }
+
+  // リサイズ時の処理はresize関数に書く（オプション）
+  // 基本的なリサイズ処理（ウィンドウのサイズ変更など）は、すでにwgsimが実装している
+  // それ以外の処理が必要なければ、この関数は実装しないようにする
+  fn resize(&mut self, ctx: &mut DrawingContext<'_>, size: Size) {
+    // 特別なリサイズ処理（テクスチャの再生成など）が必要な場合のみ、ここで上書きする
+  }
+
+  // キーボード操作時などのイベント処理はprocess_event関数に書く（オプション）
+  fn process_event(&mut self, event: &WindowEvent) -> bool {
+    // 何らかの処理を実行したら、trueを返す
+    // 何もしなかった場合は、falseを返す
+    false
+  }
+
+  // 描画を行う前にデータの更新が必要な場合はupdate関数に書く（オプション）
+  // draw関数の直前に呼び出される
+  fn update(&mut self, ctx: &DrawingContext, dt: Duration) {
+    // ex. State構造体のプロパティの値を変更したりとか
+  }
+
+  // 描画処理はdraw関数に書く（必須）
+  // 毎フレームごとに呼び出される
+  fn draw(&mut self, encoder: &mut wgpu::CommandEncoder, render_target_view: &wgpu::TextureView, sample_count: u32) -> Result<(), wgpu::SurfaceError> {
+    // ex. レンダリングパスを生成して、それを使った描画処理を書く
+
+    Ok(())
+  }
+
+  // GPUコマンドの送信処理はsubmit関数に書く（オプション）
+  // draw関数の直後に呼び出される
+  // デフォルトでは、`queue.submit()`と`surface_texture.present()`を行う実装になっている
+  // 上書きする必要がなければ、この関数は実装しない（ほとんどのケースでは不要）
+  fn submit(&self, queue: &wgpu::Queue, encoder: wgpu::CommandEncoder, frame: Option<wgpu::SurfaceTexture>) {
+    // コマンドを送信する前に挟み込みたい処理がある場合は上書きする
+    // ex. draw関数でテクスチャに描画後、そのテクスチャの内容をバッファにコピーするコマンドを追加する
+  }
+}
+```

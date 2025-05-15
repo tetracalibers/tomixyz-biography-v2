@@ -1,6 +1,7 @@
 ---
 import { getCollection, render, type CollectionEntry } from "astro:content"
 import EventLayout from "$/layouts/event.astro"
+import { isDev, isPreviewBranch } from "$/lib/environment"
 
 import "$/styles/prose-use-marker.css"
 
@@ -22,13 +23,14 @@ const { page } = Astro.props
 const { slug } = Astro.params
 
 const { data } = page
-const { meta } = data
+const { meta, editing } = data
 
 const { Content } = await render(page)
+const isShowContent = isDev() || isPreviewBranch() || !editing
 
 const ogimage = `/og/events/${slug}.png`
 ---
 
 <EventLayout content={page.data} meta={{ ogimage, ...meta }}>
-  <Content />
+  {isShowContent && <Content />}
 </EventLayout>

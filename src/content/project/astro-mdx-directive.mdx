@@ -1,0 +1,92 @@
+---
+title: astro-mdx-directive
+date: "2023-10-19"
+image: ../../assets/projects/astro-mdx-directive/github-readme.png
+npm: https://www.npmjs.com/package/astro-mdx-directive
+github: https://github.com/tetracalibers/astro-mdx-directive
+tags:
+  - astro
+  - mdx
+  - remarkjs
+  - hast
+description: AstroのMDXでコンポーネントの簡約記法を実現するライブラリ
+---
+
+Astroでは、[MDXでコンテンツを管理](https://docs.astro.build/ja/guides/markdown-content/)することができますが、次のような悩みが生まれることもありました。
+
+- MDXファイルでいちいちコンポーネントを`import{:js}`するのがめんどくさい
+- Markdownベースで書きたいのに、結局コンポーネントのタグが並んでHTMLみたいな見た目になってしまう…
+
+このような悩みを解決するために、MDXに[ディレクティブ記法](https://github.com/micromark/micromark-extension-directive#syntax)を導入する独自の[Astroインテグレーション](https://docs.astro.build/en/reference/integrations-reference/)を作りました。
+
+## コンポーネントの自動importとディレクティブ記法
+
+このインテグレーションの設定オプションに[コンポーネントを登録](https://github.com/tetracalibers/astro-mdx-directive?tab=readme-ov-file#setting)することで、たとえば次のようなコードを、
+
+```mdx {1,3,11} title="Before：通常のコンポーネント利用"
+import { MediumSection } from "../../components/MediumSection.astro"
+
+<MediumSection icon="circle" iconSize="L">
+  
+### hogehoge
+
+- list item 1
+- list item 2
+- list item 3
+
+</MediumSection>
+```
+
+次のように書くことができるようになります。
+
+```mdx {1,9} title="After：ディレクティブ記法を導入"
+:::MediumSection{icon="circle" iconSize="L"}
+
+### hogehoge
+
+- list item 1
+- list item 2
+- list item 3
+
+:::
+```
+
+このインテグレーションは内部で[astro-auto-import](https://github.com/delucis/astro-auto-import/tree/main/packages/astro-auto-import)を利用しているため、コンポーネントの`import{:js}`文が不要になります。
+さらに、`<MediumSection>{:mdx}`といったタグを、`:::MediumSection{:md}`というようなディレクティブ記法に置き換えることができます。
+
+## HTML要素もディレクティブで簡単に書ける
+
+このインテグレーションは、独自に定義したAstroコンポーネントだけでなく、HTML要素もディレクティブ記法で書くことを可能にします。HTML要素の場合、設定オプションへの登録は不要です。
+
+たとえば、次のようなMDXのコードが、
+
+```mdx
+:::main{#readme}
+
+Lorem:br
+ipsum.
+
+::hr{.red}
+
+A :i[lovely] language know as :abbr[HTML]{title="HyperText Markup Language"}!
+
+:::
+```
+
+次のようなHTMLに変換されるようになります。
+
+{/* prettier-ignore */}
+```html
+<main id="readme">
+  <p>
+    Lorem<br />
+    ipsum.
+  </p>
+  
+  <hr class="red" />
+  
+  <p>
+    A <i>lovely</i> language know as <abbr title="HyperText Markup Language">HTML</abbr>!
+  </p>
+</main>
+```

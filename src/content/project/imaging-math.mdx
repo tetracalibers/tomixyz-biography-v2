@@ -1,0 +1,39 @@
+---
+title: Imaging Math
+date: "2025-02-16"
+image: ../../assets/projects/imaging-math/logic-page.png
+url: https://tomixyz-latex-notes.pages.dev/
+#github: https://github.com/tetracalibers/latex-notes
+tags:
+  - latex
+  - tikz
+description: LaTeXで組版されたグラフィカルな数学ノート
+editing: true
+---
+
+import { Image } from "astro:assets"
+import FigureBox from "$/components/image-wrapper/FigureBox.astro"
+import VStack from "$/components/placement/VStack.astro"
+import img_DefinitionBox from "../../assets/projects/imaging-math/definition-box.png"
+import img_TheoremBox from "../../assets/projects/imaging-math/theorem-box.png"
+import img_ProofBox from "../../assets/projects/imaging-math/proof-box.png"
+import img_ReviewBox from "../../assets/projects/imaging-math/review-box.png"
+import img_SupplenoteBox from "../../assets/projects/imaging-math/supplnote-box.png"
+import img_EmphasisBox from "../../assets/projects/imaging-math/emphasis-box.png"
+
+## 3部構成で独自のストーリーを展開
+
+## subfilesで分割して管理
+
+## tcolorboxで独自の枠を作成
+
+<Image src={img_DefinitionBox} alt="" />
+<Image src={img_TheoremBox} alt="" />
+<Image src={img_ProofBox} alt="" />
+<Image src={img_ReviewBox} alt="" />
+<Image src={img_SupplenoteBox} alt="" />
+<Image src={img_EmphasisBox} alt="" />
+
+## 図版はすべてTikZで
+
+## 章ごとのコンパイルと公開用HTMLの生成

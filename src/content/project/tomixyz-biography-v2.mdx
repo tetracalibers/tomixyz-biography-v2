@@ -1,0 +1,51 @@
+---
+title: tomixy's biography v2
+date: "2025-03-28"
+image: ../../assets/projects/tomixyz-biography-v2/like-page.png
+#github: https://github.com/tetracalibers/tomixyz-biography-v2
+tags:
+  - astro
+  - svelte
+  - svg-js
+  - typescript
+  - cf-pages
+  - css
+  - rehype-pretty-code
+description: 経歴、活動の記録やブログを統合した当サイト
+editing: true
+---
+
+[tomixy's biography](/projects/tomixyz-biography)というポートフォリオサイトを長く運用してきましたが、Astroのテーマを上書きしていたこともあり、だんだんとスタイルや機能の拡張が難しくなってきていました。
+
+そんな頃、サイトで利用していた技術にも大きな変化が訪れました。
+コンテンツコレクション周りが大きく進化した[Astro 5.0](https://astro.build/blog/astro-5/)、シンタックスが[Rune](https://svelte.jp/docs/svelte/what-are-runes)によって一新された[Svelte 5](https://svelte.jp/)、設定ファイル周りの仕様も大きく変わった[Tailwind CSS v4.0](https://tailwindcss.com/blog/tailwindcss-v4)、…
+
+これらが出揃ったタイミングで、tomixy's biographyを最新の技術スタックで一から作り直すことを決めました。
+そうしてできたのが、当サイトです。
+
+## 情報の分類を見直し
+
+更新することが楽しくなるように、また、新機能も追加しやすいように再構築した
+
+- TutorialはRecipeに改名
+
+## Likeページを新設
+
+## 少し遊び心を加えたデザインに
+
+## Tailwind CSSを剥がす
+
+新しいCSSの機能による設計を積極的に試す場にもしたいため、Tailwind CSSは剥がし、スタイルはすべて素のCSSでリライトしました。
+layerやlight-darkなどのモダンなCSSにより、v1と比べてスタイル管理の見通しが良くなった。
+
+## OGP画像の生成には@vercel/ogを使用
+
+## Cloudflare Pagesでデプロイ
+
+公開前のプレビュー環境を整えるため、GitHub PagesからCloudflare Pagesに移行。
+
+プレビューブランチではOGP画像の生成をスキップするなど、Cloudflare Pagesが提供する環境変数によって柔軟な制御ができるのも魅力
+
+## シリーズ機能
+
+## 図版はSVG.jsで

@@ -12,6 +12,7 @@ import ProseGridFill from "$components/prose/ProseGridFill.astro"
 import ArticleSummary from "$components/article-header/layout-1/ArticleSummary.astro"
 import ArticleTitle from "$components/article-header/layout-1/ArticleTitle.astro"
 import TagList from "$components/article-header/TagList.astro"
+import EditingAlert from "$components/dev-alert/EditingAlert.astro"
 
 interface Props {
   content: CollectionEntry<"event">["data"]
@@ -59,6 +60,7 @@ const { content, meta } = Astro.props
         </div>
       </ArticleHeaderBlock>
       <ProseGridFill>
+        {content.editing && <EditingAlert />}
         <slot />
       </ProseGridFill>
     </MainLayout>
