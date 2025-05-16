@@ -1,0 +1,22 @@
+.-pinned:not(:has(+ .-pinned)) {
+  --dot-color: light-dark(var(--slate-300), var(--slate-400));
+  margin-block-end: 2rem;
+  padding-block-end: 2rem;
+  background-image: radial-gradient(circle, var(--dot-color) 2px, transparent 2px);
+  background-position: left bottom;
+  background-repeat: repeat-x;
+  background-size: 20px 4px;
+}
+
+.pin-container {
+  --pin-color: #ff8dc7;
+  position: relative;
+  width: 100%;
+}
+.pin-icon {
+  color: var(--pin-color);
+  font-size: 2rem;
+  position: absolute;
+  top: -1rem;
+  right: -0.75rem;
+}

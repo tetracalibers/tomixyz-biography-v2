@@ -18,7 +18,7 @@ const pageUrl = SITE.base + "/blog/" + id
 <div class="BlogPreview" class:list={[{ "-pinned": post.pinned }]}>
   <div class="inner">
     <div class="date"><PublishDate date={post.date} /></div>
-    <div class="pin-root">
+    <div class="pin-container">
       {post.pinned && <Icon name="fluent-mdl2:pinned-solid" class="pin-icon" />}
       <div class="content">
         <h2 class="title">
@@ -98,30 +98,8 @@ const pageUrl = SITE.base + "/blog/" + id
     color: light-dark(var(--slate-800), white);
   }
 
-  .-pinned:not(:has(+ .-pinned)) {
-    --pin-color: #ff8dc7;
-    --dot-color: light-dark(var(--slate-300), var(--slate-400));
-    margin-block-end: 2rem;
-    padding-block-end: 2rem;
-    background-image: radial-gradient(circle, var(--dot-color) 2px, transparent 2px);
-    background-position: left bottom;
-    background-repeat: repeat-x;
-    background-size: 20px 4px;
-  }
   .-pinned .content {
     border-width: 2px;
-  }
-
-  .pin-root {
-    position: relative;
-    width: 100%;
-  }
-  .pin-icon {
-    color: var(--pin-color);
-    font-size: 2rem;
-    position: absolute;
-    top: -1rem;
-    right: -0.75rem;
   }
 
   .BlogPreview :global(.PublishDate svg) {
