@@ -41,9 +41,6 @@ const pageUrl = SITE.base + "/blog/" + id
     .BlogPreview {
       margin-block-start: -1rem;
     }
-    .-pinned + .BlogPreview {
-      margin-block-start: -2.75rem;
-    }
   }
   .inner {
     display: grid;
@@ -98,6 +95,10 @@ const pageUrl = SITE.base + "/blog/" + id
     color: light-dark(var(--slate-800), white);
   }
 
+  .-pinned:not(:has(+ .-pinned)) {
+    margin-block-end: 1rem;
+    padding-block-end: 2rem;
+  }
   .-pinned .content {
     border-width: 2px;
   }

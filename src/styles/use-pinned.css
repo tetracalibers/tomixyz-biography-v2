@@ -1,7 +1,5 @@
 .-pinned:not(:has(+ .-pinned)) {
   --dot-color: light-dark(var(--slate-300), var(--slate-400));
-  margin-block-end: 2rem;
-  padding-block-end: 2rem;
   background-image: radial-gradient(circle, var(--dot-color) 2px, transparent 2px);
   background-position: left bottom;
   background-repeat: repeat-x;
