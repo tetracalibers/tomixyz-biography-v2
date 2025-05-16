@@ -1,6 +1,6 @@
 ---
 import type { CollectionEntry } from "astro:content"
-import PostPreview from "./BlogPreview.astro"
+import BlogPreview from "./BlogPreview.astro"
 
 interface Props {
   entries: CollectionEntry<"blog">[]
@@ -10,7 +10,7 @@ const { entries } = Astro.props
 ---
 
 <div class="BlogPreviewList">
-  {entries.map((entry) => <PostPreview entry={entry} />)}
+  {entries.map((entry) => <BlogPreview entry={entry} />)}
 </div>
 
 <style>

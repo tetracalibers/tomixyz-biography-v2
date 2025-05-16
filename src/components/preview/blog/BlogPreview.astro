@@ -2,6 +2,7 @@
 import type { CollectionEntry } from "astro:content"
 import PublishDate from "./PublishDate.astro"
 import { SITE } from "$/config"
+import { Icon } from "astro-icon/components"
 
 interface Props {
   entry: CollectionEntry<"blog">
@@ -14,16 +15,19 @@ const {
 const pageUrl = SITE.base + "/blog/" + id
 ---
 
-<div class="BlogPreview">
+<div class="BlogPreview" class:list={[{ "-pinned": post.pinned }]}>
   <div class="inner">
     <div class="date"><PublishDate date={post.date} /></div>
-    <div class="content">
-      <h2 class="title">
-        <a href={pageUrl}>{post.title}</a>
-      </h2>
-      <p class="desc">
-        {post.description}
-      </p>
+    <div class="pin-root">
+      {post.pinned && <Icon name="fluent-mdl2:pinned-solid" class="pin-icon" />}
+      <div class="content">
+        <h2 class="title">
+          <a href={pageUrl}>{post.title}</a>
+        </h2>
+        <p class="desc">
+          {post.description}
+        </p>
+      </div>
     </div>
   </div>
 </div>
@@ -37,6 +41,9 @@ const pageUrl = SITE.base + "/blog/" + id
     .BlogPreview {
       margin-block-start: -1rem;
     }
+    .-pinned + .BlogPreview {
+      margin-block-start: -2.75rem;
+    }
   }
   .inner {
     display: grid;
@@ -46,8 +53,8 @@ const pageUrl = SITE.base + "/blog/" + id
     width: 100%;
   }
   .date {
-    justify-self: end;
-    translate: 0 2rem;
+    justify-self: flex-start;
+    translate: -1rem 1.9rem;
     z-index: -1;
   }
   @media (min-width: 500px) {
@@ -89,6 +96,32 @@ const pageUrl = SITE.base + "/blog/" + id
     line-height: 1.5rem;
     hyphens: auto;
     color: light-dark(var(--slate-800), white);
+  }
+
+  .-pinned:not(:has(+ .-pinned)) {
+    --pin-color: #ff8dc7;
+    --dot-color: light-dark(var(--slate-300), var(--slate-400));
+    margin-block-end: 2rem;
+    padding-block-end: 2rem;
+    background-image: radial-gradient(circle, var(--dot-color) 2px, transparent 2px);
+    background-position: left bottom;
+    background-repeat: repeat-x;
+    background-size: 20px 4px;
+  }
+  .-pinned .content {
+    border-width: 2px;
+  }
+
+  .pin-root {
+    position: relative;
+    width: 100%;
+  }
+  .pin-icon {
+    color: var(--pin-color);
+    font-size: 2rem;
+    position: absolute;
+    top: -1rem;
+    right: -0.75rem;
   }
 
   .BlogPreview :global(.PublishDate svg) {

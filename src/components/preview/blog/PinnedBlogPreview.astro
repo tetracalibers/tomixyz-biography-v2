@@ -1,0 +1,29 @@
+---
+import type { CollectionEntry } from "astro:content"
+import BlogPreview from "./BlogPreview.astro"
+import { Icon } from "astro-icon/components"
+
+interface Props {
+  entry: CollectionEntry<"blog">
+}
+
+const { entry } = Astro.props
+---
+
+<div class="pinned">
+  <Icon name="fluent-mdl2:pinned-solid" class="pin-icon" />
+  <BlogPreview entry={entry} />
+</div>
+
+<style>
+  .pinned {
+    position: relative;
+  }
+
+  .pin-icon {
+    font-size: 2rem;
+    position: absolute;
+    top: 0;
+    right: -1rem;
+  }
+</style>
