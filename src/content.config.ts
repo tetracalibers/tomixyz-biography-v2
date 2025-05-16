@@ -34,7 +34,8 @@ const project = defineCollection({
           label: z.string()
         })
         .optional(),
-      editing: z.boolean().default(false)
+      editing: z.boolean().default(false),
+      pinned: z.boolean().default(false)
     })
 })
 
@@ -57,7 +58,8 @@ const event = defineCollection({
       youtube: z.string().url().optional(),
       github: z.string().url().optional(),
       tags: z.array(reference("tag")).default([]),
-      editing: z.boolean().default(false)
+      editing: z.boolean().default(false),
+      pinned: z.boolean().default(false)
     })
 })
 
@@ -72,7 +74,8 @@ const blog = defineCollection({
           description: z.string()
         })
         .optional(),
-      date: z.coerce.date()
+      date: z.coerce.date(),
+      pinned: z.boolean().default(false)
     })
 })
 
