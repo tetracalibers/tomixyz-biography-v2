@@ -74,7 +74,33 @@ export default defineConfig({
     ],
     remarkPlugins: [remarkMath, remarkBreaks, remarkAlert, remarkFlexibleMarkers]
   },
-  integrations: [mdxDirective({ directives }), icon(), svelte(), mdx()],
+  integrations: [
+    mdxDirective({ directives }),
+    icon({
+      include: {
+        arcticons: ["pocketbook"],
+        bx: ["slideshow"],
+        carbon: ["executable-program", "construction"],
+        "fluent-mdl2": ["pinned-solid"],
+        "game-icons": ["spell-book"],
+        geo: ["turf-intersect", "turf-envelope", "turf-explode", "turf-bezier"],
+        "grommet-icons": ["github"],
+        hugeicons: ["trade-up"],
+        iconamoon: ["arrow-top-right-3-square-thin"],
+        iconoir: ["www"],
+        lucide: ["sun-medium"],
+        majesticons: ["article-search"],
+        mdi: ["moon-and-stars"],
+        mingcute: ["bluesky-social-line", "github-line"],
+        "pepicons-print": ["arrow-left", "arrow-right"],
+        ph: ["file-pdf"],
+        ri: ["npmjs-line"],
+        stash: ["corner-down-right"]
+      }
+    }),
+    svelte(),
+    mdx()
+  ],
   vite: {
     resolve: {
       alias: {
