@@ -45,6 +45,11 @@ const pageUrl = SITE.base + "/events/" + id
     flex-wrap: wrap;
     gap: 1rem;
   }
+  @media (max-width: 499px) {
+    .EventPreview:first-of-type {
+      margin-block-start: -1.25rem;
+    }
+  }
   .EventPreview-text {
     display: flex;
     flex-basis: calc((var(--breakpoint) - 100%) * 999);

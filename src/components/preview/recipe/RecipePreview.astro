@@ -49,7 +49,7 @@ const series = recipe.series ? await getEntry("series", recipe.series.id) : null
       margin-block-start: -1.75rem;
     }
     .RecipePreview:first-of-type {
-      margin-block-start: -2.5rem;
+      margin-block-start: -4.5rem;
     }
   }
   .inner {
@@ -60,9 +60,8 @@ const series = recipe.series ? await getEntry("series", recipe.series.id) : null
     width: 100%;
   }
   .date {
-    justify-self: start;
-    translate: -25% 15%;
-    z-index: -1;
+    justify-self: end;
+    translate: 0 15%;
   }
   @media (min-width: 500px) {
     .date {
