@@ -493,6 +493,13 @@
   dependencies:
     "@iconify/types" "*"
 
+"@iconify-json/fluent-mdl2@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@iconify-json/fluent-mdl2/-/fluent-mdl2-1.2.1.tgz#81c9a3e75030a84ce42ca900227ad655a8ffbd44"
+  integrity sha512-zFgd1V9r0a+mqA46Z4mOoSf6PbQbhYnY9Uhtpjl3xvw03doNolh4apMtsZoLlC/Y7wO2uj306MgziaqwWdNMwg==
+  dependencies:
+    "@iconify/types" "*"
+
 "@iconify-json/game-icons@^1.2.1":
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/@iconify-json/game-icons/-/game-icons-1.2.1.tgz#1ad8def7157ade5ab4df514c2facf7b8030c62fa"

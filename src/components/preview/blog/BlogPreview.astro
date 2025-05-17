@@ -2,6 +2,7 @@
 import type { CollectionEntry } from "astro:content"
 import PublishDate from "./PublishDate.astro"
 import { SITE } from "$/config"
+import { Icon } from "astro-icon/components"
 
 interface Props {
   entry: CollectionEntry<"blog">
@@ -14,16 +15,19 @@ const {
 const pageUrl = SITE.base + "/blog/" + id
 ---
 
-<div class="BlogPreview">
+<div class="BlogPreview" class:list={[{ "-pinned": post.pinned }]}>
   <div class="inner">
     <div class="date"><PublishDate date={post.date} /></div>
-    <div class="content">
-      <h2 class="title">
-        <a href={pageUrl}>{post.title}</a>
-      </h2>
-      <p class="desc">
-        {post.description}
-      </p>
+    <div class="pin-container">
+      {post.pinned && <Icon name="fluent-mdl2:pinned-solid" class="pin-icon" />}
+      <div class="content">
+        <h2 class="title">
+          <a href={pageUrl}>{post.title}</a>
+        </h2>
+        <p class="desc">
+          {post.description}
+        </p>
+      </div>
     </div>
   </div>
 </div>
@@ -46,8 +50,8 @@ const pageUrl = SITE.base + "/blog/" + id
     width: 100%;
   }
   .date {
-    justify-self: end;
-    translate: 0 2rem;
+    justify-self: flex-start;
+    translate: -1rem 1.9rem;
     z-index: -1;
   }
   @media (min-width: 500px) {
@@ -89,6 +93,11 @@ const pageUrl = SITE.base + "/blog/" + id
     line-height: 1.5rem;
     hyphens: auto;
     color: light-dark(var(--slate-800), white);
+  }
+
+  .-pinned:not(:has(+ .-pinned)) {
+    margin-block-end: 1rem;
+    padding-block-end: 2rem;
   }
 
   .BlogPreview :global(.PublishDate svg) {
