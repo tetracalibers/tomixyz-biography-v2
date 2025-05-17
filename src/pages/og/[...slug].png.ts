@@ -8,6 +8,7 @@ import { getCollection, getEntry } from "astro:content"
 import { createCategoryChildOgImage } from "$/lib/og/category-child"
 import { createCategoryGroupedChildOgImage } from "$/lib/og/category-grouped-child"
 import { isNotComingSoon } from "$/lib/collection"
+import { isPreviewBranch } from "$/lib/environment"
 
 interface DefaultOgMeta {
   type: "default"
@@ -42,7 +43,7 @@ type Props = OgMeta & {
 
 export async function getStaticPaths() {
   // プレビューブランチへのデプロイ時はOGP画像生成をスキップ
-  if (import.meta.env.CF_PAGES == 1 && import.meta.env.CF_PAGES_BRANCH !== "main") {
+  if (isPreviewBranch()) {
     return []
   }
 
