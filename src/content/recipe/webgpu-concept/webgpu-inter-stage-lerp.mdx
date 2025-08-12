@@ -10,21 +10,51 @@ references:
     url: https://webgpufundamentals.org/webgpu/lessons/ja/webgpu-inter-stage-variables.html
   - title: インターリーブ配列 VBO
     url: https://wgld.org/d/webgl/w088.html
+    summary: WebGLの記事ですが、インターリーブ配列のメリットがわかりやすく解説されています。
 tags:
   - webgpu
   - wgsl
 draft: true
 ---
 
+import DemoLinkWithResult from "$/components/demo/DemoLinkWithResult.astro"
+import img_DemoPreview from "src/assets/recipes/webgpu-concept/webgpu-triangle-lerp-color.png"
+
+:SeriesPrevLink[前回]{series="webgpu-concept" current="webgpu-inter-stage-lerp"}までで描いた三角形は、1色だけで塗りつぶされたものでした。
+
+たくさんの三角形を繋げて複雑な図形を作るのがCGの基本ですが、このとき、「こっちの頂点に近いほどこの色に、あっちの頂点に近いほどあの色に」といった具合に、頂点ごとに色を変えることで、隣接する三角形とも自然に色がつながるようにしたいものです。
+
+今回目標とするのは、頂点ごとに色を指定した三角形の描画です。
+頂点の座標だけでなく、色のデータも含めることで、バッファの使い方の理解を深めていきましょう。
+また、頂点シェーダの出力がフラグメントシェーダに受け渡される際の裏側の仕組みについても概説します。
+
+## まずは実装から
+
+### 頂点バッファに色データを含める
+
+### 頂点シェーダの出力に色データを含める
+
+### フラグメントシェーダで色データを受け取る
+
+## インタリーブ配列
+
+バッファはGPU上に配置されるため、その内容はGPUにとってアクセスしやすい形式でなければなりません。そのため、配列の並び順（レイアウト）や型のサイズ（たとえば32bit floatや16bit int）を意識した設計が求められます。
+
+## シェーダ間変数
+
+- WebGLではvaryingと呼ばれていた
+
+## 線形補間
+
 > [!note]
 >
 > - https://chatgpt.com/c/6802a2f1-b134-8000-a8fa-b28869dfccb1
 > - https://tetracalibers.github.io/webgl-practice-ground/norm-lerp-map/
 
-## [DRAFT]
+## 実装コード全文と実行結果
 
-## WebGPUにおけるバッファの型と設計
-
-バッファはGPU上に配置されるため、その内容はGPUにとってアクセスしやすい形式でなければなりません。そのため、**配列の並び順（レイアウト）や型のサイズ（たとえば32bit floatや16bit int）**を意識した設計が求められます。
-
-さらに、シェーダー側でどう参照するかにも影響します。たとえば、頂点バッファを使う場合は、頂点ごとにどんな属性（位置・色・UVなど）が並んでいるかを、`vertexState` の中で定義する必要があります。
+<DemoLinkWithResult
+  url="https://tomixyz-sketchbook.pages.dev/basics/webgpu-triangle-lerp-color/"
+  result={img_DemoPreview}
+  title="各頂点に色を指定した三角形を描画するデモ"
+/>
