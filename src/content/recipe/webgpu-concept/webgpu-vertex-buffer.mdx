@@ -1,6 +1,6 @@
 ---
 title: 頂点バッファとレイアウト
-date: coming-soon
+date: "2025-08-12"
 description: CPUからGPUへデータを渡す基本の仕組み
 series: webgpu-concept
 references:
@@ -19,12 +19,7 @@ references:
 tags:
   - webgpu
   - wgsl
-draft: true
 ---
-
-> [!note]
->
-> - https://chatgpt.com/c/68083090-b328-8000-85a5-10762d0c16d0
 
 import DemoLinkWithResult from "$/components/demo/DemoLinkWithResult.astro"
 
@@ -339,11 +334,169 @@ GPUは、レイアウトデスクリプタをもとに、各頂点に必要な�
 
 ## 用意した頂点バッファを使う
 
-### 頂点バッファを使って描画するように設定
+少し理論的な話が長くなってしまいましたが、三角形の描画コードに戻って、JavaScript側で用意した頂点バッファを使うようにコードを書き換えていきましょう。
+
+### バッファの作成（復習）
+
+JavaScript側での頂点座標の定義は、次のようなコードで行えばよいのでした。
+
+```js title="JSの配列として頂点座標を定義する"
+const vertices = new Float32Array([0.0, 0.5, -0.5, -0.5, 0.5, -0.5])
+```
+
+この頂点座標をシェーダ側に送るためのバッファは、次のように作成します。
+
+```js title="バッファを作成する"
+const vertexBuffer = device.createBuffer({
+  size: vertices.byteLength,
+  usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
+})
+```
+
+そして、配列に格納した座標データをこのバッファに書き込みます。
+
+```js title="バッファに配列のデータを書き込む"
+device.queue.writeBuffer(vertexBuffer, 0, vertices)
+```
+
+これらのコードは、ここまでの解説ですでに登場しているので、必要に応じて復習してみてください。
 
 ### シェーダで頂点データを受け取る
 
+バッファによってJS側から転送される頂点データを、シェーダ側で受け取るコードを追加していきます。
+
+頂点シェーダの入力となる`VertexInput{:wgsl}`構造体を、次のように変更します。
+
+```wgsl title="頂点シェーダの入力として頂点座標を受け取る" {2}
+struct VertexInput {
+  @location(0) position: vec2f
+};
+```
+
+`@location(0){:wgsl}`がどんな意味を持つかは、この後すぐに解説します。
+
+`vec2f{:wgsl}`は、WGSLにおける2次元ベクトルの型であり、`f32{:wgsl}`型の数値を2つ並べたものを1つの頂点座標として扱うことを意味しています。
+
+これで、`VertexInput{:wgsl}`構造体の中に`position{:wgsl}`という変数を定義できました。
+この`position{:wgsl}`変数を頂点座標として使うように、頂点シェーダの本体である`vs_main{:wgsl}`関数も変更しておきましょう。
+
+```wgsl title="頂点シェーダ関数内で頂点座標を使う" {4}
+@vertex
+fn vs_main(in: VertexInput) -> VertexOutput {
+  var out: VertexOutput;
+  out.Position = vec4f(in.position, 0.0, 1.0);
+  return out;
+}
+```
+
+### データの読み方をシェーダに伝える
+
+これでデータ自体を受け渡すことはできるようになりましたが、まだシェーダはこのデータを「どのように扱えばいいのか」を知らない状態です。
+
+バッファの中身はただの連続したバイナリデータであり、「このバッファのこの位置には、このようなデータが入っている」という説明（==デスクリプタ==）を一緒に渡す必要があるのでした。
+
+まずは、1つの頂点を表すデータの並びの説明である==属性デスクリプタ==を定義します。
+
+```js title="頂点属性のデスクリプタを定義する"
+const positionAttribute = {
+  shaderLocation: 0, // データの配置場所（シェーダの`@location`に対応）
+  offset: 0, // バッファ内での読み出し開始位置
+  format: "float32x2" // データ型（f32型の数値を2つ並べたものが1つの頂点）
+}
+```
+
+`shaderLocation{:js}`は、このデータをシェーダ側の「どの変数に入れるか」を指定するものです。
+`shaderLocation: 0{:js}`と指定した場合は、WGSLシェーダ側の`VertexInput{:wgsl}`構造体のうち、`@location(0){:wgsl}`という印をつけた変数にデータが格納されます。
+
+`offset{:js}`は、1つのバッファ内に複数の属性（頂点座標、色など）を含めた場合に、各属性がバッファ内のどの位置から始まるかを指定するものです。
+今回は頂点座標だけを格納しているため、あまり気にする必要はありません。`0{:js}`と指定しておけば、バッファの先頭から読み出しを始めることになります。
+
+`format{:js}`は、データの型を指定するものです。`float32x2{:js}`という指定は、32ビット浮動小数点数（`f32{:wgsl}`）を2つ並べたものを1つの頂点として扱うことを意味しています。
+これは、WGSLシェーダ側で`position{:wgsl}`変数の型を`vec2f{:wgsl}`と指定したことと対応しています。
+
+このように、1つの頂点を表すデータの構成を決めたら、今度は頂点バッファ全体のデータの並びの説明である==レイアウトデスクリプタ==を定義します。
+
+```js title="頂点バッファのレイアウトデスクリプタを定義する"
+const vertexBufferLayout = {
+  arrayStride: vertices.BYTES_PER_ELEMENT * 2, // 1つの頂点のデータのサイズ
+  attributes: [positionAttribute] // 属性デスクリプタの配列
+}
+```
+
+これは、多くの頂点がまとめて格納されたバッファから、「各頂点のデータをどう取り出すか」というルールを定義するものです。
+
+`arrayStride{:js}`は、1つの頂点を表すデータがバッファ内でどれくらいのバイト数を占めるかを指定します。
+この指定により、たとえば2番目の頂点を取り出すには、バッファの先頭から`arrayStride{:js}`バイトだけ進んだ位置から読み出せばよいことになります。
+
+`vertices{:js}`は、頂点座標データを格納したJavaScriptの`Float32Array{:js}`型の配列でした。
+この`BYTES_PER_ELEMENT{:js}`プロパティは、配列内の1つの数値が何バイトであるかを示すプロパティです。
+ここでは、1つの頂点を2つの数値で表現しているため、`2{:js}`をかけることで1つの頂点のデータが占めるバイト数を計算しています。
+
+`attributes{:js}`には、1つの頂点に含まれる属性のデスクリプタを配列としてまとめて指定します。
+
+これで、頂点バッファ全体のデータの並びを定義することができました。
+このレイアウトデスクリプタを、描画設定を一元管理するオブジェクトである==レンダーパイプライン==に組み込むことで、シェーダは頂点バッファのデータを正しく読み取ることができるようになります。
+
+```js title="レンダーパイプラインにレイアウトデスクリプタを組み込む" {6-8}
+const renderPipeline = device.createRenderPipeline({
+  layout: "auto",
+  vertex: {
+    module: shaderModule,
+    entryPoint: "vs_main",
+    buffers: [
+      vertexBufferLayout // 頂点データのレイアウトデスクリプタを指定
+    ]
+  },
+  fragment: {
+    // ...
+  }
+})
+```
+
+ここまでの説明では、役割を明確にするために`positionAttribute{:js}`や`vertexBufferLayout{:js}`を変数として定義してきましたが、わざわざ変数にせず、次のようにレンダーパイプラインに直接書き込んでしまってもよいでしょう。
+
+```js title="レンダーパイプラインにレイアウトデスクリプタを組み込む" {6-17}
+const renderPipeline = device.createRenderPipeline({
+  layout: "auto",
+  vertex: {
+    module: shaderModule,
+    entryPoint: "vs_main",
+    buffers: [
+      {
+        arrayStride: vertices.BYTES_PER_ELEMENT * 2,
+        attributes: [
+          {
+            shaderLocation: 0,
+            offset: 0,
+            format: "float32x2"
+          }
+        ]
+      }
+    ]
+  },
+  fragment: {
+    // ...
+  }
+})
+```
+
+### 頂点バッファを使って描画するように設定
+
+最後に、レンダーパスで頂点バッファを使って描画するように設定します。
+
+```js title="レンダーパスで頂点バッファを使って描画する" {2}
+renderPass.setPipeline(renderPipeline)
+renderPass.setVertexBuffer(0, vertexBuffer)
+renderPass.draw(3)
+renderPass.end()
+```
+
+`setVertexBuffer(){:js}`メソッドの第一引数として渡している`0{:js}`は、`renderPipeline.vertex.buffers{:js}`配列のうち、`0{:js}`番目のバッファを使うことを意味しています。
+
 ## 実装コード全文：頂点バッファを使った三角形の描画
+
+これでコードは完成です。実行結果は前回と同じになりますが、コードの柔軟性が向上しました。
+ハイライトされた変更箇所に注目して、コード全文を確認してみてください。
 
 ```wgsl title="WGSLによるシェーダのコード" showLineNumbers {2,12}
 struct VertexInput {
