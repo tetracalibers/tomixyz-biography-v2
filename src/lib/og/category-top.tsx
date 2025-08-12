@@ -10,22 +10,32 @@ export const createCategoryTopOgImage = (logoDataUrl: string, title: string, sub
       style={{
         display: "flex",
         flexDirection: "column",
-        alignItems: "center"
+        justifyContent: "center",
+        alignItems: "center",
+        gap: "1.6rem",
+        color: "#295F98"
       }}
     >
-      <Logo logoDataUrl={logoDataUrl} width={180} />
+      <div
+        style={{
+          display: "flex",
+          transform: "scale(1.2)"
+        }}
+      >
+        <CategoryName text={title} fontSize="4.5rem" />
+      </div>
+      <div style={{ display: "flex", fontSize: "2.5rem" }}>{subtitle}</div>
       <div
         style={{
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          gap: "1.1rem"
+          gap: "0.5rem"
         }}
       >
-        <CategoryName fontSize="4rem" text={title} />
-        <div style={{ display: "flex", fontSize: "1.5rem" }}>{subtitle}</div>
-        <SiteName fontSize="2rem" />
+        <Logo logoDataUrl={logoDataUrl} width={100} />
+        <SiteName fontSize="2.5rem" />
       </div>
     </div>
   </LayoutRoot>
