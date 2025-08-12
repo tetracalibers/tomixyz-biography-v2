@@ -8,6 +8,7 @@ import { getCollection, getEntry } from "astro:content"
 import { createCategoryChildOgImage } from "$/lib/og/category-child"
 import { createCategoryGroupedChildOgImage } from "$/lib/og/category-grouped-child"
 import { isNotComingSoon } from "$/lib/collection"
+import { isPreviewBranch } from "$/lib/environment"
 
 interface DefaultOgMeta {
   type: "default"
@@ -40,15 +41,19 @@ type Props = OgMeta & {
   }[]
 }
 
+const imgPath2dataUrl = async (path: string) => {
+  const dataUrl = await fs.readFile(new URL(path, import.meta.url), { encoding: "base64" })
+  return `data:image/png;base64,${dataUrl}`
+}
+
 export async function getStaticPaths() {
   // プレビューブランチへのデプロイ時はOGP画像生成をスキップ
-  if (import.meta.env.CF_PAGES == 1 && import.meta.env.CF_PAGES_BRANCH !== "main") {
+  if (isPreviewBranch()) {
     return []
   }
 
-  const logoPath = "../../../src/assets/profiles/pastel-tomixy_op.png"
-  const logo = await fs.readFile(new URL(logoPath, import.meta.url), { encoding: "base64" })
-  const logoDataUrl = `data:image/png;base64,${logo}`
+  const logo200w = await imgPath2dataUrl("../../../src/assets/profiles/pastel-tomixy_op_w200.png")
+  const logo100w = await imgPath2dataUrl("../../../src/assets/profiles/pastel-tomixy_op_w100.png")
 
   const jaFontPath = "../../../public/fonts/AppleTsukuARdGothic-Regular-AlphaNum-01.otf"
   const enFontPath = "../../../public/fonts/YsabeauOffice-Light.otf"
@@ -67,12 +72,13 @@ export async function getStaticPaths() {
     }
   ]
 
-  const commonProps = { logoDataUrl, fonts }
+  const commonProps = { fonts }
 
   const defaultOgPath = {
     params: { slug: "default" },
     props: {
       type: "default",
+      logoDataUrl: logo200w,
       ...commonProps
     }
   }
@@ -81,6 +87,7 @@ export async function getStaticPaths() {
     params: { slug: category },
     props: {
       type: "category-top",
+      logoDataUrl: logo100w,
       title: props.title,
       subtitle: props.subtitle,
       ...commonProps
@@ -92,6 +99,7 @@ export async function getStaticPaths() {
       params: { slug: "blog/" + entry.id },
       props: {
         type: "category-child",
+        logoDataUrl: logo100w,
         title: entry.data.title,
         category: CATEGORY_META.blog.title,
         ...commonProps
@@ -103,6 +111,7 @@ export async function getStaticPaths() {
       params: { slug: "projects/" + entry.id },
       props: {
         type: "category-child",
+        logoDataUrl: logo100w,
         title: entry.data.title,
         category: CATEGORY_META.projects.title,
         ...commonProps
@@ -114,6 +123,7 @@ export async function getStaticPaths() {
       params: { slug: "events/" + entry.id },
       props: {
         type: "category-child",
+        logoDataUrl: logo100w,
         title: entry.data.title,
         category: CATEGORY_META.events.title,
         ...commonProps
@@ -128,6 +138,7 @@ export async function getStaticPaths() {
           params: { slug: "recipes/" + entry.id },
           props: {
             type: "category-child",
+            logoDataUrl: logo100w,
             title: entry.data.title,
             category: CATEGORY_META.recipes.title,
             ...commonProps
@@ -139,6 +150,7 @@ export async function getStaticPaths() {
         params: { slug: "recipes/" + entry.id },
         props: {
           type: "category-grouped-child",
+          logoDataUrl: logo100w,
           title: entry.data.title,
           category: CATEGORY_META.recipes.title,
           subcategory: series.data.title,
@@ -152,6 +164,7 @@ export async function getStaticPaths() {
       params: { slug: "recipes/" + entry.id },
       props: {
         type: "category-grouped-child",
+        logoDataUrl: logo100w,
         title: entry.data.title,
         category: CATEGORY_META.recipes.title,
         subcategory: "シリーズ記事一覧",
