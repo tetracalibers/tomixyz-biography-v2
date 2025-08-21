@@ -1,0 +1,70 @@
+---
+title: LaTeXでファイル分割と相互参照、両方叶えたい
+date: "2025-08-21"
+description: 子ファイルのコンパイルでも定理番号etc.を正しく設定・参照させるために
+tags:
+  - latex
+  # - tcolorbox
+draft: true
+---
+
+[Imaging Math](https://tomixyz-latex-notes.pages.dev/)というサイトでは、LaTeXで制作した個人的な数学ノートを公開しています。
+
+その中でも「線形代数の整理帳」は現時点で450ページを超えており、このような巨大な文書を1つの`.tex`ファイルで管理するのは不可能です。（VS CodeのLaTeX Workshopを使っていますが、数万行を超えた時点でファイルの保存すらできなくなりました。）
+
+そこで、[subfiles](https://ctan.org/pkg/subfiles)パッケージを利用して、章、節ごとにファイルを分割して管理しています。
+
+==subfiles==を使うことで、プリアンブルを親ファイル側で一元管理しつつ、子ファイルを単体でコンパイルすることもできるようになります。
+全文のPDFだけでなく、「章ごとのPDFファイルも生成したい」といったニーズにも簡単に応えてくれるパッケージですが、ファイル分割をしている以上、厄介になるのが章・定理などの番号（カウンタ）の設定と相互参照です。
+
+## subfilesによる親子関係
+
+```tree title="原稿のディレクトリ構成"
+.
+├── contents
+│   ├── chapter-1
+│   │   └── section-1.tex
+│   ├── chapter-1.tex
+│   ├── chapter-2
+│   │   └── section-1.tex
+│   └── chapter-2.tex
+└── master.tex
+```
+
+```tree title="master.texのビルド後のディレクトリ構造"
+.
+├── .tex_intermediates
+│   ├── master.aux
+│   ├── master.fdb_latexmk
+│   ├── master.fls
+│   ├── master.log
+│   └── master.toc
+├── contents
+│   ├── chapter-1
+│   │   └── section-1.tex
+│   ├── chapter-1.tex
+│   ├── chapter-2
+│   │   └── section-1.tex
+│   └── chapter-2.tex
+├── master.tex
+└── out
+    ├── contents
+    │   └── chapter-1
+    ├── master.dvi
+    ├── master.pdf
+    └── master.synctex.gz
+```
+
+## 子ファイルの単体コンパイルで起こる問題
+
+- 章番号が1になる
+- 定理番号に含まれる章番号も1になる
+- 別ファイルの定理への参照は、解決できずに`?`で表示されてしまう
+
+## 残課題
+
+これで、別ファイルの定理の番号も正しく表示されるようになりましたが、別ファイルの定理へのリンクをクリックしても、ファイルをまたいで移動することはできません。
+
+[zref-xr](todo)というパッケージを使えば、ファイルをまたいだ移動ができるようになると小耳に挟みましたが、今回は各ファイルをWeb上に公開するということもあり、このパッケージは試していません。
+
+しかし、リンクが機能するのかどうか、クリックするまでわからないというのは微妙なので、クリックしても移動できない別ファイルへのリンクだけ色を変える（本文と同じ色にする）みたいなことができたらいいな、と思っています…
