@@ -1,0 +1,29 @@
+---
+title: tcolorboxによる独自枠の実装事始め
+date: "2025-08-29"
+description: todo
+tags:
+  - latex
+  # - tcolorbox
+series: latex-recipe
+references:
+  - title: tcolorboxのお誘い
+    url: https://marukunalufd0123.hatenablog.com/entry/2019/03/15/071717
+  - title: tcolorboxの基本
+    url: https://texmedicine.hatenadiary.jp/entry/2015/12/17/000339
+draft: true
+---
+
+- TODO: 序文みたいなもの
+
+## TikZとtcolorbox
+
+LaTeXエコシステムには、[TikZ](https://tikz.dev/)という多機能な描画パッケージがあります。（これが私がLaTeXをやめられない理由の一つです。）
+
+TikZの機能を駆使すれば、どんな図版や装飾も基本的には実現可能でしょう。
+しかし、あまりに多機能なので、すべての機能を把握する学習コストは高く、また、TikZで1から構築するのは面倒なものもやはりあります。
+
+そこで、よく使われるユースケースについては、より簡単なコードで実現できるようなTikZ派生パッケージが世に多く存在しています。
+その中でも、カスタマイズ可能な囲み枠を提供するパッケージが[tcolorbox](https://ctan.org/pkg/tcolorbox)です。
+
+## デフォルトスタイルのリセット

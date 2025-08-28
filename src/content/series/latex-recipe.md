@@ -1,6 +1,8 @@
 ---
 title: LaTeXのミニレシピ
 articles:
+  - latex-recipe/tcolorbox-basic
+  - latex-recipe/tcolorbox-tex2img
   - latex-recipe/latex-tcolorbox-theorems
   - latex-recipe/latex-hyperref-theorem-link
   - latex-recipe/latex-subfiles-nest
