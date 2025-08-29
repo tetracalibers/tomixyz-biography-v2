@@ -16,6 +16,12 @@ export const getRefTagCollection = async (): Promise<RefTagEntry[]> => {
   return [...projects, ...events, ...recipes, ...writings].flat()
 }
 
+export const getSkillTag = async (): Promise<string[]> => {
+  const tags = await getCollection("tag")
+  const skillTagIds = tags.filter((tag) => tag.data.skill).map((tag) => tag.id)
+  return skillTagIds
+}
+
 export const collectTagIds = (targets: RefTagEntryWithComingSoon[]) => {
   const uniquedTagIds = targets.reduce((acc, entry) => {
     const tags = entry.data.tags ?? []
