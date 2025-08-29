@@ -1,6 +1,6 @@
 ---
 title: tcolorboxによる独自枠の実装事始め
-date: "2025-08-29"
+date: "2025-08-30"
 description: todo
 tags:
   - latex
@@ -11,10 +11,14 @@ references:
     url: https://marukunalufd0123.hatenablog.com/entry/2019/03/15/071717
   - title: tcolorboxの基本
     url: https://texmedicine.hatenadiary.jp/entry/2015/12/17/000339
-#draft: true
+draft: true
 ---
 
-LaTeXで数学ノートを作るにあたって、独自の囲み枠〜
+import FigureBox from "$/components/image-wrapper/FigureBox.astro"
+import img_TcbDefault from "../../../assets/recipes/tcolorbox-basic/tcolorbox-default.png"
+import img_EmptyVsMinimal from "../../../assets/recipes/tcolorbox-basic/empty-vs-minimal.png"
+
+- TODO: LaTeXで数学ノートを作るにあたって、独自の囲み枠〜
 
 ## TikZとtcolorbox
 
@@ -26,7 +30,7 @@ TikZの機能を駆使すれば、どんな図版や装飾も基本的には実�
 そこで、よく使われるユースケースについては、より簡単なコードで実現できるようなTikZ派生パッケージが世に多く存在しています。
 その中でも、カスタマイズ可能な囲み枠を提供するパッケージが[tcolorbox](https://ctan.org/pkg/tcolorbox)です。
 
-## tcolorboxを使う
+## Hello, tcolorbox!
 
 プリアンブルに次のように書くことで、tcolorboxを使い始めることができます。
 
@@ -34,7 +38,8 @@ TikZの機能を駆使すれば、どんな図版や装飾も基本的には実�
 \usepackage{tcolorbox}
 ```
 
-tcolorboxパッケージは、囲み枠付きでコンテンツを描画する`tcolorbox`環境を提供します。書式は次の通りです。
+tcolorboxパッケージは、囲み枠付きでコンテンツを描画する`tcolorbox`環境を提供します。
+書式は次の通りです。
 
 ```latex
 \begin{tcolorbox}[オプション]
@@ -50,11 +55,12 @@ tcolorboxパッケージは、囲み枠付きでコンテンツを描画する`t
 \end{tcolorbox}
 ```
 
-- TODO: キャプチャ
+<FigureBox src={img_TcbDefault} alt="" />
 
-オプションを指定することで、タイトルをつけたり、スタイルをカスタマイズしたりすることができます。
+ここからさらにオプションを指定することで、タイトルをつけたり、スタイルをカスタマイズしたりすることができます。
 
-また、指定するオプションによっては、`tcolorbox`が提供するライブラリの読み込みが必要です。ライブラリの読み込みは、次のようにプリアンブルで指定します。
+また、指定するオプションによっては、`tcolorbox`が提供するライブラリの読み込みが必要です。
+ライブラリの読み込みは、次のようにプリアンブルで指定します。
 
 ```latex
 \usepackage{tcolorbox}
@@ -71,9 +77,33 @@ tcolorboxパッケージは、囲み枠付きでコンテンツを描画する`t
 
 囲み枠をカスタマイズするときには、まずはデフォルトのスタイルを消してから、独自にスタイルを設定し直すことがよくあります。
 
-（ここにbasic.texのキャプチャ）
+デフォルトの余白は`size=minimal`オプションで、デフォルトの装飾は`empty`オプションで消すことができます。
 
-### 余白を消す
+<FigureBox src={img_EmptyVsMinimal} alt="" />
+
+```latex showLineNumbers {3-5,9-11,15-17}
+\lipsum[1][1-2]
+
+\begin{tcolorbox}
+  こんにちは世界（\texttt{default}）
+\end{tcolorbox}
+
+\lipsum[1][3-4]
+
+\begin{tcolorbox}[empty]
+  こんにちは世界（\texttt{empty}）
+\end{tcolorbox}
+
+\lipsum[1][5-6]
+
+\begin{tcolorbox}[size=minimal]
+  こんにちは世界（\texttt{size=minimal}）
+\end{tcolorbox}
+
+\lipsum[2][1-2]
+```
+
+### 余白をリセット
 
 `size=minimal`を指定することで、デフォルトの余白をすべて消すことができます。
 
@@ -83,7 +113,7 @@ tcolorboxパッケージは、囲み枠付きでコンテンツを描画する`t
 \end{tcolorbox}
 ```
 
-### 枠線や背景などの装飾を消す
+### 枠線や背景などの装飾をリセット
 
 枠線や背景色など、デフォルトの装飾をすべて消すには、`empty`オプションを指定します。
 
@@ -101,11 +131,52 @@ tcolorboxパッケージは、囲み枠付きでコンテンツを描画する`t
 
 `skins`は描画方式を切り替えるためのライブラリであり、`empty`によって「何も描かない」描画方式に切りかえます。
 
+### 補足：ダミーテキストで表示確認
+
+先ほどのコード例で使用した`\lipsum`コマンドは、ダミーテキストを出力するコマンドです。
+
+```latex showLineNumbers {1,7,13,19}
+\lipsum[1][1-2]
+
+\begin{tcolorbox}
+  こんにちは世界（\texttt{default}）
+\end{tcolorbox}
+
+\lipsum[1][3-4]
+
+\begin{tcolorbox}[empty]
+  こんにちは世界（\texttt{empty}）
+\end{tcolorbox}
+
+\lipsum[1][5-6]
+
+\begin{tcolorbox}[size=minimal]
+  こんにちは世界（\texttt{size=minimal}）
+\end{tcolorbox}
+
+\lipsum[2][1-2]
+```
+
+`\lipsum`コマンドを使うには、プリアンブルに次の指定を加える必要があります。
+
+```latex
+\usepackage{lipsum}
+```
+
+`\lipsum`コマンドでは、引数指定によって生成する文章の長さを簡単に変えることができます。
+
+- [LaTeX lipsum（追加版） --- Lorem Ipsumダミーテキストへの簡単なアクセス](https://konoyonohana.blog.fc2.com/blog-entry-566.html)
+
+独自の囲み枠を実装するときには、さまざまな長さの文章で表示を確認してみるとよいでしょう。
+
+短い文章では気にならなかった余白の狭さなどが、複数行になると目立つようなことはよくあります。
+また、ページをまたぐほど長い文章を入れたときの挙動はどうなるのか調べたい時など、文章の長さを変えながら表示を調整する際に`\lipsum`コマンドを使うと便利です。
+
 ## 独自の環境として定義する
 
-同じオプションを指定した`tcolorbox`環境を複数箇所で使う場合、コピペして使い回していると、修正したくなったときに大変です。
+同じオプションを指定した`tcolorbox`環境を複数箇所で使う場合、コピペして使い回していると、修正したくなったときにとても大変です。
 
-tcolorboxでは、オプションを指定した囲み枠に名前をつけて、独自の環境として呼び出せるように定義することもできます。
+`tcolorbox`では、オプションを指定した囲み枠に名前をつけて、独自の環境として呼び出せるように定義することもできます。
 
 ```latex
 \DeclareTColorBox{環境名}{引数}{%
@@ -127,38 +198,20 @@ tcolorboxでは、オプションを指定した囲み枠に名前をつけて�
 このように定義しておくと、`spacebox`環境として使い回しが可能になります。
 
 ```latex
-（loremを囲むspaceboxのコード）
+\begin{spacebox}
+  こんにちは世界
+\end{spacebox}
 ```
-
-（単体のキャプチャ）
-
-### 補足：ダミーテキストで表示確認
-
-上のコード例で使用した`lipsum`コマンドは、ダミーテキストを出力するものです。
-
-プリアンブルに次の指定を加えることで、`lipsum`コマンドが使えるようになります。
-
-```latex
-（usepackageのコード）
-```
-
-`lipsum`コマンドでは、引数指定によって生成する文章の長さを簡単に変えることができます。
-
-- [LaTeX lipsum（追加版） --- Lorem Ipsumダミーテキストへの簡単なアクセス](https://konoyonohana.blog.fc2.com/blog-entry-566.html)
-
-独自の囲み枠を実装するときには、さまざまな長さの文章で表示を確認してみるとよいでしょう。
-
-短い文章では気にならなかった余白の狭さなどが、複数行になると目立つようなことはよくあります。また、ページをまたぐほど長い文章を入れたときの挙動はどうなるのか調べたい時など、文章の長さを変えながら表示を調整する際に`lipsum`コマンドを使うと便利です。
 
 ### 他の段落と調和させる
 
-`beforeafter skip`は、ボックスの上下の外側余白をまとめて指定するオプションです。
+`spacebox`環境の定義で指定した`beforeafter skip`は、ボックスの上下の外側余白をまとめて指定するオプションです。
 
 ここでは、本文の行送り量 `\baselineskip` と同じだけ、上下に余白を設けています。
 
 この指定により、ボックスとその前後の文章の間だけが特に狭くなることなく、ボックスもひとつの段落として、段落間の余白を統一することができます。
 
-（指定なしの場合と指定ありの場合のキャプチャ）
+- TODO: 指定なしの場合と指定ありの場合のキャプチャ
 
 ## 引数で柔軟性を高める
 
@@ -193,11 +246,11 @@ tcolorboxのオプションを追加で指定できるようにするには、`s
 このように定義した`spacebox`環境は、これまで通りそのままでも使えますし、引数を使ってtcolorboxのオプションを追加したり上書きしたりすることもできるようになります。
 
 ```latex
-（そのままのコードと、valign=flush centerを指定した場合のコード）
+TODO: そのままのコードと、valign=flush centerを指定した場合のコード
 ```
 
-（キャプチャ）
+- TODO: キャプチャ
 
 ### 中央揃え（`flush`と`flush center`）
 
-（違いを調べて書く）
+- TODO: 違いを調べて書く
