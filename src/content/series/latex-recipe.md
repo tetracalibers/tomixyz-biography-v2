@@ -2,12 +2,14 @@
 title: LaTeXのミニレシピ
 articles:
   - latex-recipe/tcolorbox-basic
+  - latex-recipe/tcolorbox-enhanced-tikz
+  - latex-recipe/tcolorbox-detatch-title
+  - latex-recipe/tcolorbox-theorems
+  - latex-recipe/tcolorbox-breakable
   - latex-recipe/tcolorbox-tex2img
-  - latex-recipe/latex-tcolorbox-theorems
-  - latex-recipe/latex-hyperref-theorem-link
-  - latex-recipe/latex-subfiles-nest
-  - latex-recipe/latex-subfiles-theorem-number
-  - latex-recipe/latex-subfiles-chapter-number
+  - latex-recipe/subfiles-nest
+  - latex-recipe/subfiles-theorem-number
+  - latex-recipe/subfiles-chapter-number
 ---
 
 [Imaging Math](https://tomixyz-latex-notes.pages.dev/)というサイトでは、LaTeXで個人的に制作した、数学や技術に関するノートを公開しています。
