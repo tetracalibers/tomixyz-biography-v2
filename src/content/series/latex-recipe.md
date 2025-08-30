@@ -2,6 +2,7 @@
 title: LaTeXのミニレシピ
 articles:
   - latex-recipe/tcolorbox-basic
+  - latex-recipe/tcolorbox-declare-box
   - latex-recipe/tcolorbox-enhanced-tikz
   - latex-recipe/tcolorbox-detatch-title
   - latex-recipe/tcolorbox-theorems
