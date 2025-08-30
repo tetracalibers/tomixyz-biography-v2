@@ -154,6 +154,10 @@ winit:
 wordpress:
   name: WordPress
   url: https://wordpress.com/ja/
+xparse:
+  name: xparse
+  skill: false
+  url: https://ctan.org/pkg/xparse
 zod:
   name: Zod
   url: https://zod.dev/
