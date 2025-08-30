@@ -34,6 +34,10 @@ hast:
 html:
   name: HTML
   url: https://developer.mozilla.org/ja/docs/Web/HTML
+hyperref:
+  name: hyperref
+  skill: false
+  url: https://texwiki.texjp.org/?hyperref
 javascript:
   name: JavaScript
   url: https://developer.mozilla.org/ja/docs/Web/JavaScript
