@@ -20,6 +20,7 @@ import img_DefaultStyleReset from "../../../assets/recipes/tcolorbox-basic/defau
 import img_DraftSkin from "../../../assets/recipes/tcolorbox-basic/draft-skin.png"
 import img_DraftSkinOff from "../../../assets/recipes/tcolorbox-basic/draft-skin-off.png"
 import img_BeforeSkipBalanced from "../../../assets/recipes/tcolorbox-basic/before-skip-balanced.png"
+import img_BeforeSkip from "../../../assets/recipes/tcolorbox-basic/before-skip.png"
 import img_UseLipsum from "../../../assets/recipes/tcolorbox-basic/use-lipsum.png"
 
 [LaTeXで作った数学ノート](https://tomixyz-latex-notes.pages.dev/)では、独自に実装したさまざまな囲みボックスを利用しています。
@@ -164,7 +165,7 @@ LaTeXのコマンドや環境において、`[]`で囲まれた部分は指定�
 [公式ドキュメント](https://ctan.tikz.jp/macros/latex/contrib/tcolorbox/tcolorbox.pdf)にも、余白の種類が図で一覧化されている「Quick Reference」という章があり、とても便利です。
 この記事では、その中でも特によく使うオプションに絞って概観しておきたいと思います。
 
-### 内側の余白（padding）と枠線の太さ
+### ボックスの内側の余白と枠線の太さ
 
 ```latex
 \tcbset{
@@ -195,7 +196,7 @@ LaTeXのコマンドや環境において、`[]`で囲まれた部分は指定�
 \end{tcolorbox}
 ```
 
-### ボックスの外側の余白（margin）
+### ボックスの外側の余白（skipオプション）
 
 ボックスの外側、特に上下の余白は、ボックスとその前後の段落との間隔を制御する上で重要です。
 それぞれ、次のオプションで指定します。
@@ -204,25 +205,54 @@ LaTeXのコマンドや環境において、`[]`で囲まれた部分は指定�
 - `after skip`：ボックスの下の余白（次の段落との間隔）
 - `beforeafter skip`：ボックスの上下の余白（まとめて同じサイズに設定）
 
+### 発展：skipとskip balancedの使い分け
+
 また、これらと似たオプションとして、`before skip balanced`、`after skip balanced`、`beforeafter skip balanced`というオプションも用意されています。
 
-<Image src={img_BeforeSkipBalanced} alt="" />
+- [What is the difference between "before skip" and "before skip balanced" in a tcolorbox?](https://tex.stackexchange.com/questions/586946/what-is-the-difference-between-before-skip-and-before-skip-balanced-in-a-tco)
 
-```latex
-\lipsum[1][1]
+`balanced`の有無による違いを明らかにするために、`0pt`を指定した場合を比較してみます。
 
+```latex showLineNumbers {2,7} title="before skipの場合"
+Text without descenders.
 \begin{tcolorbox}[before skip=0pt]
   \texttt{before skip=0pt}
 \end{tcolorbox}
 
 \lipsum[1][1]
+\begin{tcolorbox}[before skip=0pt]
+  \texttt{before skip=0pt}
+\end{tcolorbox}
+```
 
+<Image src={img_BeforeSkip} alt="" />
+
+`before skip=0pt`を指定した場合は、ボックスの前のテキストの文字の下端が、ボックスの上辺にべったりくっついてしまいます。`0pt`を指定したことで、完全に間隔が`0`になっているのです。
+
+また、1つめのボックスではすべての文字の下端がべったりとボックスに接していますが、2つめのボックスでは`p`や`g`などの文字だけがボックスに接しているため、他の文字は少し浮いて見えます。
+これにより、テキストとボックスの間の余白がばらついて見えてしまいます。実際、頭文字に注目すると、1つめのボックスと`T`の間より、2つめのボックスと`L`の間の方が少し空いて見えるはずです。
+
+一方、`before skip balanced=0pt`を指定した場合は、`0pt`を指定しているにもかかわらず、少しテキストとボックスの間隔にゆとりが生まれます。
+そして、`p`や`g`などの下にはみ出す文字の有無に関わらず、テキストとボックスの間の余白が一定に見えるように自動調整されるため、こちらの方が自然に美しく見えるのではないでしょうか。
+
+<Image src={img_BeforeSkipBalanced} alt="" />
+
+```latex showLineNumbers {2,7} title="before skip balancedの場合"
+Text without descenders.
+\begin{tcolorbox}[before skip balanced=0pt]
+  \texttt{before skip balanced=0pt}
+\end{tcolorbox}
+
+\lipsum[1][1]
 \begin{tcolorbox}[before skip balanced=0pt]
   \texttt{before skip balanced=0pt}
 \end{tcolorbox}
 ```
 
-- [What is the difference between "before skip" and "before skip balanced" in a tcolorbox?](https://tex.stackexchange.com/questions/586946/what-is-the-difference-between-before-skip-and-before-skip-balanced-in-a-tco)
+この実験から、次のような使い分けができそうです。
+
+- 厳密に間隔を制御したいときは`~ skip`を使う
+- 自然な行間バランスを保ちたいときは`~ skip balanced`を使う
 
 ## デフォルトスタイルのリセット
 
