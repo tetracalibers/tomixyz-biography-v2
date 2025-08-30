@@ -79,8 +79,9 @@ export default defineConfig({
     icon({
       include: {
         arcticons: ["pocketbook"],
+        famicons: ["construct-outline"],
         bx: ["slideshow"],
-        carbon: ["executable-program", "construction"],
+        carbon: ["executable-program"],
         "fluent-mdl2": ["pinned-solid"],
         "game-icons": ["spell-book"],
         geo: ["turf-intersect", "turf-envelope", "turf-explode", "turf-bezier"],

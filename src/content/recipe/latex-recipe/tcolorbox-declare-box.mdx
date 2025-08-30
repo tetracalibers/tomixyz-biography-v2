@@ -1,0 +1,89 @@
+---
+title: tcolorboxの基本：カスタムボックスの実装
+date: coming-soon
+description: 引数を工夫して使いやすい囲みボックス環境を作る
+tags:
+  - latex
+  - tcolorbox
+  - xparse
+series: latex-recipe
+draft: true
+---
+
+- カスタム囲みボックスの再利用
+  - `\DeclareTColorBox`による独自の環境の定義
+  - 柔軟な引数設定のための`xparse`構文入門
+
+## 独自の環境として定義する
+
+同じオプションを指定した`tcolorbox`環境を複数箇所で使う場合、コピペして使い回していると、修正したくなったときに大変な思いをすることになります。
+
+そこで、よく使う囲みボックスには名前をつけて、独自の環境として呼び出せるように定義しておくと便利です。
+独自の囲みボックス環境の定義は、`\newtcolorbox`コマンドで行うこともできますが、このシリーズではより高度な設定ができる`\DeclareTColorBox`コマンドを利用していきます。
+
+```latex
+\DeclareTColorBox{環境名}{引数}{%
+  tcolorboxのオプション
+}
+```
+
+文章の周りに余白を設けるだけの、シンプルな環境を定義してみましょう。
+
+```latex
+% \tcbuselibrary{skins} が必要
+\DeclareTColorBox{spacebox}{}{%
+  empty,
+  beforeafter skip=\baselineskip
+}
+```
+
+このように定義しておくと、`spacebox`環境として使い回しが可能になります。
+
+```latex
+\begin{spacebox}
+  こんにちは世界
+\end{spacebox}
+```
+
+## 引数で柔軟性を高める
+
+- TODO: 再編する
+
+この`spacebox`環境を使っていく中で、たとえば「文章を中央揃えしたい」箇所も出てくるかもしれません。
+
+その場合は`spacebox`環境の中に`center`環境をネストすれば事足りますが、他にも「背景色をつけてより強調したい箇所」などが出てきたらどうでしょうか。
+tcolorboxのオプションを追加で指定できるような仕組みがあると便利そうです。
+
+`\DeclareTColorBox`では、引数を受け入れる環境を定義することができます。
+
+tcolorboxのオプションを追加で指定できるようにするには、`spacebox`環境の定義を次のように修正します。
+
+```latex
+% \tcbuselibrary{skins} が必要
+\DeclareTColorBox{spacebox}{O{}}{%
+  empty,
+  beforeafter skip=\baselineskip, #1
+}
+```
+
+新たに追加した`O{}`という文字列が、第1引数を表しています。
+`O`は、この引数は指定してもしなくてもいい（optional）であることを表し、`{}`の中には、引数が指定されなかった場合のデフォルト値を設定します。ここでは`{}`の中身を空にしているので、引数が指定されなかった場合には何もしないという意味になります。
+
+このような引数設定の構文は、`xparse`パッケージに準ずるものです。
+他にもいろいろな引数の設定が可能なので、詳しくは次の記事などを参考にしてみてください。（このシリーズの後の回でも、より高度な引数設定の事例を紹介する予定です。）
+
+- [xparseパッケージでスゴイLaTeXマクロを作ろう！](https://qiita.com/zr_tex8r/items/50168ad7087516c3e139)
+
+第1引数として指定された内容は、`#1`で参照できます。第1引数として`tcolorbox`のオプションが指定された場合は、`empty`や`before after skip`に続けて、そのオプションを適用するようにしています。
+
+このように定義した`spacebox`環境は、これまで通りそのままでも使えますし、引数を使って`tcolorbox`のオプションを追加したり上書きしたりすることもできるようになります。
+
+```latex
+TODO: そのままのコードと、valign=flush centerを指定した場合のコード
+```
+
+- TODO: キャプチャ
+
+### 発展：centerとflush centerの使い分け
+
+- TODO: 違いを調べて書く

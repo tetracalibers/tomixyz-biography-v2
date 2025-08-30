@@ -145,7 +145,8 @@ const tag = defineCollection({
   schema: () =>
     z.object({
       name: z.string(),
-      url: z.string().url()
+      url: z.string().url(),
+      skill: z.boolean().default(true)
     })
 })
 

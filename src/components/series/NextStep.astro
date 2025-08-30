@@ -22,7 +22,7 @@ const getRecipePageUrl = (articleId: string) => SITE.base + `/recipes/${articleI
       <h2>Next Step</h2>
       {isComingSoon(nextArticle) ? (
         <div class="Next-item coming-soon">
-          <Icon name="carbon:construction" size={22} aria-label="coming soon" />
+          <Icon name="famicons:construct-outline" size={22} aria-label="coming soon" />
           {isDev() || !isProdBranch() ? (
             <a class="no-marker" href={getRecipePageUrl(nextArticle.id)}>
               {nextArticle.data.title}
@@ -46,7 +46,7 @@ const getRecipePageUrl = (articleId: string) => SITE.base + `/recipes/${articleI
 <style>
   .Next-item {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 0.5em;
     color: light-dark(#475569, #e2e8f0);
     font-weight: 500;
@@ -58,6 +58,8 @@ const getRecipePageUrl = (articleId: string) => SITE.base + `/recipes/${articleI
   }
 
   .coming-soon :global(svg) {
-    color: light-dark(#aac4ff, #beadfa);
+    color: light-dark(#6885c663, #d2c6ffa1);
+    align-self: flex-start;
+    padding-block: 0.25em;
   }
 </style>

@@ -34,6 +34,10 @@ hast:
 html:
   name: HTML
   url: https://developer.mozilla.org/ja/docs/Web/HTML
+hyperref:
+  name: hyperref
+  skill: false
+  url: https://texwiki.texjp.org/?hyperref
 javascript:
   name: JavaScript
   url: https://developer.mozilla.org/ja/docs/Web/JavaScript
@@ -88,6 +92,10 @@ starlight:
 storybook:
   name: Storybook
   url: https://storybook.js.org/
+subfiles:
+  name: subfiles
+  skill: false
+  url: https://ctan.org/pkg/subfiles
 svelte:
   name: Svelte
   url: https://svelte.jp/
@@ -103,6 +111,14 @@ svg-js:
 tailwind-css:
   name: Tailwind CSS
   url: https://tailwindcss.com/
+tcolorbox:
+  name: tcolorbox
+  skill: false
+  url: https://ctan.org/pkg/tcolorbox
+tex2img:
+  name: tex2img
+  skill: false
+  url: https://tex2img.tech/
 tikz:
   name: TikZ
   url: https://texwiki.texjp.org/TikZ
@@ -142,6 +158,10 @@ winit:
 wordpress:
   name: WordPress
   url: https://wordpress.com/ja/
+xparse:
+  name: xparse
+  skill: false
+  url: https://ctan.org/pkg/xparse
 zod:
   name: Zod
   url: https://zod.dev/
