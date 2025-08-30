@@ -1,7 +1,7 @@
 ---
-title: tcolorboxによる囲みボックス実装事始め
+title: tcolorboxのカスタムボックス実装事始め
 date: "2025-08-30"
-description: skin・余白・デフォルトスタイルのリセットから始めるカスタマイズ
+description: skin切り替え・余白指定・デバッグ・リセットなどの基本
 tags:
   - latex
   - tcolorbox
@@ -167,12 +167,24 @@ LaTeXのコマンドや環境において、`[]`で囲まれた部分は指定�
 
 ### ボックスの内側の余白と枠線の太さ
 
-- TODO：解説を書く
+ボックスの内側の余白と枠線の太さを制御するオプションには、次のようなものがあります。
+
+- 枠線の太さ：`toprule`/`bottomrule`/`leftrule`/`rightrule`
+- 内側の余白：`boxsep`/`top`/`bottom`/`left`/`right`
+
+枠線の太さはその名の通り、上下左右に対応する`~rule`オプションでそれぞれ指定します。
+
+`boxsep`は、ボックスの中身と枠の間に、共通のパディング（余白）を設定するオプションです。
+`boxsep`でベースとなる余白を指定したら、さらに`left`/`right`/`top`/`bottom`オプションで上下左右の余白を個別に加算する仕組みになっています。
+
+さて、これらのオプションを指定した結果、どのようにボックス内の余白や枠線の幅が確保されるかは、`draft`skinを使うことで視覚的に確認できます。実際にやってみましょう。
+
+次のようなオプション群を、`myspacing`という名前で使い回せるように定義しておきます。
 
 ```latex
 \tcbset{
   myspacing/.style={
-    sharp corners,
+    sharp corners, % 角丸を無効化する
     toprule=0.5em, bottomrule=0.5em,
     leftrule=0.5em, rightrule=0.5em,
     boxsep=1em,
@@ -182,21 +194,34 @@ LaTeXのコマンドや環境において、`[]`で囲まれた部分は指定�
 }
 ```
 
+`\tcbset`コマンドは、コマンド呼び出し箇所以降に登場するすべての`tcolorbox`環境に対してグローバルにオプションを設定したり、特定のデザインを実現するオプション群に名前をつけたりするためのコマンドです。
+
+上のように定義しておくと、`tcolorbox`環境のオプションに`myspacing`と指定するだけで、`myspacing/.style={}`内で指定したスタイルオプションをすべてまとめて設定することができます。
+
+```latex {2}
+% \tcbuselibrary{skins} が必要
+\begin{tcolorbox}[myspacing]
+  \lipsum[1][1-5]
+\end{tcolorbox}
+```
+
 <Image src={img_DraftSkinOff} alt="" />
 
-```latex
-\begin{tcolorbox}[myspacing]
+ここでさらに、`draft`オプションを追加して`draft`skinに切り替えると、ボックス内余白や枠線の内訳とその寸法を視覚化するデバッグ用の表示に切り替わります。
+
+```latex {2}
+% \tcbuselibrary{skins} が必要
+\begin{tcolorbox}[myspacing, draft]
   \lipsum[1][1-5]
 \end{tcolorbox}
 ```
 
 <Image src={img_DraftSkin} alt="" />
 
-```latex
-\begin{tcolorbox}[myspacing, draft]
-  \lipsum[1][1-5]
-\end{tcolorbox}
-```
+中央の緑色の領域は、ボックス内のコンテンツが占める領域です。
+その外側の白い領域が`boxsep`による余白、さらにその外側のピンク色の領域が`left`/`right`/`top`/`bottom`による余白、グレーの領域が枠線の幅を示しています。
+
+`draft`オプションを指定していない通常の表示と見比べると、通常の表示では、グレーの領域に枠線の色が適用され、グレーより内側の領域すべて（ピンク色の領域、白い領域、緑色の領域）に背景色が適用されることがわかります。
 
 ### ボックスの外側の余白（skipオプション）
 
