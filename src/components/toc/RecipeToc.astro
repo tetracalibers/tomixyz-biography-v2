@@ -53,7 +53,7 @@ const getRecipePageUrl = (articleId: string) => SITE.base + `/recipes/${articleI
                 <h3 class="toc-item-heading">
                   {isComingSoon(article) ? (
                     <span class="toc-item-coming-soon">
-                      <Icon name="carbon:construction" aria-label="coming soon" />
+                      <Icon name="famicons:construct-outline" aria-label="coming soon" />
                       {isDev() || !isProdBranch() ? (
                         <a class="toc-item-link" href={getRecipePageUrl(article.id)}>
                           {article.data.title}
@@ -198,7 +198,7 @@ const getRecipePageUrl = (articleId: string) => SITE.base + `/recipes/${articleI
   }
   .toc-item-coming-soon :global(svg) {
     font-size: 1.25em;
-    color: light-dark(#aac4ff, #beadfa);
+    color: light-dark(#6885c663, #d2c6ffa1);
     flex-shrink: 0;
   }
 </style>

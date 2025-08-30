@@ -507,6 +507,13 @@
   dependencies:
     "@iconify/types" "*"
 
+"@iconify-json/famicons@^1.2.2":
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/@iconify-json/famicons/-/famicons-1.2.2.tgz#ab39bb935c8c4acf9d8dff6d7e7dcfb0435eb19d"
+  integrity sha512-mFgrUk2CYKeFe9EHh6XWdtVDkX344OTb3E6X7RaOp6iwW9saJH/kknNFZRZ2UFQCcFl3RNSTN6IRpCRsRppFxw==
+  dependencies:
+    "@iconify/types" "*"
+
 "@iconify-json/fluent-mdl2@^1.2.1":
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/@iconify-json/fluent-mdl2/-/fluent-mdl2-1.2.1.tgz#81c9a3e75030a84ce42ca900227ad655a8ffbd44"
