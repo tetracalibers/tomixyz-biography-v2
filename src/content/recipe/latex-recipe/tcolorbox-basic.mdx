@@ -167,6 +167,8 @@ LaTeXのコマンドや環境において、`[]`で囲まれた部分は指定�
 
 ### ボックスの内側の余白と枠線の太さ
 
+- TODO：解説を書く
+
 ```latex
 \tcbset{
   myspacing/.style={
@@ -302,7 +304,7 @@ Text without descenders.
 
 ### 枠線や背景などのすべての装飾をリセット
 
-枠線や背景色など、デフォルトの装飾をすべて消すには、`empty`オプションを指定します。
+枠線や背景色など、デフォルトの装飾をすべて消すには、「何も描かない」描画方式（`skin`）に切り替えるための`empty`オプションを指定します。
 
 ```latex
 % \tcbuselibrary{skins} が必要
@@ -311,10 +313,10 @@ Text without descenders.
 \end{tcolorbox}
 ```
 
-`empty`オプションを利用するには、プリアンブルで`skins`ライブラリの読み込みが必要です。
-`skins`は描画方式を切り替えるためのライブラリであり、`empty`によって「何も描かない」描画方式に切りかえます。
-
 ### 枠線だけを消す
+
+枠線だけを消したい場合は、`frame hidden`オプションを指定します。
+このように描画の一部に手を加える場合は、`enhanced`オプションで`skin`を切り替えておく必要があります。
 
 ```latex
 % \tcbuselibrary{skins} が必要
@@ -323,11 +325,13 @@ Text without descenders.
 \end{tcolorbox}
 ```
 
-なお、背景色を消したい場合は`interior hidden`を指定します。
+なお、背景色だけを消したい場合は、`interior hidden`を指定します。
 
 `frame hidden`と`interior hidden`を両方指定すると、見た目としては`empty`を指定した場合と同じになりますが、`empty`と`enhanced`では使える機能が異なるため、必要に応じて使い分けていきます。
 
 ## 独自の環境として定義する
+
+- TODO：再編する
 
 同じオプションを指定した`tcolorbox`環境を複数箇所で使う場合、コピペして使い回していると、修正したくなったときにとても大変です。
 
@@ -357,17 +361,9 @@ Text without descenders.
 \end{spacebox}
 ```
 
-### 他の段落と調和させる
-
-`spacebox`環境の定義で指定した`beforeafter skip`は、ボックスの上下の外側余白をまとめて指定するオプションです。
-
-ここでは、本文の行送り量 `\baselineskip` と同じだけ、上下に余白を設けています。
-
-この指定により、ボックスとその前後の文章の間だけが特に狭くなることなく、ボックスもひとつの段落として、段落間の余白を統一することができます。
-
-- TODO: 指定なしの場合と指定ありの場合のキャプチャ
-
 ## 引数で柔軟性を高める
+
+- TODO: 再編する
 
 この`spacebox`環境を使っていく中で、たとえば「文章を中央揃えしたい」箇所も出てくるかもしれません。
 
@@ -404,6 +400,6 @@ TODO: そのままのコードと、valign=flush centerを指定した場合の�
 
 - TODO: キャプチャ
 
-### 中央揃え（`flush`と`flush center`）
+### 発展：centerとflush centerの使い分け
 
 - TODO: 違いを調べて書く
