@@ -1,6 +1,6 @@
 ---
 title: tcolorboxの基本：カスタムボックスの実装
-date: coming-soon
+date: "coming-soon"
 description: 引数を工夫して使いやすい囲みボックス環境を作る
 tags:
   - latex
@@ -10,9 +10,49 @@ series: latex-recipe
 draft: true
 ---
 
+import { Image } from "astro:assets"
+import img_Paperbox from "../../../assets/recipes/tcolorbox-declare-box/paperbox.png"
+import img_ShowBoundingBox from "../../../assets/recipes/tcolorbox-declare-box/show-bounding-box.png"
+import img_FlushCenter from "../../../assets/recipes/tcolorbox-declare-box/flush-center.png"
+
 - カスタム囲みボックスの再利用
   - `\DeclareTColorBox`による独自の環境の定義
   - 柔軟な引数設定のための`xparse`構文入門
+
+## 作例
+
+```latex
+\begin{tcolorbox}[
+  enhanced,
+  colback=white,
+  colframe=lightslategray!30,
+  sharp corners,
+  drop small lifted shadow=lightslategray,
+  toprule=0.5pt, bottomrule=0.5pt, leftrule=0.5pt, rightrule=0.5pt,
+  grow sidewards by=-5mm,
+  beforeafter skip balanced=5mm,
+  halign=flush center,
+  top=1.5em, bottom=1.5em, left=1.5em, right=1.5em,
+]
+  \lipsum[1][3-4]
+\end{tcolorbox}
+```
+
+```latex
+\usepackage[dvipsnames]{xcolor}
+\definecolor{lightslategray}{rgb}{0.47, 0.53, 0.6}
+```
+
+- [【LaTeX】文字の色を変える方法](https://mathlandscape.com/latex-color/)
+- [LaTeX Color](https://latexcolor.com/)
+
+```latex
+\begin{paperbox}[show bounding box]
+  \lipsum[1][3]
+\end{paperbox}
+```
+
+<Image src={img_ShowBoundingBox} alt="" />
 
 ## 独自の環境として定義する
 
@@ -27,27 +67,45 @@ draft: true
 }
 ```
 
-文章の周りに余白を設けるだけの、シンプルな環境を定義してみましょう。
+シンプルな環境を定義してみましょう。
 
 ```latex
 % \tcbuselibrary{skins} が必要
-\DeclareTColorBox{spacebox}{}{%
-  empty,
-  beforeafter skip=\baselineskip
+\DeclareTColorBox{paperbox}{O{}}{%
+  enhanced,
+  colback=white,
+  colframe=lightslategray!30,
+  sharp corners,
+  drop small lifted shadow=lightslategray,
+  toprule=0.5pt, bottomrule=0.5pt, leftrule=0.5pt, rightrule=0.5pt,
+  grow sidewards by=-5mm,
+  beforeafter skip balanced=5mm,
+  halign=flush center,
+  top=1.5em, bottom=1.5em, left=1.5em, right=1.5em, #1
 }
 ```
 
-このように定義しておくと、`spacebox`環境として使い回しが可能になります。
+このように定義しておくと、`paperbox`環境として呼び出しが可能になります。
 
-```latex
-\begin{spacebox}
-  こんにちは世界
-\end{spacebox}
+```latex showLineNumbers
+\lipsum[1][1-2]
+
+\begin{paperbox}
+  \lipsum[1][3-4]
+\end{paperbox}
+
+\lipsum[1][1]
+
+\begin{paperbox}
+  \lipsum[1][3]
+\end{paperbox}
+
+\lipsum[1][1-2]
 ```
 
-## 引数で柔軟性を高める
+<Image src={img_Paperbox} alt="" />
 
-- TODO: 再編する
+## 引数で柔軟性を高める
 
 この`spacebox`環境を使っていく中で、たとえば「文章を中央揃えしたい」箇所も出てくるかもしれません。
 
@@ -78,12 +136,18 @@ tcolorboxのオプションを追加で指定できるようにするには、`s
 
 このように定義した`spacebox`環境は、これまで通りそのままでも使えますし、引数を使って`tcolorbox`のオプションを追加したり上書きしたりすることもできるようになります。
 
-```latex
-TODO: そのままのコードと、valign=flush centerを指定した場合のコード
-```
-
-- TODO: キャプチャ
-
 ### 発展：centerとflush centerの使い分け
 
-- TODO: 違いを調べて書く
+- https://chatgpt.com/c/68b2240d-bcb4-8329-a813-b30cb8eaf63d
+
+```latex
+\begin{paperbox}[halign=flush center]
+  こんにちは、世界
+\end{paperbox}
+
+\begin{paperbox}[halign=center]
+  こんにちは、世界
+\end{paperbox}
+```
+
+<Image src={img_FlushCenter} alt="" />
