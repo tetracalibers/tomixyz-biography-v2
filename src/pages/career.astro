@@ -4,6 +4,8 @@ import Body from "$components/layout/Body.astro"
 import img_tomixy from "$/assets/profiles/pastel-tomixy_op.png"
 import { Image } from "astro:assets"
 import { marked } from "marked"
+import { getEntry } from "astro:content"
+import { Icon } from "astro-icon/components"
 
 const title = "tomixy's Work Experience"
 
@@ -17,6 +19,11 @@ const about = `
   
   現在はSVGベースのインタラクティブなビューワーなど幅広いUI実装を経験しながら、よりローレベルなグラフィックス技術やレンダリングエンジン開発に関心を寄せ、個人ではシェーダープログラミングにも取り組んでいる。
 `
+
+const works = await getEntry("career", "work")
+const educations = await getEntry("career", "education")
+const writings = await getEntry("career", "writing")
+const speakings = await getEntry("career", "speaking")
 ---
 
 <!doctype html>
@@ -24,7 +31,7 @@ const about = `
   <head>
     <BaseHead title={title} description="職務経歴書" noindex />
     <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300&family=Quicksand:wght@400&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Lekton&family=Noto+Sans+JP:wght@300&family=Quicksand&display=swap"
       rel="stylesheet"
     />
   </head>
@@ -48,7 +55,23 @@ const about = `
       </section>
       <section class="block -work">
         <h2 class="block-title">Work</h2>
-        TODO
+        <div class="experience-list">
+          {
+            works!.data.map((work) => (
+              <div class="experience-item">
+                <Icon name="jam:code-sample" aria-hidden="true" />
+                <h3 class="experience-title">{work.title}</h3>
+                <div class="experience-period">{work.start}</div>
+                <p>{work.detail}</p>
+                <ul class="tech-list">
+                  {work.tech.map((tag) => (
+                    <li>{tag.id}</li>
+                  ))}
+                </ul>
+              </div>
+            ))
+          }
+        </div>
       </section>
       <section class="block -education">
         <h2 class="block-title">Education</h2>
@@ -149,5 +172,45 @@ const about = `
 
   .block-title {
     margin-block-end: 0.5rem;
+  }
+
+  .experience-list {
+    display: grid;
+    gap: 0.5rem;
+    padding-block: 1rem;
+  }
+  .experience-item {
+    display: grid;
+    grid-template-columns: 0.75rem 1fr;
+    row-gap: 0.5rem;
+    column-gap: 0.75rem;
+    padding-block: 1rem;
+    border-bottom: 1px dashed var(--slate-200);
+  }
+  .experience-item:first-of-type {
+    padding-block-start: 0.25rem;
+  }
+  .experience-item > * {
+    grid-column: 2;
+  }
+  .experience-item :global(svg) {
+    grid-column: 1;
+    font-size: 0.75rem;
+    align-self: end;
+    color: var(--slate-400);
+  }
+  .experience-title {
+    line-height: 1.2;
+  }
+  .experience-period {
+    font-family: "Lekton", monospace;
+  }
+  .tech-list {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin: 0;
+    list-style: none;
+    padding: 0;
   }
 </style>
