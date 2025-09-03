@@ -96,7 +96,8 @@ export default defineConfig({
         "pepicons-print": ["arrow-left", "arrow-right"],
         ph: ["file-pdf"],
         ri: ["npmjs-line"],
-        stash: ["corner-down-right"]
+        stash: ["corner-down-right"],
+        jam: ["code-sample"]
       }
     }),
     svelte(),
