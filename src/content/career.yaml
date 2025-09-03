@@ -1,0 +1,84 @@
+work:
+  - title: BBS掲示板とCMSシステム開発
+    start: 2021-05
+    end: 2021-10
+    tech: [wordpress, php, jquery]
+    detail: |-
+      TODO
+
+  - title: M&Aサイトの設計・開発
+    start: 2022-03
+    end: 2022-05
+    tech: [laravel, vue]
+    detail: |-
+      TODO
+
+  - title: Webサイトの運用保守・リニューアル実装
+    start: 2022-11
+    end: current
+    url: https://www.pxgrid.com/
+    tech: [astro, svelte, mdx, cloudflare]
+    detail: |-
+      TODO
+
+  - title: バーチャルオフィスアプリケーションの機能開発
+    start: 2022-12
+    end: 2024-12
+    tech: [nextjs, react, typescript, svg]
+    detail: |-
+      TODO
+
+  - title: 動画実装モジュールのプロトタイプ開発
+    start: 2023-05
+    end: 2023-08
+    tech: [pixijs]
+    detail: |-
+      TODO
+
+  - title: 画像ビューワー・エディター開発
+    start: 2023-10
+    end: current
+    tech: [solidjs, openseadragon, typescript]
+    detail: |-
+      TODO
+
+  - title: 動画実装
+    start: 2024-01
+    end: 2024-05
+    url: https://github.com/codegrid/codegrid-12th-movie-opening
+    tech: [remotion, react, svg]
+    detail: |-
+      TODO
+
+education:
+  - title: IT業界未経験新入社員向けの研修講師
+    start: 2022-04
+    end: 2022-05
+    tech: [vba, html, css]
+    detail: |-
+      TODO
+
+writing:
+  - title: CodeGridでの執筆
+    start: 2023-01
+    end: current
+    url: https://www.codegrid.net/authors/tomixy/
+    tech: [markdown]
+    detail: |-
+      TODO
+
+  - title: 教科書執筆
+    start: 2025-01
+    end: 2025-04
+    url: https://amzn.asia/d/bWtmE3q
+    tech: [css, vivliostyle]
+    detail: |-
+      TODO
+
+speaking:
+  - title: YouTube開催オンラインイベントへの登壇
+    start: 2023-03
+    url: https://techfeed.io/events/techfeed-experts-night-14
+    tech: [css]
+    detail: |-
+      TODO
