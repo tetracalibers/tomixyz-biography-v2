@@ -5,7 +5,7 @@ import img_tomixy from "$/assets/profiles/pastel-tomixy_op.png"
 import { Image } from "astro:assets"
 import { marked } from "marked"
 import { getEntry } from "astro:content"
-import { Icon } from "astro-icon/components"
+import ExperienceList from "$components/career/ExperienceList.astro"
 
 const title = "tomixy's Work Experience"
 
@@ -55,35 +55,19 @@ const speakings = await getEntry("career", "speaking")
       </section>
       <section class="block -work">
         <h2 class="block-title">Work</h2>
-        <div class="experience-list">
-          {
-            works!.data.map((work) => (
-              <div class="experience-item">
-                <Icon name="jam:code-sample" aria-hidden="true" />
-                <h3 class="experience-title">{work.title}</h3>
-                <div class="experience-period">{work.start}</div>
-                <p>{work.detail}</p>
-                <ul class="tech-list">
-                  {work.tech.map((tag) => (
-                    <li>{tag.id}</li>
-                  ))}
-                </ul>
-              </div>
-            ))
-          }
-        </div>
+        <ExperienceList items={works!.data} />
       </section>
       <section class="block -education">
         <h2 class="block-title">Education</h2>
-        TODO
+        <ExperienceList items={educations!.data} />
       </section>
       <section class="block -writing">
         <h2 class="block-title">Writing</h2>
-        TODO
+        <ExperienceList items={writings!.data} />
       </section>
       <section class="block -speaking">
         <h2 class="block-title">Speaking</h2>
-        TODO
+        <ExperienceList items={speakings!.data} />
       </section>
       <section class="block -more">
         <h2 class="block-title">More info...</h2>
@@ -172,45 +156,5 @@ const speakings = await getEntry("career", "speaking")
 
   .block-title {
     margin-block-end: 0.5rem;
-  }
-
-  .experience-list {
-    display: grid;
-    gap: 0.5rem;
-    padding-block: 1rem;
-  }
-  .experience-item {
-    display: grid;
-    grid-template-columns: 0.75rem 1fr;
-    row-gap: 0.5rem;
-    column-gap: 0.75rem;
-    padding-block: 1rem;
-    border-bottom: 1px dashed var(--slate-200);
-  }
-  .experience-item:first-of-type {
-    padding-block-start: 0.25rem;
-  }
-  .experience-item > * {
-    grid-column: 2;
-  }
-  .experience-item :global(svg) {
-    grid-column: 1;
-    font-size: 0.75rem;
-    align-self: end;
-    color: var(--slate-400);
-  }
-  .experience-title {
-    line-height: 1.2;
-  }
-  .experience-period {
-    font-family: "Lekton", monospace;
-  }
-  .tech-list {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    margin: 0;
-    list-style: none;
-    padding: 0;
   }
 </style>
