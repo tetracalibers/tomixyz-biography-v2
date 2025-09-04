@@ -3,6 +3,7 @@ import { Icon } from "astro-icon/components"
 import type { CollectionEntry } from "astro:content"
 import TechTag from "./TechTag.astro"
 import ProjectPeriod from "./ProjectPeriod.astro"
+import { marked } from "marked"
 
 interface Props {
   items: CollectionEntry<"career">["data"]
@@ -21,7 +22,9 @@ const { items, icon } = Astro.props
         <div class="experience-period">
           <ProjectPeriod start={item.start} end={item.end} />
         </div>
-        <p>{item.detail}</p>
+        <div class="experience-detail">
+          <Fragment set:html={marked.parse(item.detail)} />
+        </div>
         <ul class="tech-list">
           {item.tech.map((tag) => (
             <li>
@@ -70,6 +73,9 @@ const { items, icon } = Astro.props
   }
   .experience-period {
     font-family: "Lekton", "Noto Sans JP";
+  }
+  .experience-detail :global(p) {
+    margin: 0;
   }
   .tech-list {
     display: flex;
