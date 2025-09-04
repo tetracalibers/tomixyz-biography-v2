@@ -113,7 +113,10 @@ export default defineConfig({
           "pixijs",
           "solidjs",
           "mysql",
-          "sass"
+          "sass",
+          "javascript",
+          "vscode",
+          "cloudflareworkers"
         ]
       }
     }),

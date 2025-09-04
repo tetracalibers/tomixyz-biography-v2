@@ -12,6 +12,10 @@ cf-pages:
   icon: devicon:cloudflare
   name: Cloudflare Pages
   url: https://pages.cloudflare.com/
+cf-workers:
+  icon: devicon:cloudflareworkers
+  name: Cloudflare Workers
+  url: https://workers.cloudflare.com/
 css:
   name: CSS
   url: https://developer.mozilla.org/ja/docs/Web/CSS
@@ -44,6 +48,7 @@ hyperref:
   skill: false
   url: https://texwiki.texjp.org/?hyperref
 javascript:
+  icon: devicon:javascript
   name: JavaScript
   url: https://developer.mozilla.org/ja/docs/Web/JavaScript
 jquery:
@@ -172,6 +177,7 @@ vivliostyle:
   name: Vivliostyle
   url: https://vivliostyle.org/ja/
 vscode:
+  icon: devicon:vscode
   name: VS Code
   url: https://code.visualstudio.com/
 vuejs:

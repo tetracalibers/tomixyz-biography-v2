@@ -16,8 +16,7 @@ work:
   - title: 企業サイトのリニューアル実装・運用保守
     start: 2022-11
     end: current
-    url: https://www.pxgrid.com/
-    tech: [astro, svelte, cf-pages, mdx]
+    tech: [astro, svelte, cf-pages, cf-workers, mdx]
     detail: |-
       TODO
 
@@ -59,10 +58,10 @@ education:
       TODO
 
 writing:
-  - title: オンラインメディア「CodeGrid」での連載
+  - title: オンラインメディア「[CodeGrid](https://www.codegrid.net/authors/tomixy/)」での連載
     start: 2023-01
     end: current
-    url: https://www.codegrid.net/authors/tomixy/
+    tech: [astro, javascript, typescript, vscode]
     detail: |-
       TODO
 
@@ -75,9 +74,9 @@ writing:
       TODO
 
 speaking:
-  - title: TechFeed Experts Night 14
+  - title: |-
+      [TechFeed Experts Night 14](https://techfeed.io/events/techfeed-experts-night-14)
     start: 2023-03
-    url: https://techfeed.io/events/techfeed-experts-night-14
     tech: [css]
     detail: |-
-      TODO
+      YouTubeで配信されたオンラインイベントに登壇。ブラウザのレンダリングの仕組みを理解した上で、バグを踏まずにパフォーマンスも良好なCSSアニメーションの手法を考えるという、「暗記不要なパフォーマンス改善の原理」をコンセプトに8分間のLTを行った。
