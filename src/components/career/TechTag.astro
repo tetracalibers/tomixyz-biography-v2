@@ -19,7 +19,8 @@ const { name, url, icon } = tag!.data
 
 <style>
   .tech-tag {
-    border: 1px solid rgb(from var(--career-theme-color) r g b / 60%);
+    color: oklch(from var(--career-theme-color) calc(l * 0.75) c h);
+    border: 1px solid rgb(from var(--career-theme-color) r g b / 75%);
     padding-inline: 0.6em;
     padding-block: 0.3em;
     border-radius: 1em;
