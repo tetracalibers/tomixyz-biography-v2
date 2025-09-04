@@ -9,15 +9,15 @@ import ExperienceList from "$components/career/ExperienceList.astro"
 
 const title = "tomixy's Work Experience"
 
-const about = `
+const profile = `
   2002年生まれ。
   
-  高校時代に独学でプログラミングを始め、高校在学中から個人でWeb開発のクライアントワークを経験。
+  高校時代に独学でプログラミングを始め、高校在学中からフリーランスとしてWeb開発のクライアントワークを経験。
   卒業後は都内のIT企業にてフロントエンド・バックエンドともに設計・実装の主力となる傍らで、HTML・CSS・VBA・Laravelなどの勉強会講師も経験した。
 
   次第にアクセシビリティやグラフィック表現に携わりたいという思いが強くなり、フロントエンドの道を選ぶ。2022年11月に[株式会社ピクセルグリッド](https://www.pxgrid.com/)に入社。
   
-  現在はSVGベースのインタラクティブなビューワーなど幅広いUI実装を経験しながら、よりローレベルなグラフィックス技術やレンダリングエンジン開発に関心を寄せ、個人ではシェーダープログラミングにも取り組んでいる。
+  現在はSVGベースのインタラクティブなビューワーなど幅広いUI実装を経験しながら、よりローレベルなグラフィックス技術やレンダリングエンジン開発に関心を寄せ、個人ではWebGL・WebGPUやシェーダープログラミングにも取り組んでいる。
 `
 
 const works = await getEntry("career", "work")
@@ -45,9 +45,9 @@ const speakings = await getEntry("career", "speaking")
         </div>
         <p class="--handle-name">Web上では<code>tomixy</code>という名前で活動しています。</p>
       </section>
-      <section class="block -about">
-        <h2 class="block-title">About</h2>
-        <Fragment set:html={marked.parse(about)} />
+      <section class="block -profile">
+        <h2 class="block-title">Profile</h2>
+        <Fragment set:html={marked.parse(profile)} />
       </section>
       <section class="block -skills">
         <h2 class="block-title">Skills</h2>
