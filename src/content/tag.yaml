@@ -56,6 +56,18 @@ mdx:
 mysql:
   name: MySQL
   url: https://www.mysql.com/jp/
+nextjs:
+  name: Next.js
+  url: https://nextjs.org/
+openseadragon:
+  name: OpenSeadragon
+  url: https://openseadragon.github.io/
+php:
+  name: PHP
+  url: https://www.php.net/
+pixijs:
+  name: PixiJS
+  url: https://pixijs.com/
 postgresql:
   name: PostgreSQL
   url: https://www.postgresql.org/
@@ -86,6 +98,9 @@ rust:
 slidev:
   name: Slidev
   url: https://sli.dev/
+solidjs:
+  name: SolidJS
+  url: https://www.solidjs.com/
 starlight:
   name: Starlight
   url: https://starlight.astro.build/ja/
@@ -131,6 +146,9 @@ vba:
 view-transition-api:
   name: View Transition API
   url: https://developer.mozilla.org/ja/docs/Web/API/View_Transition_API
+vivliostyle:
+  name: Vivliostyle
+  url: https://vivliostyle.org/ja/
 vscode:
   name: VS Code
   url: https://code.visualstudio.com/

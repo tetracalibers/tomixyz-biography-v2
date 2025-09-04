@@ -9,7 +9,7 @@ work:
   - title: M&Aサイトの設計・開発
     start: 2022-03
     end: 2022-05
-    tech: [laravel, vue]
+    tech: [laravel, vuejs]
     detail: |-
       TODO
 
@@ -17,7 +17,7 @@ work:
     start: 2022-11
     end: current
     url: https://www.pxgrid.com/
-    tech: [astro, svelte, mdx, cloudflare]
+    tech: [astro, svelte, mdx, cf-pages]
     detail: |-
       TODO
 
@@ -63,7 +63,6 @@ writing:
     start: 2023-01
     end: current
     url: https://www.codegrid.net/authors/tomixy/
-    tech: [markdown]
     detail: |-
       TODO
 
