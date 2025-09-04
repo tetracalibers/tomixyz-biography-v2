@@ -49,10 +49,6 @@ const speakings = await getEntry("career", "speaking")
         <h2 class="block-title">Profile</h2>
         <Fragment set:html={marked.parse(profile)} />
       </section>
-      <section class="block -skills">
-        <h2 class="block-title">Skills</h2>
-        TODO
-      </section>
       <section class="block -work">
         <h2 class="block-title">Work</h2>
         <ExperienceList items={works!.data} icon="system-uicons/code" />
