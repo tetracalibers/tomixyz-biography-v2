@@ -67,14 +67,17 @@ const speakings = await getEntry("career", "speaking")
       </section>
       <section class="block -more">
         <h2 class="block-title">More info...</h2>
-        <ul class="--links">
-          <li>
-            <a href="/">https://tomixyz-biography.net/</a>
-          </li>
-          <li>
-            <a href="https://github.com/tetracalibers">GitHub: @tetracalibers</a>
-          </li>
-        </ul>
+        <div class="--more-contents">
+          <p>個人開発やブログなどは次のサイトをご覧ください。</p>
+          <ul class="--links">
+            <li>
+              <a href="/">https://tomixyz-biography.net/</a>
+            </li>
+            <li>
+              <a href="https://github.com/tetracalibers">GitHub: @tetracalibers</a>
+            </li>
+          </ul>
+        </div>
       </section>
     </main>
   </Body>
@@ -155,7 +158,13 @@ const speakings = await getEntry("career", "speaking")
     margin-block-end: 0.5rem;
   }
 
+  .--more-contents {
+    padding-block: 0.75rem;
+    display: grid;
+    gap: 0.5rem;
+  }
   .--links {
     line-height: 2;
+    margin: 0;
   }
 </style>
