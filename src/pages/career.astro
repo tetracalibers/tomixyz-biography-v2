@@ -38,7 +38,7 @@ const speakings = await getEntry("career", "speaking")
   <Body>
     <main class="layout">
       <section class="block -top">
-        <Image src={img_tomixy} alt="tomixy" width={128} height={128} class="--thumb" />
+        <Image src={img_tomixy} alt="tomixy" class="--thumb" />
         <div class="--name">
           <h1><ruby><rb>菅野 亜実</rb><rt>かんの あみ</rt></ruby></h1>
           <p>Front-end Developer</p>
@@ -144,6 +144,7 @@ const speakings = await getEntry("career", "speaking")
   }
   .--thumb {
     grid-row: 1 / -1;
+    width: 128px;
   }
   .--handle-name {
     word-break: auto-phrase;
