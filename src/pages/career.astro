@@ -55,19 +55,19 @@ const speakings = await getEntry("career", "speaking")
       </section>
       <section class="block -work">
         <h2 class="block-title">Work</h2>
-        <ExperienceList items={works!.data} />
+        <ExperienceList items={works!.data} icon="jam:code-sample" />
       </section>
       <section class="block -education">
         <h2 class="block-title">Education</h2>
-        <ExperienceList items={educations!.data} />
+        <ExperienceList items={educations!.data} icon="cil/education" />
       </section>
       <section class="block -writing">
         <h2 class="block-title">Writing</h2>
-        <ExperienceList items={writings!.data} />
+        <ExperienceList items={writings!.data} icon="stash/pencil-writing-light" />
       </section>
       <section class="block -speaking">
         <h2 class="block-title">Speaking</h2>
-        <ExperienceList items={speakings!.data} />
+        <ExperienceList items={speakings!.data} icon="material-symbols-light/select-to-speak-rounded" />
       </section>
       <section class="block -more">
         <h2 class="block-title">More info...</h2>

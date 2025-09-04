@@ -4,16 +4,17 @@ import type { CollectionEntry } from "astro:content"
 
 interface Props {
   items: CollectionEntry<"career">["data"]
+  icon: string
 }
 
-const { items } = Astro.props
+const { items, icon } = Astro.props
 ---
 
 <div class="experience-list">
   {
     items.map((item) => (
       <div class="experience-item">
-        <Icon name="jam:code-sample" aria-hidden="true" />
+        <Icon name={icon} aria-hidden="true" size="1rem" />
         <h3 class="experience-title">{item.title}</h3>
         <div class="experience-period">{item.start}</div>
         <p>{item.detail}</p>
@@ -57,9 +58,9 @@ const { items } = Astro.props
   }
   .experience-item :global(svg) {
     grid-column: 1;
-    font-size: 0.75rem;
     align-self: center;
     color: var(--slate-400);
+    overflow: visible;
   }
   .experience-title {
     line-height: 1.2;
