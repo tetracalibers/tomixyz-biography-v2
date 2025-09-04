@@ -5,6 +5,9 @@ astro:
 bash:
   name: Bash
   url: https://ja.wikipedia.org/wiki/Bash
+canvas:
+  name: Canvas API
+  url: https://developer.mozilla.org/ja/docs/Web/API/Canvas_API
 cf-pages:
   icon: devicon:cloudflare
   name: Cloudflare Pages
@@ -58,6 +61,7 @@ mdx:
   name: MDX
   url: https://mdxjs.com/
 mysql:
+  icon: devicon:mysql
   name: MySQL
   url: https://www.mysql.com/jp/
 nextjs:
@@ -103,6 +107,10 @@ ruby:
 rust:
   name: Rust
   url: https://www.rust-lang.org/ja
+sass:
+  icon: devicon:sass
+  name: Sass
+  url: https://sass-lang.com/
 slidev:
   name: Slidev
   url: https://sli.dev/
@@ -136,6 +144,9 @@ svg-js:
 tailwind-css:
   name: Tailwind CSS
   url: https://tailwindcss.com/
+tanstack-query:
+  name: TanStack Query
+  url: https://tanstack.com/query/latest
 tcolorbox:
   name: tcolorbox
   skill: false

@@ -111,7 +111,9 @@ export default defineConfig({
           "react",
           "typescript",
           "pixijs",
-          "solidjs"
+          "solidjs",
+          "mysql",
+          "sass"
         ]
       }
     }),
