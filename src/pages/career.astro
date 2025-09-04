@@ -102,6 +102,8 @@ const speakings = await getEntry("career", "speaking")
   }
 
   .layout {
+    --career-theme-color: #789dbc;
+
     display: flex;
     flex-direction: column;
     gap: 14px;
@@ -115,24 +117,18 @@ const speakings = await getEntry("career", "speaking")
     letter-spacing: 0.05em;
     color: #2a3335;
 
-    background-color: #ffffff;
-    background-size: 14px 14px;
-    background-image: repeating-linear-gradient(
-      to right,
-      rgba(197, 192, 255, 0.5),
-      rgba(197, 192, 255, 0.5) 0.7px,
-      #ffffff 0.7px,
-      #ffffff
-    );
+    --_bg-color: #fff;
+    background-color: var(--_bg-color);
+    background-image: radial-gradient(var(--career-theme-color) 0.5px, var(--_bg-color) 0.5px);
+    background-size: 6px 6px;
+    background-position-y: 1px;
 
-    border-color: rgb(202 213 226 / 50%);
-    border-style: solid;
-    border-width: thin;
+    border: 1px solid var(--career-theme-color);
   }
 
   .layout > :where(.top, .block) {
     background-color: #fff;
-    border-block-color: rgb(202 213 226 / 50%);
+    border-block-color: var(--career-theme-color);
     border-block-style: solid;
     border-block-width: thin;
     padding: 1rem;

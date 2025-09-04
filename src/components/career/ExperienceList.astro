@@ -50,7 +50,7 @@ const { items, icon } = Astro.props
     row-gap: 0.5rem;
     column-gap: 0.75rem;
     padding-block: 1rem;
-    border-bottom: 1px dashed var(--slate-200);
+    border-bottom: 1px dashed rgb(from var(--career-theme-color) r g b / 50%);
   }
   .experience-item:first-of-type {
     padding-block-start: 0.25rem;
@@ -64,7 +64,7 @@ const { items, icon } = Astro.props
   }
   .experience-item .category-icon {
     grid-column: 1;
-    color: var(--slate-400);
+    color: var(--career-theme-color);
     overflow: visible;
     translate: 0 0.2rem;
   }
