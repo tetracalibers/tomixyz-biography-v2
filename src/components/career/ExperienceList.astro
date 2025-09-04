@@ -1,6 +1,7 @@
 ---
 import { Icon } from "astro-icon/components"
 import type { CollectionEntry } from "astro:content"
+import TechTag from "./TechTag.astro"
 
 interface Props {
   items: CollectionEntry<"career">["data"]
@@ -20,7 +21,9 @@ const { items, icon } = Astro.props
         <p>{item.detail}</p>
         <ul class="tech-list">
           {item.tech.map((tag) => (
-            <li>{tag.id}</li>
+            <li>
+              <TechTag id={tag.id} />
+            </li>
           ))}
         </ul>
       </div>
