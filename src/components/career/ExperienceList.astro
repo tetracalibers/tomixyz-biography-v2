@@ -16,7 +16,7 @@ const { items, icon } = Astro.props
   {
     items.map((item) => (
       <div class="experience-item">
-        <Icon name={icon} aria-hidden="true" size="1rem" />
+        <Icon class="category-icon" name={icon} aria-hidden="true" size="1.2rem" />
         <h3 class="experience-title">{item.title}</h3>
         <div class="experience-period">
           <ProjectPeriod start={item.start} end={item.end} />
@@ -62,14 +62,11 @@ const { items, icon } = Astro.props
   .experience-item > * {
     grid-column: 2;
   }
-  .experience-item :global(svg) {
+  .experience-item .category-icon {
     grid-column: 1;
-    align-self: center;
     color: var(--slate-400);
     overflow: visible;
-  }
-  .experience-title {
-    line-height: 1.2;
+    translate: 0 0.2rem;
   }
   .experience-period {
     font-family: "Lekton", "Noto Sans JP";

@@ -97,7 +97,7 @@ export default defineConfig({
         ph: ["file-pdf"],
         ri: ["npmjs-line"],
         stash: ["corner-down-right"],
-        jam: ["code-sample"],
+        "system-uicons": ["code"],
         devicon: [
           "wordpress",
           "php",
