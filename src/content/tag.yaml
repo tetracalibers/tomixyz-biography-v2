@@ -1,10 +1,12 @@
 astro:
+  icon: devicon:astro
   name: Astro
   url: https://astro.build/
 bash:
   name: Bash
   url: https://ja.wikipedia.org/wiki/Bash
 cf-pages:
+  icon: devicon:cloudflare
   name: Cloudflare Pages
   url: https://pages.cloudflare.com/
 css:
@@ -42,9 +44,11 @@ javascript:
   name: JavaScript
   url: https://developer.mozilla.org/ja/docs/Web/JavaScript
 jquery:
+  icon: devicon:jquery
   name: jQuery
   url: https://jquery.com/
 laravel:
+  icon: devicon:laravel
   name: Laravel
   url: https://laravel.com/
 latex:
@@ -57,15 +61,18 @@ mysql:
   name: MySQL
   url: https://www.mysql.com/jp/
 nextjs:
+  icon: devicon:nextjs
   name: Next.js
   url: https://nextjs.org/
 openseadragon:
   name: OpenSeadragon
   url: https://openseadragon.github.io/
 php:
+  icon: devicon:php
   name: PHP
   url: https://www.php.net/
 pixijs:
+  icon: devicon:pixijs
   name: PixiJS
   url: https://pixijs.com/
 postgresql:
@@ -75,6 +82,7 @@ python:
   name: Python
   url: https://www.python.org/
 react:
+  icon: devicon:react
   name: React
   url: https://ja.react.dev/
 rehype-pretty-code:
@@ -99,6 +107,7 @@ slidev:
   name: Slidev
   url: https://sli.dev/
 solidjs:
+  icon: devicon:solidjs
   name: SolidJS
   url: https://www.solidjs.com/
 starlight:
@@ -112,6 +121,7 @@ subfiles:
   skill: false
   url: https://ctan.org/pkg/subfiles
 svelte:
+  icon: devicon:svelte
   name: Svelte
   url: https://svelte.jp/
 sveltekit:
@@ -138,6 +148,7 @@ tikz:
   name: TikZ
   url: https://texwiki.texjp.org/TikZ
 typescript:
+  icon: devicon:typescript
   name: TypeScript
   url: https://www.typescriptlang.org/
 vba:
@@ -153,6 +164,7 @@ vscode:
   name: VS Code
   url: https://code.visualstudio.com/
 vuejs:
+  icon: devicon:vuejs
   name: Vue.js
   url: https://ja.vuejs.org/
 web-speech-api:
@@ -174,6 +186,7 @@ winit:
   name: winit
   url: https://github.com/rust-windowing/winit
 wordpress:
+  icon: devicon:wordpress
   name: WordPress
   url: https://wordpress.com/ja/
 xparse:

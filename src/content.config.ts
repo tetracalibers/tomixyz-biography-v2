@@ -147,6 +147,7 @@ const tag = defineCollection({
       name: z.string(),
       url: z.string().url(),
       skill: z.boolean().default(true),
+      icon: z.string().optional(),
       cvonly: z.boolean().default(false) // 職務経歴書でのみ使用（タグ別ページを生成しない）
     })
 })

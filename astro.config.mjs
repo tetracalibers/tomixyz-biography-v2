@@ -97,7 +97,22 @@ export default defineConfig({
         ph: ["file-pdf"],
         ri: ["npmjs-line"],
         stash: ["corner-down-right"],
-        jam: ["code-sample"]
+        jam: ["code-sample"],
+        devicon: [
+          "wordpress",
+          "php",
+          "jquery",
+          "laravel",
+          "vuejs",
+          "astro",
+          "svelte",
+          "cloudflare",
+          "nextjs",
+          "react",
+          "typescript",
+          "pixijs",
+          "solidjs"
+        ]
       }
     }),
     svelte(),

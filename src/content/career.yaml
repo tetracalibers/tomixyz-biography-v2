@@ -17,7 +17,7 @@ work:
     start: 2022-11
     end: current
     url: https://www.pxgrid.com/
-    tech: [astro, svelte, mdx, cf-pages]
+    tech: [astro, svelte, cf-pages, mdx]
     detail: |-
       TODO
 
@@ -38,7 +38,7 @@ work:
   - title: 画像ビューワー・エディター開発
     start: 2023-10
     end: current
-    tech: [solidjs, openseadragon, typescript]
+    tech: [solidjs, typescript, openseadragon]
     detail: |-
       TODO
 
@@ -46,7 +46,7 @@ work:
     start: 2024-01
     end: 2024-05
     url: https://github.com/codegrid/codegrid-12th-movie-opening
-    tech: [remotion, react, svg]
+    tech: [react, remotion, svg]
     detail: |-
       TODO
 

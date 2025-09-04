@@ -507,6 +507,13 @@
   dependencies:
     "@iconify/types" "*"
 
+"@iconify-json/devicon@^1.2.39":
+  version "1.2.43"
+  resolved "https://registry.yarnpkg.com/@iconify-json/devicon/-/devicon-1.2.43.tgz#f94e40073c564f901e901e5bf35f62b39fd4f259"
+  integrity sha512-Bg9G4SzeR5aGzD8UG7D6rrXNE5wNbhDqUjq7iG972km+54BUDguF5TfZw2cw34uUtx0D717U2kogUi7FbLuYeA==
+  dependencies:
+    "@iconify/types" "*"
+
 "@iconify-json/famicons@^1.2.2":
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/@iconify-json/famicons/-/famicons-1.2.2.tgz#ab39bb935c8c4acf9d8dff6d7e7dcfb0435eb19d"
