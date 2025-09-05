@@ -117,7 +117,9 @@ export default defineConfig({
           "javascript",
           "vscode",
           "cloudflareworkers"
-        ]
+        ],
+        "material-icon-theme": ["svg", "css"],
+        logos: ["mdx"]
       }
     }),
     svelte(),

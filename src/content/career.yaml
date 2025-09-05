@@ -2,16 +2,19 @@ work:
   - title: 交流サイトとCMSシステム開発
     start: 2021-05
     end: 2021-10
-    tech: [wordpress, php, jquery, sass, canvas, svg]
+    tech: [wordpress, php, jquery, sass, svg, canvas]
     detail: |-
-      TODO
+      バンドマン交流サイトとそのCMSシステムの開発を個人で受注。
+      WebサイトはWordPressの独自テーマとして開発。
+      また、交流掲示板ページのBBS機能は独自のWordPressプラグインとしてフルスクラッチ実装を行った。
 
   - title: M&Aサイトの設計・初期開発
     start: 2022-03
     end: 2022-05
     tech: [laravel, vuejs, mysql]
     detail: |-
-      TODO
+      都内IT企業のM&A事業立ち上げに伴い、M&Aマッチングサイトの設計と初期開発をリード。
+      約10名の開発チームの中にはフレームワーク使用経験が浅いメンバーもいたため、有志勉強会の開催や個別にレクチャーを行うなど、育成にも力を入れた。
 
   - title: 企業サイトのリニューアル実装・運用保守
     start: 2022-11
@@ -44,8 +47,7 @@ work:
   - title: イベントのオープニング動画実装
     start: 2024-01
     end: 2024-05
-    url: https://github.com/codegrid/codegrid-12th-movie-opening
-    tech: [react, remotion, svg]
+    tech: [react, svg, remotion]
     detail: |-
       TODO
 
@@ -53,9 +55,9 @@ education:
   - title: IT業界未経験社員向けの研修講師
     start: 2022-04
     end: 2022-05
-    tech: [vba, html, css]
+    tech: [css, html, vba]
     detail: |-
-      TODO
+      都内IT企業にて、未経験社員向けの研修で講師を担当。有志勉強会の企画・開催も自主的に行った。
 
 writing:
   - title: オンラインメディア「[CodeGrid](https://www.codegrid.net/authors/tomixy/)」での連載
@@ -63,15 +65,15 @@ writing:
     end: current
     tech: [astro, javascript, typescript, vscode]
     detail: |-
-      TODO
+      フロントエンド技術を中心に多数の記事を執筆。
 
-  - title: Web開発入門書籍の執筆
+  - title: 書籍「Astro × GitHub × Cloudflareで学ぶモダンWeb開発」
     start: 2025-01
     end: 2025-04
-    url: https://amzn.asia/d/bWtmE3q
     tech: [astro, css, vivliostyle]
     detail: |-
-      TODO
+      [CodeGridワークショップ 2025 春](https://www.codegrid.net/workshops/2025-spring/)のテキストブックをメインで執筆。
+      [Amazon](https://amzn.asia/d/bWtmE3q)でも販売中。
 
 speaking:
   - title: |-
@@ -79,4 +81,4 @@ speaking:
     start: 2023-03
     tech: [css]
     detail: |-
-      YouTubeで配信されたオンラインイベントに登壇。ブラウザのレンダリングの仕組みを理解した上で、バグを踏まずにパフォーマンスも良好なCSSアニメーションの手法を考えるという、「暗記不要なパフォーマンス改善の原理」をコンセプトに8分間のLTを行った。
+      YouTubeで配信されたオンラインイベントに登壇。ブラウザのレンダリングの仕組みを理解した上で、バグを踏まずにパフォーマンスも良好なCSSアニメーションの手法を考察する「CSS Animation パフォーマンスを考える原理」というテーマで8分間のLTを行った。

@@ -17,6 +17,7 @@ cf-workers:
   name: Cloudflare Workers
   url: https://workers.cloudflare.com/
 css:
+  icon: material-icon-theme:css
   name: CSS
   url: https://developer.mozilla.org/ja/docs/Web/CSS
 devtools:
@@ -63,6 +64,7 @@ latex:
   name: LaTeX
   url: https://ja.wikipedia.org/wiki/LaTeX
 mdx:
+  icon: logos:mdx
   name: MDX
   url: https://mdxjs.com/
 mysql:
@@ -141,6 +143,7 @@ sveltekit:
   name: SvelteKit
   url: https://svelte.jp/docs/kit/introduction
 svg:
+  icon: material-icon-theme:svg
   name: SVG
   url: https://developer.mozilla.org/ja/docs/Web/SVG
 svg-js:

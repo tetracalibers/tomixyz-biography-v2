@@ -570,6 +570,13 @@
   dependencies:
     "@iconify/types" "*"
 
+"@iconify-json/logos@^1.2.9":
+  version "1.2.9"
+  resolved "https://registry.yarnpkg.com/@iconify-json/logos/-/logos-1.2.9.tgz#cf148ae5443f217a6a8dd8c9fe188adcee69d05f"
+  integrity sha512-G6VCdFnwZcrT6Eveq3m43oJfLw/CX8plwFcE+2jgv3fiGB64pTmnU7Yd1MNZ/eA+/Re2iEDhuCfSNOWTHwwK8w==
+  dependencies:
+    "@iconify/types" "*"
+
 "@iconify-json/lucide@^1.2.34":
   version "1.2.34"
   resolved "https://registry.npmjs.org/@iconify-json/lucide/-/lucide-1.2.34.tgz"
@@ -581,6 +588,13 @@
   version "1.2.2"
   resolved "https://registry.npmjs.org/@iconify-json/majesticons/-/majesticons-1.2.2.tgz"
   integrity sha512-hFZb/XYr2b/jW5DPpr7He0wm8iyORkryjxIiBFB8iyecpEXA1vp6ALyxN5LlKKhQ9yqhICeQ7uYWEMbwkXkRCg==
+  dependencies:
+    "@iconify/types" "*"
+
+"@iconify-json/material-icon-theme@^1.2.26":
+  version "1.2.26"
+  resolved "https://registry.yarnpkg.com/@iconify-json/material-icon-theme/-/material-icon-theme-1.2.26.tgz#3665ff5e706137d205ad309f801a211ed513ad9d"
+  integrity sha512-f8mVnmUKVGg9YfUt/jxLthPJKNEXknQkk/Kykrft4qCVkrjkGzTvrKfoIP5vgeHnKdixMD/as8NUixW0ajLHSQ==
   dependencies:
     "@iconify/types" "*"
 
