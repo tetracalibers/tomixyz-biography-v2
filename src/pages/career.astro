@@ -1,0 +1,171 @@
+---
+import BaseHead from "$/components/layout/BaseHead.astro"
+import Body from "$components/layout/Body.astro"
+import img_tomixy from "$/assets/profiles/pastel-tomixy_op.png"
+import { Image } from "astro:assets"
+import { getEntry } from "astro:content"
+import ExperienceList from "$components/career/ExperienceList.astro"
+import { marked } from "marked"
+
+const title = "Work Experience"
+
+const profile = `
+  2002年生まれ。
+  
+  高校時代に独学でプログラミングを始め、高校在学中からフリーランスとしてWeb開発のクライアントワークを経験。卒業後は都内のIT企業にてフロントエンド・バックエンドともに設計・実装の主力となる傍らで、HTML・CSS・VBA・Laravelなどの勉強会講師も経験した。
+
+  次第にアクセシビリティやグラフィック表現に携わりたいという思いが強くなり、フロントエンドの道を選ぶ。2022年11月に[株式会社ピクセルグリッド](https://www.pxgrid.com/)に入社。
+  
+  現在はSVGベースのインタラクティブなビューワーなど幅広いUI実装を経験しながら、よりローレベルなグラフィックス技術やレンダリングエンジン開発に関心を寄せ、個人ではWebGL・WebGPUやシェーダープログラミングにも取り組んでいる。
+`
+
+const works = await getEntry("career", "work")
+const educations = await getEntry("career", "education")
+const writings = await getEntry("career", "writing")
+const speakings = await getEntry("career", "speaking")
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <BaseHead title={title} description="職務経歴書" noindex />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lekton&family=Montserrat&family=Noto+Sans+JP:wght@300&family=Quicksand&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <Body>
+    <main class="layout">
+      <section class="block -top">
+        <Image src={img_tomixy} alt="tomixy" class="--thumb" />
+        <div class="--name">
+          <h1><ruby><rb>菅野 亜実</rb><rt>かんの あみ</rt></ruby></h1>
+          <p>Front-end Developer</p>
+        </div>
+        <p class="--handle-name">Web上では<code>tomixy</code>という名前で活動しています。</p>
+      </section>
+      <section class="block -profile">
+        <h2 class="block-title">Profile</h2>
+        <Fragment set:html={marked.parse(profile)} />
+      </section>
+      <section class="block -work">
+        <h2 class="block-title">Work</h2>
+        <ExperienceList items={works!.data} icon="system-uicons/code" />
+      </section>
+      <section class="block -education">
+        <h2 class="block-title">Education</h2>
+        <ExperienceList items={educations!.data} icon="cil/education" />
+      </section>
+      <section class="block -writing">
+        <h2 class="block-title">Writing</h2>
+        <ExperienceList items={writings!.data} icon="stash/pencil-writing-light" />
+      </section>
+      <section class="block -speaking">
+        <h2 class="block-title">Speaking</h2>
+        <ExperienceList items={speakings!.data} icon="material-symbols-light/select-to-speak-rounded" />
+      </section>
+      <section class="block -more">
+        <h2 class="block-title">More info...</h2>
+        <div class="--more-contents">
+          <p>個人でもさまざまな開発や技術ブログの執筆を行っています。</p>
+          <ul class="--links">
+            <li>
+              <a href="/">https://tomixyz-biography.net/</a>
+            </li>
+            <li>
+              <a href="https://github.com/tetracalibers">GitHub: @tetracalibers</a>
+            </li>
+          </ul>
+        </div>
+      </section>
+    </main>
+  </Body>
+</html>
+
+<style>
+  :where(h1, h2, h3, p) {
+    margin: 0;
+  }
+  .layout :global(code) {
+    font-family: "Quicksand", "Noto Sans JP";
+    font-size: 0.95em;
+    padding-block: 0.3em;
+    padding-inline: 0.6em;
+    border-radius: 1em;
+  }
+
+  @layer career-default {
+    .layout :global(p) {
+      margin-block-end: 0;
+    }
+    .layout :global(a) {
+      color: #6b728e;
+      text-decoration-style: dashed;
+      text-underline-offset: 0.25em;
+      text-decoration-thickness: 1px;
+    }
+  }
+
+  .layout {
+    --career-theme-color: #789dbc;
+
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    justify-content: center;
+    padding-block: 14px;
+    max-width: 48rem;
+    margin-inline: auto;
+    font-family: "Quicksand", "Noto Sans JP";
+    line-height: 1.5;
+    letter-spacing: 0.05em;
+    color: #2a3335;
+
+    --_bg-color: #fff;
+    background-color: var(--_bg-color);
+    background-image: radial-gradient(var(--career-theme-color) 0.5px, var(--_bg-color) 0.5px);
+    background-size: 6px 6px;
+    background-position-y: 1px;
+
+    border: 1px solid var(--career-theme-color);
+  }
+
+  .layout > :where(.top, .block) {
+    background-color: #fff;
+    border-block-color: var(--career-theme-color);
+    border-block-style: solid;
+    border-block-width: thin;
+    padding: 1rem;
+  }
+
+  .-top {
+    display: grid;
+    align-items: center;
+    column-gap: 1rem;
+    grid-template-columns: 128px 1fr;
+    grid-template-rows: 2fr 1fr;
+  }
+  .--thumb {
+    grid-row: 1 / -1;
+    width: 128px;
+  }
+  .--handle-name {
+    word-break: auto-phrase;
+    grid-column: 2 / -1;
+    font-size: 0.8em;
+  }
+
+  .block-title {
+    margin-block-end: 0.5rem;
+  }
+
+  .--more-contents {
+    padding-block: 0.75rem;
+    display: grid;
+    gap: 0.5rem;
+  }
+  .--links {
+    line-height: 2;
+    margin: 0;
+  }
+</style>

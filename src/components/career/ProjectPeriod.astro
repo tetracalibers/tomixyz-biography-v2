@@ -1,0 +1,24 @@
+---
+interface Props {
+  start: string
+  end?: string
+}
+
+const { start, end } = Astro.props
+
+const _formatDate = (date: string) => {
+  return date.replaceAll("-", ".")
+}
+
+const format = (start: string, end?: string) => {
+  if (!end) {
+    return `${_formatDate(start)}`
+  }
+  if (end === "current") {
+    return `${_formatDate(start)} - Now`
+  }
+  return `${_formatDate(start)} - ${_formatDate(end)}`
+}
+---
+
+<Fragment>{format(start, end)}</Fragment>

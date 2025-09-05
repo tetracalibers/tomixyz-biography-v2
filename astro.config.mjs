@@ -96,7 +96,31 @@ export default defineConfig({
         "pepicons-print": ["arrow-left", "arrow-right"],
         ph: ["file-pdf"],
         ri: ["npmjs-line"],
-        stash: ["corner-down-right"]
+        stash: ["corner-down-right"],
+        "system-uicons": ["code"],
+        devicon: [
+          "wordpress",
+          "php",
+          "jquery",
+          "laravel",
+          "vuejs",
+          "astro",
+          "svelte",
+          "cloudflare",
+          "nextjs",
+          "react",
+          "typescript",
+          "pixijs",
+          "solidjs",
+          "mysql",
+          "sass",
+          "javascript",
+          "vscode",
+          "cloudflareworkers",
+          "mobx"
+        ],
+        "material-icon-theme": ["svg", "css"],
+        logos: ["mdx"]
       }
     }),
     svelte(),

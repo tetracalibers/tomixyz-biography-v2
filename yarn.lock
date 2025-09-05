@@ -507,6 +507,13 @@
   dependencies:
     "@iconify/types" "*"
 
+"@iconify-json/devicon@^1.2.39":
+  version "1.2.43"
+  resolved "https://registry.yarnpkg.com/@iconify-json/devicon/-/devicon-1.2.43.tgz#f94e40073c564f901e901e5bf35f62b39fd4f259"
+  integrity sha512-Bg9G4SzeR5aGzD8UG7D6rrXNE5wNbhDqUjq7iG972km+54BUDguF5TfZw2cw34uUtx0D717U2kogUi7FbLuYeA==
+  dependencies:
+    "@iconify/types" "*"
+
 "@iconify-json/famicons@^1.2.2":
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/@iconify-json/famicons/-/famicons-1.2.2.tgz#ab39bb935c8c4acf9d8dff6d7e7dcfb0435eb19d"
@@ -563,6 +570,13 @@
   dependencies:
     "@iconify/types" "*"
 
+"@iconify-json/logos@^1.2.9":
+  version "1.2.9"
+  resolved "https://registry.yarnpkg.com/@iconify-json/logos/-/logos-1.2.9.tgz#cf148ae5443f217a6a8dd8c9fe188adcee69d05f"
+  integrity sha512-G6VCdFnwZcrT6Eveq3m43oJfLw/CX8plwFcE+2jgv3fiGB64pTmnU7Yd1MNZ/eA+/Re2iEDhuCfSNOWTHwwK8w==
+  dependencies:
+    "@iconify/types" "*"
+
 "@iconify-json/lucide@^1.2.34":
   version "1.2.34"
   resolved "https://registry.npmjs.org/@iconify-json/lucide/-/lucide-1.2.34.tgz"
@@ -574,6 +588,13 @@
   version "1.2.2"
   resolved "https://registry.npmjs.org/@iconify-json/majesticons/-/majesticons-1.2.2.tgz"
   integrity sha512-hFZb/XYr2b/jW5DPpr7He0wm8iyORkryjxIiBFB8iyecpEXA1vp6ALyxN5LlKKhQ9yqhICeQ7uYWEMbwkXkRCg==
+  dependencies:
+    "@iconify/types" "*"
+
+"@iconify-json/material-icon-theme@^1.2.26":
+  version "1.2.26"
+  resolved "https://registry.yarnpkg.com/@iconify-json/material-icon-theme/-/material-icon-theme-1.2.26.tgz#3665ff5e706137d205ad309f801a211ed513ad9d"
+  integrity sha512-f8mVnmUKVGg9YfUt/jxLthPJKNEXknQkk/Kykrft4qCVkrjkGzTvrKfoIP5vgeHnKdixMD/as8NUixW0ajLHSQ==
   dependencies:
     "@iconify/types" "*"
 
@@ -616,6 +637,13 @@
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/@iconify-json/stash/-/stash-1.2.2.tgz#12f811f27e0e94821056867ae8417cb402d6aa6c"
   integrity sha512-2jLAw0yWGqqaHjLu/8kIQxlEP3SYBjuDVriwkO+bpDd3LdIrkRE5TCfpY6KhsYU58n/fJF9ZhCbyXLxH54rdpg==
+  dependencies:
+    "@iconify/types" "*"
+
+"@iconify-json/system-uicons@^1.2.4":
+  version "1.2.4"
+  resolved "https://registry.yarnpkg.com/@iconify-json/system-uicons/-/system-uicons-1.2.4.tgz#1facd8a444ba39fee52aaf62f3cc8eaf113da487"
+  integrity sha512-9WB9dmEm+TRCXI5Ml2IY8zQAPZES8euKxY0VOaf8D6E6ZaEr7ztO6DChMlGg7qWECs3m3FjFUqNgBx8ZpB+djw==
   dependencies:
     "@iconify/types" "*"
 

@@ -146,8 +146,24 @@ const tag = defineCollection({
     z.object({
       name: z.string(),
       url: z.string().url(),
-      skill: z.boolean().default(true)
+      skill: z.boolean().default(true),
+      icon: z.string().optional()
     })
 })
 
-export const collections = { like, project, event, blog, recipe, series, writing, tag }
+// 職務経歴
+const career = defineCollection({
+  loader: file("./src/content/career.yaml"),
+  schema: () =>
+    z
+      .object({
+        title: z.string(),
+        start: z.string().min(4).max(10), // xxxx-xx-xx の形式の日付（月以降は省略可）
+        end: z.string().min(4).max(10).or(z.literal("current")).optional(),
+        detail: z.string(),
+        tech: z.array(reference("tag")).default([])
+      })
+      .array()
+})
+
+export const collections = { like, project, event, blog, recipe, series, writing, tag, career }

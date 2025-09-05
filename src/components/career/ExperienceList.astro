@@ -1,0 +1,95 @@
+---
+import { Icon } from "astro-icon/components"
+import type { CollectionEntry } from "astro:content"
+import TechTag from "./TechTag.astro"
+import ProjectPeriod from "./ProjectPeriod.astro"
+import { Marked } from "marked"
+
+const marked = new Marked({ breaks: true })
+
+interface Props {
+  items: CollectionEntry<"career">["data"]
+  icon: string
+}
+
+const { items, icon } = Astro.props
+---
+
+<div class="experience-list">
+  {
+    items.map((item) => (
+      <div class="experience-item">
+        <Icon class="category-icon" name={icon} aria-hidden="true" size="1.2rem" />
+        <h3 class="experience-title">
+          <Fragment set:html={marked.parseInline(item.title)} />
+        </h3>
+        <div class="experience-period">
+          <ProjectPeriod start={item.start} end={item.end} />
+        </div>
+        <div class="experience-detail">
+          <Fragment set:html={marked.parse(item.detail)} />
+        </div>
+        <ul class="tech-list">
+          {item.tech.map((tag) => (
+            <li>
+              <TechTag id={tag.id} />
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))
+  }
+</div>
+
+<style>
+  :where(h1, h2, h3, p) {
+    margin: 0;
+  }
+
+  .experience-list {
+    display: grid;
+    gap: 0.5rem;
+    padding-block: 1rem;
+  }
+  .experience-item {
+    display: grid;
+    grid-template-columns: 1rem 1fr;
+    row-gap: 0.5rem;
+    column-gap: 0.75rem;
+    padding-block: 1rem;
+    border-bottom: 1px dashed rgb(from var(--career-theme-color) r g b / 50%);
+  }
+  .experience-item:first-of-type {
+    padding-block-start: 0.25rem;
+  }
+  .experience-item:last-of-type {
+    padding-block-end: 0;
+    border-bottom: 0;
+  }
+  .experience-item > * {
+    grid-column: 2;
+  }
+  .experience-item .category-icon {
+    grid-column: 1;
+    color: var(--career-theme-color);
+    overflow: visible;
+    translate: 0 0.2rem;
+  }
+  .experience-period {
+    font-family: "Lekton", "Noto Sans JP";
+  }
+  .experience-detail :global(p) {
+    margin: 0;
+    line-height: 1.7;
+    font-size: 0.9rem;
+  }
+  .tech-list {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin: 0;
+    list-style: none;
+    padding: 0;
+    padding-block-start: 0.5rem;
+  }
+</style>
