@@ -160,7 +160,6 @@ const career = defineCollection({
         title: z.string(),
         start: z.string().min(4).max(10), // xxxx-xx-xx の形式の日付（月以降は省略可）
         end: z.string().min(4).max(10).or(z.literal("current")).optional(),
-        url: z.string().url().optional(),
         detail: z.string(),
         tech: z.array(reference("tag")).default([])
       })
