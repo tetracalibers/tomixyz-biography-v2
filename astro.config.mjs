@@ -116,7 +116,8 @@ export default defineConfig({
           "sass",
           "javascript",
           "vscode",
-          "cloudflareworkers"
+          "cloudflareworkers",
+          "mobx"
         ],
         "material-icon-theme": ["svg", "css"],
         logos: ["mdx"]

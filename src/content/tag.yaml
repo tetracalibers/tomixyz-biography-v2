@@ -67,6 +67,10 @@ mdx:
   icon: logos:mdx
   name: MDX
   url: https://mdxjs.com/
+mobx:
+  icon: devicon:mobx
+  name: MobX
+  url: https://mobx.js.org/README.html
 mysql:
   icon: devicon:mysql
   name: MySQL
