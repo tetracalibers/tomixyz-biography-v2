@@ -1,18 +1,18 @@
 work:
-  - title: 交流サイトとCMSシステム開発
+  - title: 交流サイトとBBSプラグイン・CMSシステムの開発
     start: 2021-05
     end: 2021-10
     tech: [wordpress, php, jquery, sass, svg, canvas]
     detail: |-
-      バンドマン交流サイトとそのCMSシステムの開発を個人で受注。
-      WebサイトはWordPressの独自テーマとして開発。
-      また、交流掲示板ページのBBS機能は独自のWordPressプラグインとしてフルスクラッチ実装を行った。
+      WIP
+      音楽交流サイトとそのCMSシステムの開発を個人で受注。WebサイトはWordPressの独自テーマとして開発し、交流掲示板ページのBBS機能は独自のWordPressプラグインとしてフルスクラッチ実装を行った。
 
   - title: M&Aサイトの設計・初期開発
     start: 2022-03
     end: 2022-05
     tech: [laravel, vuejs, mysql]
     detail: |-
+      WIP
       都内IT企業のM&A事業立ち上げに伴い、M&Aマッチングサイトの設計と初期開発をリード。
       約10名の開発チームの中にはフレームワーク使用経験が浅いメンバーもいたため、有志勉強会の開催や個別にレクチャーを行うなど、育成にも力を入れた。
 
@@ -37,19 +37,21 @@ work:
     detail: |-
       TODO
 
-  - title: 画像ビューワー・エディター開発
+  - title: 大規模画像ビューワー・ラベリングエディター開発
     start: 2023-10
     end: current
     tech: [solidjs, typescript, openseadragon, tanstack-query]
     detail: |-
       TODO
 
-  - title: イベントのオープニング動画実装
+  - title: イベントのオープニング映像制作
     start: 2024-01
     end: 2024-05
     tech: [react, svg, remotion]
     detail: |-
-      TODO
+      [CodeGrid 12周年記念パーティー](https://www.codegrid.net/events/12/)に向けた記念動画のオープニング部を、Remotion（コーディングで動画を制作するReactライブラリ）で実装した。
+      CodeGridのロゴが現れるテトリス風の演出を自らデザイン。落下・点滅・消失・パーティクル分解など多彩なアニメーションを組み合わせた構成とした。動画の各シーンや、加速・点滅などのエフェクトはReactコンポーネントとして設計し、それらを合成することで複雑な演出を簡潔に管理している。
+      落下するテトリミノの形状・色・動作パターンは配列で定義し、独自に調整した数式により加速度やランダム性を取り入れた自然な動きを実現した。テトリミノはSVGパスによって描画し、パスの生成時にノイズ計算を加えることで、透明度やパーティクルの動きに自然な揺らぎを与えている。
 
 education:
   - title: IT業界未経験社員向けの研修講師
@@ -57,6 +59,7 @@ education:
     end: 2022-05
     tech: [css, html, vba]
     detail: |-
+      WIP
       都内IT企業にて、未経験社員向けの研修で講師を担当。有志勉強会の企画・開催も自主的に行った。
 
 writing:
@@ -65,15 +68,15 @@ writing:
     end: current
     tech: [astro, javascript, typescript, vscode]
     detail: |-
-      フロントエンド技術を中心に多数の記事を執筆。
+      フロントエンド技術を中心に多数の記事を執筆。1つの記事で多くのことが学べる密度の濃い内容を目指し、AstroによるWeb開発の実際や、DevToolsを使ったデバッグ手法、VS Codeの拡張機能開発入門など、多彩なテーマで連載を行った。
 
   - title: 書籍「Astro × GitHub × Cloudflareで学ぶモダンWeb開発」
     start: 2025-01
     end: 2025-04
     tech: [astro, css, vivliostyle]
     detail: |-
-      [CodeGridワークショップ 2025 春](https://www.codegrid.net/workshops/2025-spring/)のテキストブックをメインで執筆。
-      [Amazon](https://amzn.asia/d/bWtmE3q)でも販売中。
+      [CodeGrid ワークショップ 2025 春](https://www.codegrid.net/workshops/2025-spring/)のテキストブックをメインで執筆。Astroの環境構築から、GitHubによるコード管理、Cloudflare Pagesによるデプロイまで、現代のWeb開発の流れを丁寧に解説し、作業を効率化するVS Codeの機能や、最新のWeb技術とその学び方、フロントエンド開発の心構えなども随所に盛り込んだ。
+      VivliostyleによるCSS組版で書籍として仕上げており、[Amazon](https://amzn.asia/d/bWtmE3q)でも販売中。
 
 speaking:
   - title: |-

@@ -3,7 +3,9 @@ import { Icon } from "astro-icon/components"
 import type { CollectionEntry } from "astro:content"
 import TechTag from "./TechTag.astro"
 import ProjectPeriod from "./ProjectPeriod.astro"
-import { marked } from "marked"
+import { Marked } from "marked"
+
+const marked = new Marked({ breaks: true })
 
 interface Props {
   items: CollectionEntry<"career">["data"]
