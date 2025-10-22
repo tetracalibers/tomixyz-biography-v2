@@ -1,0 +1,65 @@
+---
+title: Summarioの技術構成
+date: "2025-10-22"
+description: TODO
+tags:
+  - tiptap
+  - prosemirror
+  - mantine
+  - react
+  - react-router
+  - drizzle
+series: summario-dev
+draft: true
+---
+
+## React Router
+
+- v7のframework mode
+- プロトタイプ段階のため、フレームワークになるべく依存したくなかった
+- Next.jsだと「フレームワークが裏で何かしてくれているから動く」「コードがフレームワーク特有の書き方に染まる」という好ましくない状況になりそうだと思った
+
+## drizzle
+
+- Prismaではなくdrizzleを選んだのは、いざとなったら生のSQLを書きたかったから
+- フォルダの階層構造をRDB上で表現するのにAdjacency List Model（隣接リストモデル）を採用しており、このモデルでは検索に再帰CTEを使うのが現代のベストプラクティスとされている
+- `WITH RECURSIVE`句など、ORMのAPIではまだサポートされていないSQL構文を使う可能性があったため、drizzleを採用した
+
+## Tiptap
+
+Summarioのエディタは、Headless Editor Frameworkである[Tiptap](https://tiptap.dev/)を使って実装しています。
+
+[Zenn](https://zenn.dev/)の作者catnoseさんが開発されている執筆サービス「[しずかなインターネット](https://sizu.me/home)」でも使われているということから、Tiptapに興味を持ちました。
+
+- [しずかなインターネットの技術構成](https://zenn.dev/catnose99/articles/f8a90a1616dfb3)
+
+### 高いモジュール性
+
+まとまった機能を備えるWYSIWYGエディタライブラリはオーバースペックになりがちですが、Tiptapが提供するコア機能は最小限です。
+[Extension](https://tiptap.dev/docs/editor/extensions/overview)で欲しい機能だけを追加していくため、過不足なく要件を実現することができます。
+
+公式Extensionの粒度はとても小さく、例えばMarkdown記法のサポートは構文ごとにExtensionが用意されています。
+エディタ上でサポートしたい構文を1つずつセットアップするのはやや面倒な作業ですが、[StarterKit](https://tiptap.dev/docs/editor/extensions/functionality/starterkit)を使えば、主要なMarkdown記法をサポートするExtensionをまとめて導入することができます。
+
+また、独自のExtensionを実装することで、独自の機能の追加や、細かい挙動の制御も可能です。
+
+### ProseMirror由来の高度なカスタマイズ性
+
+Tiptapは[ProseMirror](https://prosemirror.net/)というリッチテキストエディタ構築ツールキットを使いやすくラップしたライブラリであり、ProseMirrorの高いカスタマイズ性を継承しながら、実装や学習のコストを大幅に抑えてくれています。
+
+ProseMirrorベースだからこそ実現できる機能として、スキーマによる文書構造の強制などがあります。
+
+Tiptapは単なるリッチなテキストエリアとして使えるだけでなく、「最上部には必ずタイトルを書いてほしい」などといった、文書構造の規則を定めることができます。
+これはProseMirrorのスキーマという概念によって実現できるもので、Tiptap（ProseMirror）では、設定したスキーマで禁止されている構造は絶対に作れないようになっています。
+
+また、独自のExtensionを実装する際にも、TiptapのAPIだけでは実現できない場合はProseMirrorのAPIにアクセスすることができます。
+
+### UIのサポート
+
+"Headless" Editorということで、基本的にエディタUIの実装は独自に行うことになりますが、必要に応じて公式の[UIコンポーネント](https://tiptap.dev/docs/ui-components/getting-started/overview)を使うこともできます。
+
+## Mantine
+
+- 実現したい高度なUIをサクッと実装できるという意味ではPrimeReactの方に軍牌があったが…
+- tiptapと相性が良かったのが決め手
+- hookとextensionも組み合わせれば意外となんでもできる

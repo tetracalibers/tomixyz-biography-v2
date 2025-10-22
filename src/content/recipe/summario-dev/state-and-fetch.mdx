@@ -1,0 +1,23 @@
+---
+title: 状態管理とデータフェッチ
+date: "2025-10-23"
+description: React Routerだけでは難しかったこと
+tags:
+  - react-router
+  - tanstack-query
+  - jotai
+series: summario-dev
+draft: true
+---
+
+React routerはReactベースのフレームワークでありながら、Reactの機能をなるべく使わなくて済むように設計されている印象
+remix 2の時点で作者の方も｢最近のReactが何をしたいのかがわからない｣と仰っていたように、圧倒的に成熟してしまったReactのエコシステムを活用できるようReactベースにしつつ、実際は脱Reactを狙っているのではないかと思う
+
+実際、公式チュートリアルにもuseEffectなどは登場せず、巷のブログでもReact routerを使えば状態管理不要と謳われていたりもする
+私も｢状態管理不要｣に夢見て入門したが、その前提として｢URLに状態を乗せること」が求められてくる
+
+- React routerがあるのになぜtanstack queryとjotaiを導入した？
+- URLクエリパラメータはキャッシュされない
+- jotai-tanstack-queryはなぜ見送った？
+- atomとderived atomを生かした差分ベースの状態管理
+- IME対応のために唯一Formを使う
