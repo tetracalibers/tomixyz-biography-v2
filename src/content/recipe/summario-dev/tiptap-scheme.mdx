@@ -1,0 +1,31 @@
+---
+title: Tiptapエディタ：スキーマによるタイトルの強制
+date: "2025-10-24"
+description: TODO
+tags:
+  - tiptap
+  - prosemirror
+series: summario-dev
+draft: true
+---
+
+## スキーマによる規則づけ
+
+- `heading block*`というスキーマで、「最初にまず見出しを置く」というルールが強制できる
+- 最初の見出しは`delete`キーで消すことができなくなる
+
+- ここで、「見出し」は`h1`, `h2`, `h3`, ...etc.のどれでもよい
+
+- もっと制約を強くして、「最初にまず`h1`見出しを置く」というルールを実現するにはどうしたらいいか？
+- `h1`見出しだけを表せるような、スキーマで使える新たな構成要素（？）が必要
+
+## Tiptapのカスタムノード
+
+- `extensions/title-block`
+- ref: https://chatgpt.com/c/68f94cbb-2dac-8320-9b95-85e5bfa25407
+
+- titleを別なinput要素にすればよかったのでは？
+- -> titleにもinline codeを含めることを許容したかった
+
+- `parseHTML`はなぜ独自タグ？
+- -> 将来的にimport機能を搭載したとして、万が一本文にh1が複数含まれていた場合、すべてをtitle-blockとして扱われると困る

@@ -10,14 +10,74 @@ series: summario-dev
 draft: true
 ---
 
-React routerはReactベースのフレームワークでありながら、Reactの機能をなるべく使わなくて済むように設計されている印象
-remix 2の時点で作者の方も｢最近のReactが何をしたいのかがわからない｣と仰っていたように、圧倒的に成熟してしまったReactのエコシステムを活用できるようReactベースにしつつ、実際は脱Reactを狙っているのではないかと思う
+- React routerを使っているのになぜtanstack queryとjotaiを導入した？という話
 
-実際、公式チュートリアルにもuseEffectなどは登場せず、巷のブログでもReact routerを使えば状態管理不要と謳われていたりもする
-私も｢状態管理不要｣に夢見て入門したが、その前提として｢URLに状態を乗せること」が求められてくる
+## React Routerで脱`useState`/`useEffect`できるか？
 
-- React routerがあるのになぜtanstack queryとjotaiを導入した？
-- URLクエリパラメータはキャッシュされない
-- jotai-tanstack-queryはなぜ見送った？
-- atomとderived atomを生かした差分ベースの状態管理
-- IME対応のために唯一Formを使う
+- React routerはReactベースのフレームワークでありながら、Reactの機能をなるべく使わなくて済むように設計されている印象
+- remix 2の時点で作者の方も｢最近のReactが何をしたいのかがわからない｣と仰っていたように、圧倒的に成熟してしまったReactのエコシステムを活用できるようReactベースにしつつ、実際は脱Reactを狙っているのではないかと思う
+
+- 実際、公式チュートリアルにもuseEffectなどは登場せず、巷のブログでもReact routerを使えば状態管理不要と謳われていたりもする
+- 私も｢状態管理不要｣を夢見て入門したが、その前提として｢URLに状態を乗せること」が求められてくる
+
+### ルートモジュールの制約
+
+- React Routerでは、ページを表すコンポーネントとページのURLを`routes.ts`で対応づける
+- `routes.ts`に登録したページを表すコンポーネントは、**ルートモジュール**と呼ばれる
+- ルートモジュールに限り、`loader`と`action`を置くことができ、これらの結果はコンポーネントのPropsとして受け取れる
+
+- ページで必要なすべてのデータを`loader`でロードするのはまだよいが…
+- ページ内の複数箇所で異なるデータ更新処理が必要な場合、`action`内で「どこから呼ばれたか？」によって処理を分岐する必要がある
+
+### 初期データと新たなデータを切り替えたい場合
+
+- `loader`で初期データを取得、ボタンが押されたら`action`で新たなデータを取得し、表示を切り替える場合を考える
+- このとき、初期状態では`loaderData`を、データ取得後には`actionData`を描画したい
+- `const data = actionData ?? loaderData`みたいにしてもいいけど…
+- `action`でエラーが起きた場合は`actionData`にエラーの詳細が入るような場合だと、分岐が面倒なことになる
+
+### URLに状態を乗せたくない場合
+
+- URLに状態を乗せられるなら、`loader`だけで表示切り替えが済む
+- 実装例：https://reactrouter.com/tutorials/address-book#urlsearchparams-and-get-submissions
+
+- `FolderExprorer`でも同様に`?dir={folderId}`というURLクエリパラメータで表示の切り替えを試みた
+- しかし、URLクエリパラメータはキャッシュされない
+- 頻繁にクリックされ、「さっきのデータに戻る」ことも多いUIのため、毎回サーバーにリクエストされるのは避けたかった
+
+## Tanstack Queryの導入
+
+### `useQuery`の効用
+
+- 初期データはルートモジュールの`loader`で提供し、`useQuery`の`placeholderData`にセット
+- `useQuery`の戻り値`data`は、新たなデータを取得するまでは`placeholderData`になり、データ取得後は新たなデータになる
+- JSX側では`data`をそのまま描画すればいい
+- 正常取得時の中身とエラー発生時の中身も分けて処理できる
+
+- すでに取得したデータはキャッシュしておける
+
+### `useMutation`との連携
+
+- DBにアクセスして処理を行う`action`を`fetch`で呼び出せる必要が生じた
+- つまり、各アクションにURLを割り当てる必要がある
+- そこで、APIエンドポイントのように`action`だけをexportするルートモジュールを定義している
+
+## Jotaiの導入
+
+- そもそもページ内にUIが多いので、すべての状態をURLに詰め込むことは不可能
+- UIをまたいで使われる状態も多くあるので、`useState`だけでどうにかするのは厳しい
+- そこでJotaiを導入した
+
+- atomとderived atomを生かした差分ベースの状態管理を行っている（詳しくは別の回で）
+
+## あえて使わなかった`jotai-tanstack-query`
+
+- JotaiとTanstack Queryを合わせて使うなら、[jotai-tanstack-query](https://jotai.org/docs/extensions/query)という統合ライブラリを使う手もある
+- しかし、今回のニーズには合わなかった
+
+- `atomWithQuery`の問題：引数が渡せないので初期データの設定が難しい
+- 例えば、`placeholderData`に設定したいデータもわざわざAtomにする必要がある
+
+- `atomWithMutation`の問題：他のAtomの値の`get`はできるが、`set`はできない
+- これにより、`onSuccess`で他の状態を更新することができない
+- `atomWithMutation`の中で`useSetAtom`を使うと、Reactのhook in hookでエラーになってしまう
