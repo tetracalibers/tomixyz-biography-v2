@@ -1,16 +1,23 @@
 ---
-title: 状態管理とデータフェッチ
+title: React Router v7のactionとTanstack Query
 date: "2025-10-23"
 description: React Routerだけでは難しかったこと
 tags:
   - react-router
   - tanstack-query
   - jotai
+references:
+  - title: React Router v7で実現するuseStateゼロ開発
+    url: https://zenn.dev/dorarep/articles/1dedd5c1b9ee82
+  - title: "React Router 7: Nested Routes"
+    url: https://www.robinwieruch.de/react-router-nested-routes/
+  - title: react-router 使う機能、使わない機能
+    url: https://blog.ojisan.io/react-router-using/
 series: summario-dev
 draft: true
 ---
 
-- React routerを使っているのになぜtanstack queryとjotaiを導入した？という話
+- React routerを使っているのになぜtanstack queryを導入した？という話
 
 ## React Routerで脱`useState`/`useEffect`できるか？
 
@@ -61,23 +68,3 @@ draft: true
 - DBにアクセスして処理を行う`action`を`fetch`で呼び出せる必要が生じた
 - つまり、各アクションにURLを割り当てる必要がある
 - そこで、APIエンドポイントのように`action`だけをexportするルートモジュールを定義している
-
-## Jotaiの導入
-
-- そもそもページ内にUIが多いので、すべての状態をURLに詰め込むことは不可能
-- UIをまたいで使われる状態も多くあるので、`useState`だけでどうにかするのは厳しい
-- そこでJotaiを導入した
-
-- atomとderived atomを生かした差分ベースの状態管理を行っている（詳しくは別の回で）
-
-## あえて使わなかった`jotai-tanstack-query`
-
-- JotaiとTanstack Queryを合わせて使うなら、[jotai-tanstack-query](https://jotai.org/docs/extensions/query)という統合ライブラリを使う手もある
-- しかし、今回のニーズには合わなかった
-
-- `atomWithQuery`の問題：引数が渡せないので初期データの設定が難しい
-- 例えば、`placeholderData`に設定したいデータもわざわざAtomにする必要がある
-
-- `atomWithMutation`の問題：他のAtomの値の`get`はできるが、`set`はできない
-- これにより、`onSuccess`で他の状態を更新することができない
-- `atomWithMutation`の中で`useSetAtom`を使うと、Reactのhook in hookでエラーになってしまう

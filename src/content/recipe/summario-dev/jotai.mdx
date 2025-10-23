@@ -16,13 +16,17 @@ series: summario-dev
 draft: true
 ---
 
-Summarioでは、状態管理ライブラリとして[Jotai](https://jotai.org/)を利用しています。
+Summarioのノート編集画面では、UIをまたいで使われる状態が多くあります。
 
-[Redux](https://redux.js.org/)のようなアプリケーション全体の状態を1つの大きなオブジェクト`Store`で集中的に管理する方式とは異なり、Jotaiは小さな状態の単位である`Atom`を組み合わせて状態を管理するアプローチが特徴です。
+- TODO: UIをまたいで使われる状態の例
+
+そこで、グローバルな状態を管理するために[Jotai](https://jotai.org/)を利用しています。
 
 - ref: https://chatgpt.com/c/68f9d05d-1900-8323-a494-ef7879eef28d
 
 ## Jotaiの基本
+
+[Redux](https://redux.js.org/)のようなアプリケーション全体の状態を1つの大きなオブジェクト`Store`で集中的に管理する方式とは異なり、Jotaiは小さな状態の単位である`Atom`を組み合わせて状態を管理するアプローチが特徴です。
 
 Jotaiにおける`Atom`とは、「コンポーネントから分離できる`useState`」のようなものと捉えておくとよいかもしれません。
 
@@ -168,3 +172,17 @@ function Counter() {
 - `Atom`ベースは宣言的（「この atom はあの atom に依存」）
 
 ## derived Atomによる差分ベースの状態管理
+
+- TODO
+
+## あえて使わなかった`jotai-tanstack-query`
+
+- JotaiとTanstack Queryを合わせて使うなら、[jotai-tanstack-query](https://jotai.org/docs/extensions/query)という統合ライブラリを使う手もある
+- しかし、今回のニーズには合わなかった
+
+- `atomWithQuery`の問題：引数が渡せないので初期データの設定が難しい
+- 例えば、`placeholderData`に設定したいデータもわざわざAtomにする必要がある
+
+- `atomWithMutation`の問題：他のAtomの値の`get`はできるが、`set`はできない
+- これにより、`onSuccess`で他の状態を更新することができない
+- `atomWithMutation`の中で`useSetAtom`を使うと、Reactのhook in hookでエラーになってしまう

@@ -56,10 +56,10 @@ Tiptapに興味を持ったのは、[Zenn](https://zenn.dev/)の作者catnoseさ
 
 Tiptapは[ProseMirror](https://prosemirror.net/)というリッチテキストエディタ構築ツールキットを使いやすくラップしたライブラリであり、ProseMirrorの高いカスタマイズ性を継承しながら、実装や学習のコストを大幅に抑えてくれています。
 
-ProseMirrorベースだからこそ実現できる機能として、スキーマによる文書構造の強制などがあります。
+ProseMirrorベースだからこそ実現できる機能の一つとして、スキーマによる文書構造の強制があります。
 
 Tiptapは単なるリッチなテキストエリアとして使えるだけでなく、「最上部には必ずタイトルを書いてほしい」などといった、文書構造の規則を定めることができます。
-これはProseMirrorのスキーマという概念によって実現できるもので、Tiptap（ProseMirror）では、設定したスキーマで禁止されている構造は絶対に作れないようになっています。
+これはProseMirrorのScheme（スキーマ）という概念によって実現できるもので、Tiptap（ProseMirror）では、設定したスキーマで禁止されている構造のコンテンツは絶対に作れないようになっています。
 
 また、独自のExtensionを実装する際にも、TiptapのAPIだけでは実現できない場合はProseMirrorのAPIにアクセスすることができます。
 
@@ -69,9 +69,12 @@ Tiptapは単なるリッチなテキストエリアとして使えるだけで�
 
 ## UIライブラリ：Mantine
 
+UIコンポーネントライブラリとして[Mantine](https://mantine.dev/)を利用しています。
+
+- componentだけでなく、hook、extension、form validationなど全部入り
 - 実現したい高度なUIをサクッと実装できるという意味ではPrimeReactの方に軍牌があったが…
 - tiptapと相性が良かったのが決め手
-- hookとextensionも組み合わせれば意外となんでもできる
+- polymorphicで余計なdivを増やさない
 
 ## 余談：デスクトップアプリにしてもよかったが
 
@@ -86,6 +89,6 @@ Webを選んでよかったなと思うのは、Webならではの難しさに�
 Webアプリケーション用のライブラリは充実しているけど、この種のアプリでは、Webの方が圧倒的に面倒くさいかもしれない。
 
 ブラウザの機能に乗っかれる部分も多いけど、ブラウザの機能の豊富さが生む自由度が厄介になることもあります。
-たとえば複数のタブで同じページが編集されたらどうするのか？IndexedDBを使えばオフライン対応もできそうだけど、オフラインで編集され、その端末からサーバーへの同期が行われないまま、別のデバイスでオンライン編集されたらどうするのか？
+たとえば複数のタブで同じページが編集されたらどうするのか？[IndexedDB](https://developer.mozilla.org/ja/docs/Web/API/IndexedDB_API/Using_IndexedDB)を使えばオフライン対応もできそうだけど、オフラインで編集され、その端末からサーバーへの同期が行われないまま、別のデバイスでオンライン編集されたらどうするのか？
 
-…こんなことを考えるのが面白い。Broadcast Channel APIやWeb Locks APIといった、今まで存在すら知らなかったブラウザAPIも、いずれこのアプリで使う日が来るかもしれません。
+…こんなことを考えるのが面白い。[Broadcast Channel API](https://developer.mozilla.org/ja/docs/Web/API/Broadcast_Channel_API)や[Web Locks API](https://developer.mozilla.org/ja/docs/Web/API/Web_Locks_API)といった、今まで存在すら知らなかったブラウザAPIも、いずれこのアプリで使う日が来るかもしれません。
