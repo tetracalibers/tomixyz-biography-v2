@@ -5,7 +5,7 @@ articles:
   - summario-dev/technologies
   - summario-dev/data-fetch-state
   - summario-dev/jotai
-  - summario-dev/tiptap-intro
+  - summario-dev/tiptap-document
   - summario-dev/tiptap-scheme
   - summario-dev/tiptap-section
   - summario-dev/tiptap-add-block-by-dnd
