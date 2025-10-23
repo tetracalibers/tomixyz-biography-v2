@@ -3,7 +3,7 @@ title: Summario個人開発記
 articles:
   - summario-dev/concept
   - summario-dev/technologies
-  - summario-dev/state-and-fetch
+  - summario-dev/data-fetch-state
   - summario-dev/jotai
   - summario-dev/tiptap-intro
   - summario-dev/tiptap-scheme
