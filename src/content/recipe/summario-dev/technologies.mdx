@@ -47,10 +47,60 @@ Tiptapに興味を持ったのは、[Zenn](https://zenn.dev/)の作者catnoseさ
 まとまった機能を備えるWYSIWYGエディタライブラリはオーバースペックになりがちですが、Tiptapが提供するコア機能は最小限です。
 [Extension](https://tiptap.dev/docs/editor/extensions/overview)で欲しい機能だけを追加していくため、過不足なく要件を実現することができます。
 
+次のコードは、ReactでTiptapを使う場合の最小構成例です。
+
+- [React - Editor / Get started / Install](https://tiptap.dev/docs/editor/getting-started/install/react)
+
+```tsx title="ReactでTiptapを使う例" showLineNumbers
+import { useEditor, EditorContent } from "@tiptap/react"
+
+export default function MyTiptapEditor() {
+  const editor = useEditor({
+    // エディタ内部のトランザクション（文書の変更）が発生したタイミングで、
+    // Reactコンポーネントの再レンダーを促す
+    shouldRerenderOnTransaction: true,
+
+    // SSRのHydrationで不整合が出ないように、
+    // クライアント側でマウントされてからエディタを初期化・描画させる
+    immediatelyRender: false,
+
+    // ここに使いたい機能（Extension）を追加していく
+    extensions: [],
+
+    // 初期コンテンツ（省略可）
+    content: "<p>Hello World!</p>"
+  })
+
+  return <EditorContent editor={editor} />
+}
+```
+
+Extensionを別途`npm install`し、`extensions`配列に追加していくことで、エディタの機能を増やしていくことができます。
+
 公式Extensionの粒度はとても小さく、例えばMarkdown記法のサポートは構文ごとにExtensionが用意されています。
-エディタ上でサポートしたい構文を1つずつセットアップするのはやや面倒な作業ですが、[StarterKit](https://tiptap.dev/docs/editor/extensions/functionality/starterkit)を使えば、主要なMarkdown記法をサポートするExtensionをまとめて導入することができます。
+
+- [Don’t bend it, extend it. - Editor / Extensions / Overview](https://tiptap.dev/docs/editor/extensions/overview)
+
+エディタ上でサポートしたいMarkdown構文を1つずつセットアップするのはやや面倒な作業ですが、[StarterKit](https://tiptap.dev/docs/editor/extensions/functionality/starterkit)を使えば、主要なMarkdown記法をサポートするExtensionをまとめて導入することができます。
+
+```tsx title="StarterKitの導入" showLineNumbers {2,8}
+import { useEditor, EditorContent } from "@tiptap/react"
+import StarterKit from "@tiptap/starter-kit"
+
+export default function MyTiptapEditor() {
+  const editor = useEditor({
+    shouldRerenderOnTransaction: true,
+    immediatelyRender: false,
+    extensions: [StarterKit],
+    content: "<p>Hello World!</p>"
+  })
+
+  return <EditorContent editor={editor} />
+}
+```
 
 また、独自のExtensionを実装することで、独自の機能の追加や、細かい挙動の制御も可能です。
+Summarioで実際に実装したExtensionについては、このシリーズの別の回で紹介したいと思います。
 
 ### ProseMirror由来の高度なカスタマイズ性
 
@@ -58,23 +108,61 @@ Tiptapは[ProseMirror](https://prosemirror.net/)というリッチテキスト�
 
 ProseMirrorベースだからこそ実現できる機能の一つとして、スキーマによる文書構造の強制があります。
 
-Tiptapは単なるリッチなテキストエリアとして使えるだけでなく、「最上部には必ずタイトルを書いてほしい」などといった、文書構造の規則を定めることができます。
-これはProseMirrorのScheme（スキーマ）という概念によって実現できるもので、Tiptap（ProseMirror）では、設定したスキーマで禁止されている構造のコンテンツは絶対に作れないようになっています。
+Tiptapは単なるリッチなテキストエリアとして使えるだけでなく、「最上部には必ずタイトルを書いてほしい」などといった、文書構造の規則を定めることができるのです。
+これはProseMirrorのScheme（スキーマ）という概念によって実現できるもので、Tiptap（ProseMirror）では、設定したスキーマに反する構造のコンテンツはそもそも作れないようになっています。
+
+スキーマの設定についても、別の記事で詳しく解説する予定です。
 
 また、独自のExtensionを実装する際にも、TiptapのAPIだけでは実現できない場合はProseMirrorのAPIにアクセスすることができます。
 
 ### 公式のエディタUIコンポーネント群
 
-"Headless" Editorということで、基本的にエディタUIの実装は独自に行うことになりますが、必要に応じて公式の[UIコンポーネント](https://tiptap.dev/docs/ui-components/getting-started/overview)を使うこともできます。
+"Headless" Editorということで、エディタに必要なUIの実装や、エディタ上のコンテンツのタイポグラフィを含むスタイリングは独自に行うことになりますが、公式の[UIコンポーネント](https://tiptap.dev/docs/ui-components/components/overview)も必要に応じて使うことが可能です。
+
+しかし、次のような理由から、今回はTiptap公式のUIコンポーネントは利用していません。
+
+- パッケージとしてインストールするのではなく、[Tiptap CLI](https://tiptap.dev/docs/ui-components/getting-started/cli)でコンポーネントのコードをコピーする仕組みなので、内部コードのメンテナンスコストを利用側が負う必要がある
+- コンポーネントのスタイルが[Sass](https://sass-lang.com/)で書かれていて、余計な依存が増える
+- ノードの削除を行うUIコンポーネントがカスタムノードに対してうまく動かなかった
+
+代わりにMantine（※後述）の[Rich text editor](https://mantine.dev/x/tiptap/)を使ってエディタUIを実装しています。
 
 ## UIライブラリ：Mantine
 
-UIコンポーネントライブラリとして[Mantine](https://mantine.dev/)を利用しています。
+UIコンポーネントは[Mantine](https://mantine.dev/)をベースに実装しています。
 
-- componentだけでなく、hook、extension、form validationなど全部入り
-- 実現したい高度なUIをサクッと実装できるという意味ではPrimeReactの方に軍牌があったが…
-- tiptapと相性が良かったのが決め手
-- polymorphicで余計なdivを増やさない
+### Mantineは高機能なツールキット体系
+
+MantineはUIコンポーネントの豊富さでもトップクラスですが、Mantineを「UIコンポーネントライブラリ」という言葉で括っていいのかは、個人的に少し疑問です。
+
+なぜなら、MantineはスタイリングされたUIコンポーネントを数多く提供するだけでなく、
+
+- ヘッドレスUIライブラリとしての利用を可能にする[Mantine hooks](https://mantine.dev/hooks/package/)
+- フォームバリデーションライブラリとしても利用できる[Mantine form](https://mantine.dev/form/package/)
+- チャートや通知トーストなどを必要に応じて個別に導入できる[Mantine extensions](https://mantine.dev/x/extensions/)
+
+といった、アプリケーションのフロントエンドに必要な機能を網羅しつつあるツールキット群でもあるからです。
+
+### ニーズに合わせて柔軟に組み合わせられる
+
+実現したい高度なUIをサクッと実装できるという意味では、[PrimeReact](https://primereact.org/)も検討しました。
+しかし、Mantineはユーティリティも充実しているため、UIの実装やスタイリングで直面する地味な困りごとを解決してくれる感覚があります。
+
+- TODO: ユーティリティの例を挙げる（`ScrollArea`、レイアウトなど）
+
+PrimeReactが「壮大なことが簡単に実現できる」ライブラリだとしたら、Mantineは「小さなことをうまくやる」ライブラリといえるかもしれません。
+
+### スタイリング都合のHTMLタグを増やさない
+
+Mantineの特徴の一つに、[Polymorphic components](https://mantine.dev/guides/polymorphic/)という機能があります。
+
+コンポーネント内部のルートで使われるデフォルトのHTML要素（またはコンポーネント）を、`component` Propsで自由に指定できる機能です。
+
+- TODO: この機能のメリット、余計なタグを増やさずに済む例
+
+### Tiptapとの相性が良い
+
+- TODO: tiptapと相性が良かったのが決め手
 
 ## 余談：デスクトップアプリにしてもよかったが
 

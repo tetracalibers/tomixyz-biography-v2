@@ -1,5 +1,5 @@
 ---
-title: TiptapとProseMirrorの仕組みを知る
+title: Tiptapエディタ：ProseMirrorの文書構造を知る
 date: "2025-10-25"
 description: TODO
 tags:
@@ -25,7 +25,7 @@ ProseMirrorの全貌を追うことは大変な作業ですが、Tiptapを使っ
 
 - ref: https://chatgpt.com/c/68f74ce2-a5b4-8320-9e13-4b8ed4f79b9f
 
-### Document・Node・Mark
+### Document / Node / Mark
 
 ProseMirrorのエディタ内部では、テキストや段落などのコンテンツはすべて`Document`（`doc`）と呼ばれる木構造のデータとして表現・管理されています。
 
@@ -72,8 +72,6 @@ ProseMirrorでは、テキストに適用される装飾を`Mark`と呼びます
   ]
 }
 ```
-
-### Scheme
 
 ## Tiptapによる抽象化
 
