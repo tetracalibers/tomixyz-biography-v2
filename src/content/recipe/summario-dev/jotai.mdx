@@ -1,0 +1,170 @@
+---
+title: Jotaiによる差分ベースの状態管理
+date: "2025-10-24"
+description: TODO
+tags:
+  - jotai
+  - react
+references:
+  - title: Reactの状態管理ライブラリJotaiの詳説とTips
+    url: https://zenn.dev/akineko/articles/662bf324a10c82
+    summary: Jotaiの基本的な書き方が整理された記事です。
+  - title: Zustand、Jotai、Valtioの作者はなぜReact状態管理OSSを3つ開発したのか【フォーカス】
+    url: https://levtech.jp/media/article/focus/detail_685/
+    summary: 現代でよく比較される状態管理ライブラリそれぞれの設計思想の違いが明かされるインタビュー記事です。
+series: summario-dev
+draft: true
+---
+
+Summarioでは、状態管理ライブラリとして[Jotai](https://jotai.org/)を利用しています。
+
+[Redux](https://redux.js.org/)のようなアプリケーション全体の状態を1つの大きなオブジェクト`Store`で集中的に管理する方式とは異なり、Jotaiは小さな状態の単位である`Atom`を組み合わせて状態を管理するアプローチが特徴です。
+
+- ref: https://chatgpt.com/c/68f9d05d-1900-8323-a494-ef7879eef28d
+
+## Jotaiの基本
+
+Jotaiにおける`Atom`とは、「コンポーネントから分離できる`useState`」のようなものと捉えておくとよいかもしれません。
+
+Reduxの`Store`がReactの[Context](https://ja.react.dev/learn/passing-data-deeply-with-context)で生まれる問題を解決するものだとしたら、Jotaiの`Atom`は`useState`自体が抱える問題にも対応できるものです。
+
+### `atom`で状態を外部化する
+
+```tsx title="ReactのuseStateを使ったカウンター"
+function Counter() {
+  const [count, setCount] = useState(0)
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={() => setCount(count + 1)}>+</button>
+    </div>
+  )
+}
+```
+
+```ts title="atoms.ts（Jotaiで状態を外部化）"
+import { atom } from "jotai"
+
+export const countAtom = atom(0)
+```
+
+```tsx title="JotaiのAtomを使ったカウンター"
+import { useAtom } from "jotai"
+import { countAtom } from "./atoms.ts"
+
+function Counter() {
+  const [count, setCount] = useAtom(countAtom)
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={() => setCount(count + 1)}>+</button>
+    </div>
+  )
+}
+```
+
+- `useState`ではコンポーネント内に状態更新のためのカラクリが混じる
+- atom configは、コンポーネントから状態に関するロジックを分離するための仕組み
+
+### Writable atom
+
+基本的な`Atom`は`atom(initialValue)`で作りますが、`setter`を自分で定義して複雑な更新ロジックを組み込むことも可能です。
+
+```ts title="atoms.ts"
+export const countAtom = atom(0)
+
+export const incrementAtom = atom(null, (get, set) => {
+  const prev = get(countAtom)
+  set(countAtom, prev + 1)
+})
+```
+
+```tsx title="JotaiのAtomを使ったカウンター"
+import { useAtomValue } from "jotai"
+import { countAtom, incrementAtom } from "./atoms.ts"
+
+function Counter() {
+  const count = useAtomValue(countAtom)
+  const increment = useSetAtom(incrementAtom)
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={() => increment()}>+</button>
+    </div>
+  )
+}
+```
+
+- `useAtom(atom)`：読み書き両方を扱うフック
+- `useAtomValue(atom)`：読み取り専用フック
+- `useSetAtom(atom)`：書き込み専用フック
+- これらを使い分けることで、コンポーネントの再レンダリングを抑制できる
+
+## derived Atom（派生Atom）
+
+個人的に、Jotaiの特徴が最も際立って活きてくるのは「状態と状態の依存関係」を扱う必要がある場合だと感じています。
+
+- 派生atomをReactのhookだけで実現しようとすると、`useEffect`の連鎖に
+
+```tsx
+function App() {
+  const [count, setCount] = useState(0)
+  const [double, setDouble] = useState(0)
+
+  useEffect(() => {
+    setDouble(count * 2)
+  }, [count])
+
+  return (
+    <>
+      <p>count: {count}</p>
+      <p>double: {double}</p>
+      <button onClick={() => setCount(count + 1)}>+</button>
+    </>
+  )
+}
+```
+
+この例では、`count`が変化するたびに`useEffect`で`double`を再計算しています。
+
+- 依存関係がわかりづらく、値の同期でバグを生む可能性がある
+
+- `double`は本来「`count`から導ける値」なのに、別の`useState`で保持している
+- 依存関係（`useEffect`の第二引数`[count]`）を間違えるとバグになる
+- 状態が増えるほど「どのタイミングで更新されるべきか」を正確に書くのが大変複雑になる
+
+このような、「この状態が更新されたらこっちの`useEffect`が発火してあの状態を更新し…」という`useEffect`による状態更新の連鎖を、4年前の筆者は平気で書いていました。
+（そして、Reactは辛い…と思うようになり、[`$derived`](https://svelte.jp/docs/svelte/$derived)を求めて[Svelte](https://svelte.jp/)を好んで使っていました。）
+
+本来、`double`は`count`から導かれるだけの値なので、状態として持つ必要すらありません。
+Jotaiでは「導かれるだけ」という関係を宣言的に書くことができ、`useState`や`useEffect`を減らすことができます。
+
+```ts title="atoms.ts"
+import { atom } from "jotai"
+
+export const countAtom = atom(0)
+export const doubleAtom = atom((get) => get(countAtom) * 2)
+```
+
+```tsx
+import { useAtom, useAtomValue } from "jotai"
+import { countAtom, doubleAtom } from "./atoms.ts"
+
+function Counter() {
+  const [count, setCount] = useAtom(countAtom)
+  const double = useAtomValue(doubleAtom)
+
+  return (
+    <>
+      <p>count: {count}</p>
+      <p>double: {double}</p>
+      <button onClick={() => setCount((c) => c + 1)}>+</button>
+    </>
+  )
+}
+```
+
+- `Store`ベースは命令的（「dispatchして reducer で更新」）
+- `Atom`ベースは宣言的（「この atom はあの atom に依存」）
+
+## derived Atomによる差分ベースの状態管理

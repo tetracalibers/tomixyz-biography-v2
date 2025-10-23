@@ -4,6 +4,7 @@ articles:
   - summario-dev/concept
   - summario-dev/technologies
   - summario-dev/state-and-fetch
+  - summario-dev/jotai
   - summario-dev/tiptap-intro
   - summario-dev/tiptap-scheme
   - summario-dev/tiptap-section
