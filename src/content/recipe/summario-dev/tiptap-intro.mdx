@@ -1,0 +1,77 @@
+---
+title: TiptapとProseMirrorの仕組みを知る
+date: "2025-10-24"
+description: TODO
+tags:
+  - tiptap
+  - prosemirror
+  - react
+series: summario-dev
+draft: true
+---
+
+## ProseMirrorの文書構造
+
+前回（？）お話ししたように、Tiptapの内部ではProseMirrorが使われています。
+
+ProseMirrorの全貌を追うことは大変な作業ですが、Tiptapを使っていても見えるProseMirrorの構成要素を知っておくことで、Tiptapエディタのカスタマイズがしやすくなります。
+
+- ref: https://chatgpt.com/c/68f74ce2-a5b4-8320-9e13-4b8ed4f79b9f
+
+### Document・Node・Mark
+
+ProseMirrorのエディタ内部では、テキストや段落などのコンテンツはすべて`Document`（`doc`）と呼ばれる木構造のデータとして表現・管理されています。
+
+```html title="コンテンツ"
+<p>
+  Hello
+  <strong>world</strong>
+</p>
+```
+
+```tree title="ProseMirror内部で持つ文書データの構造"
+Document
+ └─ Node(type="paragraph")
+     ├─ Node(type="text") "Hello "
+     └─ Node(type="text", marks=[bold]) "world"
+```
+
+`Document`内の各要素は`Node`と呼ばれ、概ねHTML要素が1つの`Node`に対応しているように見えます。
+HTMLタグの中のただのテキストも、`type="text"`の`Node`として扱われていることに注目しましょう。
+
+重要なのは、`strong`要素に対応する`Node`はなく、`marks=[bold]`というテキストノードの属性として表現されているところです。
+ProseMirrorでは、テキストに適用される装飾を`Mark`と呼びます。
+
+現代のHTMLでは、装飾のためだけにHTML要素を使うことはあまり推奨されないものです。
+テキストを太字に装飾したい場合は、`strong`要素を使うよりも、CSSで`font-style: bold;`と指定する方が良いでしょう。
+
+「HTMLは文書構造 / CSSは装飾」という役割分担と同様に、ProseMirrorでも「文書構造の構成要素は`Node` / 装飾は`Mark`」というように分けられています。
+そして、HTML要素の`style`属性でCSSを付与できるのと同じように、`Mark`は`Node`に付与できる属性として扱われるのです。
+
+ちなみに、`Document`自体も`type="doc"`の`Node`として扱われます。
+`doc`ノードはルート専用の特別な`Node`で、文書ツリーのすべての`Node`を包むように必ず存在する必要があります。
+
+```json title="Document全体をJSONで表したもの"
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "paragraph",
+      "content": [
+        { "type": "text", "text": "Hello " },
+        { "type": "text", "marks": [{ "type": "bold" }], "text": "world" }
+      ]
+    }
+  ]
+}
+```
+
+### Scheme
+
+## Tiptapによる抽象化
+
+### Extensionがカスタマイズの単位
+
+### ReactでTiptapを使う
+
+- [Integrate Tiptap into your React app](https://tiptap.dev/docs/editor/getting-started/install/react#integrate-tiptap-into-your-react-app)

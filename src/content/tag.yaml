@@ -14,7 +14,7 @@ devtools:
   name: DevTools
   url: https://developer.chrome.com/docs/devtools?hl=ja
 drizzle:
-  name: drizzle
+  name: Drizzle
   url: https://orm.drizzle.team/
 excel:
   name: Excel

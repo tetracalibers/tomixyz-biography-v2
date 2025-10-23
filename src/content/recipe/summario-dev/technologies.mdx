@@ -13,23 +13,32 @@ series: summario-dev
 draft: true
 ---
 
-## React Router
+## フレームワーク：React Router
 
-- v7のframework mode
-- プロトタイプ段階のため、フレームワークになるべく依存したくなかった
-- Next.jsだと「フレームワークが裏で何かしてくれているから動く」「コードがフレームワーク特有の書き方に染まる」という好ましくない状況になりそうだと思った
+[React Router](https://reactrouter.com/) v7系の[Framework Mode](https://reactrouter.com/start/modes#framework)をベースに、フロントエンドとバックエンドを共存させる形で開発しています。
 
-## drizzle
+構想をまずは形に起こしてみたいということで、エコシステムが充実しているReactを選びましたが、プロトタイプ段階ゆえ、メインのフレームワークにはなるべく依存したくありませんでした。
 
-- Prismaではなくdrizzleを選んだのは、いざとなったら生のSQLを書きたかったから
-- フォルダの階層構造をRDB上で表現するのにAdjacency List Model（隣接リストモデル）を採用しており、このモデルでは検索に再帰CTEを使うのが現代のベストプラクティスとされている
-- `WITH RECURSIVE`句など、ORMのAPIではまだサポートされていないSQL構文を使う可能性があったため、drizzleを採用した
+[Next.js](https://nextjs.org/)のApp Routerも学びがいがあり、選択肢の一つだったのですが、Next.jsの場合「フレームワークが何かしてくれているから動く」「コードがフレームワーク特有の書き方に染まる」という状況に陥りかねないと感じたのです。
 
-## Tiptap
+React Routerの方がWeb標準に近いことも魅力に感じていましたが、結局React Routerの思想に乗せきれなかった部分もあり、React Routerの機能を徹底的に使いこなすというよりは適材適所で薄く使う形になっています。
+この辺りの詳細は回を改めて書けたらいいなと思います。
 
-Summarioのエディタは、Headless Editor Frameworkである[Tiptap](https://tiptap.dev/)を使って実装しています。
+## ORM：Drizzle
 
-[Zenn](https://zenn.dev/)の作者catnoseさんが開発されている執筆サービス「[しずかなインターネット](https://sizu.me/home)」でも使われているということから、Tiptapに興味を持ちました。
+TypeScriptで使えるORMといえば[Prisma](https://www.prisma.io/orm)が人気という印象を受けます。
+Prismaではなく[Drizzle](https://orm.drizzle.team/)を選んだのは、いざとなったら生のSQLを書きたかったからです。
+
+- [【T3 Stack入門】ORM比較（Prisma VS Drizzle）](https://zenn.dev/maicom/articles/f42edb80db3a1c)
+
+Summarioにはノートをグルーピングできる「フォルダ」機能がありますが、フォルダの階層構造をRDB上ではAdjacency List Model（隣接リストモデル）で表現しています。
+このモデルでは、データを`SELECT`する際に`WITH RECURSIVE`句による再帰CTE（ざっくりいえばSQLで再帰処理を実現する構文）を活用することになりますが、この`WITH RECURSIVE`句など、ORMのAPIではまだサポートされていないSQL構文を使う可能性があったため、drizzleを採用しました。
+
+## エディタ機能：Tiptap
+
+Summarioのノート編集画面に組み込まれているエディタは、Headless Editor Frameworkである[Tiptap](https://tiptap.dev/)を使って実装しています。
+
+Tiptapに興味を持ったのは、[Zenn](https://zenn.dev/)の作者catnoseさんが開発されている執筆サービス「[しずかなインターネット](https://sizu.me/home)」でも使われているということからでした。
 
 - [しずかなインターネットの技術構成](https://zenn.dev/catnose99/articles/f8a90a1616dfb3)
 
@@ -58,7 +67,7 @@ Tiptapは単なるリッチなテキストエリアとして使えるだけで�
 
 "Headless" Editorということで、基本的にエディタUIの実装は独自に行うことになりますが、必要に応じて公式の[UIコンポーネント](https://tiptap.dev/docs/ui-components/getting-started/overview)を使うこともできます。
 
-## Mantine
+## UIライブラリ：Mantine
 
 - 実現したい高度なUIをサクッと実装できるという意味ではPrimeReactの方に軍牌があったが…
 - tiptapと相性が良かったのが決め手
