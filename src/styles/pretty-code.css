@@ -185,6 +185,12 @@ pre[data-language="js"]::before {
 pre[data-language="ts"]::before {
   content: "TypeScript";
 }
+pre[data-language="jsx"]::before {
+  content: "JSX";
+}
+pre[data-language="tsx"]::before {
+  content: "TSX";
+}
 pre[data-language="html"]::before {
   content: "HTML";
 }
