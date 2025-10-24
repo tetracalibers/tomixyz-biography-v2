@@ -1,5 +1,5 @@
 ---
-title: Tiptapエディタ：スキーマによるタイトルの必須化
+title: Tiptap：スキーマによるタイトルの必須化
 date: "2025-10-26"
 description: TODO
 tags:
@@ -14,9 +14,16 @@ series: summario-dev
 draft: true
 ---
 
-## スキーマによる規則づけ
+## TiptapではExtensionがカスタマイズの単位
 
-ProseMirrorには、コンテンツ（`doc`）の構造を制限する仕組みが備わっています。
+TipTapでは、独自の`Node`や`Mark`、ショートカットや履歴管理などエディタの機能を追加する仕組みをExtensionとして提供しています。
+
+本来はProseMirrorのさまざまな概念を区別して組み合わせなければならないカスタマイズも、TiptapではExtensionという統一された枠組みで実装できるようになっています。
+エディタの動作を制御するプラグインも、ノードの定義も、TiptapではすべてExtensionとして扱われるのです。
+
+TiptapのExtensionが内部的にProseMirrorのNodeSpecなどを自動生成してくれることで、ProseMirrorの概念に深く触れずにノードや機能を追加することができます。
+
+## スキーマによる規則づけ
 
 - `heading block*`というスキーマで、「最初にまず見出しを置く」というルールが強制できる
 - 最初の見出しは`delete`キーで消すことができなくなる
