@@ -28,13 +28,15 @@ Summarioのノート編集画面では、UIをまたいで使われる状態が�
 
 [Redux](https://redux.js.org/)のようなアプリケーション全体の状態を1つの大きなオブジェクト`Store`で集中的に管理する方式とは異なり、Jotaiは小さな状態の単位である`Atom`を組み合わせて状態を管理するアプローチが特徴です。
 
-Jotaiにおける`Atom`とは、「コンポーネントから分離できる`useState`」のようなものと捉えておくとよいかもしれません。
+Jotaiにおける`Atom`とは、「コンポーネントから分離できる`useState{:.fn}`」のようなものと捉えておくとよいかもしれません。
 
-Reduxの`Store`がReactの[Context](https://ja.react.dev/learn/passing-data-deeply-with-context)で生まれる問題を解決するものだとしたら、Jotaiの`Atom`は`useState`自体が抱える問題にも対応できるものです。
+Reduxの`Store`がReactの[`Context`](https://ja.react.dev/learn/passing-data-deeply-with-context)で生まれる問題を解決するものだとしたら、Jotaiの`Atom`は`useState{:.fn}`自体が抱える問題にも対応できるものです。
 
-### `atom`で状態を外部化する
+### `Atom`で状態を外部化する
 
-```tsx title="ReactのuseStateを使ったカウンター"
+```tsx title="ReactのuseStateを使ったカウンター" showLineNumbers {1,4,8} /useState/
+import { useState } from "react"
+
 function Counter() {
   const [count, setCount] = useState(0)
   return (
@@ -46,13 +48,18 @@ function Counter() {
 }
 ```
 
-```ts title="atoms.ts（Jotaiで状態を外部化）"
+Jotaiを使うことで、`count{:ts}`という状態をコンポーネントの外で管理することができます。
+
+```ts title="atoms.ts（Jotaiで状態を外部化）" showLineNumbers {3} /atom/
 import { atom } from "jotai"
 
 export const countAtom = atom(0)
 ```
 
-```tsx title="JotaiのAtomを使ったカウンター"
+`atom(initialValue){:ts}`という構文で状態（`Atom`）を定義しました。
+定義した`Atom`をReactコンポーネントで使うには、`useAtom{:.fn}`というhookを利用します。
+
+```tsx title="JotaiのAtomを使ったカウンター" showLineNumbers {1,5,9} /useAtom/
 import { useAtom } from "jotai"
 import { countAtom } from "./atoms.ts"
 
@@ -67,14 +74,26 @@ function Counter() {
 }
 ```
 
-- `useState`ではコンポーネント内に状態更新のためのカラクリが混じる
-- atom configは、コンポーネントから状態に関するロジックを分離するための仕組み
+### `getter`と`setter`による`Atom`定義
 
-### Writable atom
+`atom(initialValue){:js}`という構文で作成した`Atom`は、自由に読み書きが可能です。
 
-基本的な`Atom`は`atom(initialValue)`で作りますが、`setter`を自分で定義して複雑な更新ロジックを組み込むことも可能です。
+一方、`Atom`は次のような構文で作成することもできます。
 
-```ts title="atoms.ts"
+```ts
+atom(getter, setter)
+```
+
+`getter{:ts}`と`setter{:ts}`は両方指定する必要はなく、次のように書き分けることで、読み取り専用 / 書き込み専用の`Atom`を定義することができます。
+
+- **Write-only Atom**：`getter{:ts}`に`null{:ts}`を指定した場合
+- **Read-only Atom**：`setter{:ts}`を省略した場合
+
+### Write-only Atomでロジックを外部化する
+
+Write-only Atomを定義することによって、状態を更新する操作も`Atom`として提供することが可能になります。
+
+```ts title="atoms.ts" showLineNumbers{3} {3-6}
 export const countAtom = atom(0)
 
 export const incrementAtom = atom(null, (get, set) => {
@@ -83,8 +102,8 @@ export const incrementAtom = atom(null, (get, set) => {
 })
 ```
 
-```tsx title="JotaiのAtomを使ったカウンター"
-import { useAtomValue } from "jotai"
+```tsx title="JotaiのAtomを使ったカウンター" showLineNumbers {1,5-6,10} /useAtomValue/ /useSetAtom/
+import { useAtomValue, useSetAtom } from "jotai"
 import { countAtom, incrementAtom } from "./atoms.ts"
 
 function Counter() {
@@ -99,9 +118,22 @@ function Counter() {
 }
 ```
 
-- `useAtom(atom)`：読み書き両方を扱うフック
-- `useAtomValue(atom)`：読み取り専用フック
-- `useSetAtom(atom)`：書き込み専用フック
+- `useState`ではコンポーネント内に状態更新のためのカラクリが混じる
+- atom configは、コンポーネントから状態に関するロジックを分離するための仕組み
+
+ここで、`useAtom{:.fn}`の代わりに、`useAtomValue{:.fn}`と`useSetAtom{:.fn}`という新たなフックが登場していることにも注目してください。
+
+```ts
+// 状態の読み書き両方を扱う
+const [state, setState] = useAtom(atom)
+
+// 状態を読み取るだけ
+const state = useAtomValue(atom)
+
+// 状態に書き込むだけ
+const setState = useSetAtom(atom)
+```
+
 - これらを使い分けることで、コンポーネントの再レンダリングを抑制できる
 
 ## derived Atom（派生Atom）
@@ -110,8 +142,10 @@ function Counter() {
 
 - 派生atomをReactのhookだけで実現しようとすると、`useEffect`の連鎖に
 
-```tsx
-function App() {
+```tsx showLineNumbers {5,7-9}
+import { useState, useEffect } from "react"
+
+function Counter() {
   const [count, setCount] = useState(0)
   const [double, setDouble] = useState(0)
 
@@ -129,7 +163,7 @@ function App() {
 }
 ```
 
-この例では、`count`が変化するたびに`useEffect`で`double`を再計算しています。
+この例では、`count{:ts}`が変化するたびに`useEffect{:.fn}`で`double{:ts}`を再計算しています。
 
 - 依存関係がわかりづらく、値の同期でバグを生む可能性がある
 
@@ -137,20 +171,20 @@ function App() {
 - 依存関係（`useEffect`の第二引数`[count]`）を間違えるとバグになる
 - 状態が増えるほど「どのタイミングで更新されるべきか」を正確に書くのが大変複雑になる
 
-このような、「この状態が更新されたらこっちの`useEffect`が発火してあの状態を更新し…」という`useEffect`による状態更新の連鎖を、4年前の筆者は平気で書いていました。
-（そして、Reactは辛い…と思うようになり、[`$derived`](https://svelte.jp/docs/svelte/$derived)を求めて[Svelte](https://svelte.jp/)を好んで使っていました。）
+このような、「この状態が更新されたらこの`useEffect{:.fn}`が発火してあの状態を更新し…」という`useEffect{:.fn}`による状態更新の連鎖を、4年前の筆者は平気で書いていました。
+（そしてReactは辛い…と思うようになり、[`$derived`](https://svelte.jp/docs/svelte/$derived)を求めて[Svelte](https://svelte.jp/)を好んで使っていました。）
 
-本来、`double`は`count`から導かれるだけの値なので、状態として持つ必要すらありません。
-Jotaiでは「導かれるだけ」という関係を宣言的に書くことができ、`useState`や`useEffect`を減らすことができます。
+本来、`double{:ts}`は`count{:ts}`から導かれるだけの値なので、状態として持つ必要すらありません。
+Jotaiでは「導かれるだけ」という関係を宣言的に書くことができ、`useState{:.fn}`や`useEffect{:.fn}`を減らすことができます。
 
-```ts title="atoms.ts"
+```ts title="atoms.ts" showLineNumbers {4}
 import { atom } from "jotai"
 
 export const countAtom = atom(0)
 export const doubleAtom = atom((get) => get(countAtom) * 2)
 ```
 
-```tsx
+```tsx showLineNumbers {6}
 import { useAtom, useAtomValue } from "jotai"
 import { countAtom, doubleAtom } from "./atoms.ts"
 
