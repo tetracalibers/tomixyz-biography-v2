@@ -52,7 +52,7 @@ Tiptapに興味を持ったのは、[Zenn](https://zenn.dev/)の作者catnoseさ
 - [React - Editor / Get started / Install](https://tiptap.dev/docs/editor/getting-started/install/react)
 
 ```tsx title="ReactでTiptapを使う例" showLineNumbers
-import { useEditor, EditorContent } from "@tiptap/react"
+import { useEditor } from "@tiptap/react"
 
 export default function MyTiptapEditor() {
   const editor = useEditor({
@@ -68,7 +68,7 @@ export default function MyTiptapEditor() {
     extensions: [],
 
     // 初期コンテンツ（省略可）
-    content: "<p>Hello World!</p>"
+    content: "<h1>My First Note</h1><p>Hello World!</p>"
   })
 
   return <EditorContent editor={editor} />
@@ -84,7 +84,7 @@ Extensionを別途`npm install`し、`extensions`配列に追加していくこ�
 エディタ上でサポートしたいMarkdown構文を1つずつセットアップするのはやや面倒な作業ですが、[StarterKit](https://tiptap.dev/docs/editor/extensions/functionality/starterkit)を使えば、主要なMarkdown記法をサポートするExtensionをまとめて導入することができます。
 
 ```tsx title="StarterKitの導入" showLineNumbers {2,8}
-import { useEditor, EditorContent } from "@tiptap/react"
+import { useEditor } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 
 export default function MyTiptapEditor() {
@@ -92,7 +92,7 @@ export default function MyTiptapEditor() {
     shouldRerenderOnTransaction: true,
     immediatelyRender: false,
     extensions: [StarterKit],
-    content: "<p>Hello World!</p>"
+    content: "<h1>My First Note</h1><p>Hello World!</p>"
   })
 
   return <EditorContent editor={editor} />

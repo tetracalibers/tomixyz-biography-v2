@@ -1,11 +1,14 @@
 ---
-title: Tiptap：スキーマによるタイトルの必須化
+title: Tiptapで冒頭のタイトルを必須化する
 date: "2025-10-26"
-description: TODO
+description: カスタムノードと組み合わせて具体的なスキーマを実現するテクニック
 tags:
   - tiptap
   - prosemirror
 references:
+  - title: プレスリリースのエディターでTiptapを使って新機能開発をした話
+    url: https://developers.prtimes.jp/2024/09/05/developing-new-features-in-editor-using-tiptap-react-typescript/
+    summary: Tiptapエディタをカスタマイズする実践的なアイデアが詰まっている記事で、さまざまなカスタムノードの実装例が紹介されています。
   - title: Node (tiptap)
     url: https://scrapbox.io/mrsekut-p/Node_(tiptap)
   - title: メモアプリ開発④リッチテキストエディタ【Tiptap】
@@ -13,6 +16,8 @@ references:
 series: summario-dev
 draft: true
 ---
+
+- ref: https://chatgpt.com/c/68f94cbb-2dac-8320-9b95-85e5bfa25407
 
 ## タイトルをどう扱うか
 
@@ -23,25 +28,110 @@ Summarioに限らず、ブログアプリケーション等においても、「
 それゆえ、タイトル入力部分でもTiptapの力を借りたかった。
 
 では、Tiptapの世界の中で、ノート冒頭のタイトルの存在を保証するには、どうしたらよいでしょうか？
-その答えの一部となるのが、[前回](/recipe/summario-dev/tiptap-document)解説したスキーマを定義することです。
+その答えの一部となるのが、[前回](/recipes/summario-dev/tiptap-document)解説したスキーマを定義することです。
 
-## スキーマによる規則づけ
+## スキーマで見出しを必須にする
 
 文書全体に対して、`heading block*`というルールを設定できれば、「最初にまず見出しを置く」ことを強制することができます。
+[前回](/recipes/summario-dev/tiptap-document)解説したように、文書全体は`Document`で表されるため、`Document`にルールを設定すればよいことになります。
 
-- 最初の見出しは`delete`キーで消すことができなくなる
+あらゆるカスタマイズを`Extension`経由で行うTiptapでは、`Document`という`Extension`を拡張（`extend{:.fn}`）することで独自のルールの設定が実現できます。
 
-- ここで、「見出し」は`h1`, `h2`, `h3`, ...etc.のどれでもよい
+```ts title="Documentをカスタマイズする" showLineNumbers /heading/
+import Document from "@tiptap/extension-document"
 
-- もっと制約を強くして、「最初にまず`h1`見出しを置く」というルールを実現するにはどうしたらいいか？
-- `h1`見出しだけを表せるような、スキーマで使える新たな構成要素（？）が必要
+export const CustomDocument = Document.extend({
+  content: "heading block*"
+})
+```
 
-## TiptapのDocument拡張
+デフォルトの`Document`の代わりに`CustomDocument`を使うには、次のように初期化時の`extensions`の設定を書き換える必要があります。
 
-Tiptapでは、`Document`を拡張することで独自のスキーマを設定することができます。
+```tsx title="CustomDocumentを使うように設定" showLineNumbers {10-13} /extensions:/
+import { useEditor } from "@tiptap/react"
+import StarterKit from "@tiptap/starter-kit"
+import { CustomDocument } from "./extensions/document.ts"
 
-- `extensions/title-block`
-- ref: https://chatgpt.com/c/68f94cbb-2dac-8320-9b95-85e5bfa25407
+export default function MyTiptapEditor() {
+  const editor = useEditor({
+    shouldRerenderOnTransaction: true,
+    immediatelyRender: false,
+    extensions: [
+      StarterKit.configure({
+        document: false // デフォルトのDocumentを無効化
+      }),
+      CustomDocument // CustomDocumentを使う
+    ],
+    content: "<h1>My First Note</h1><p>Hello World!</p>"
+  })
+
+  return <EditorContent editor={editor} />
+}
+```
+
+このように設定することで、冒頭の`h2{:html}`見出しはエディタ上で何度`delete`キーを叩いても削除することができなくなります。
+設定したスキーマに反する構造にコンテンツを書き換えようとする操作は、すべてProseMirrorが阻止してくれるわけです。
+
+## 特定のレベルの見出しに制限する
+
+`heading block*`というルールの設定によって、「最初にまず見出しを置く」という制約は実現できました。
+しかし、`heading`は見出しレベルの情報を持たないため、`h1{:html}`, `h2{:html}`, `h3{:html}`, ...etc.のどれでも許可されてしまいます。
+
+より具体的な制約として、「最初にまず`h1`見出しを置く」というルールを実現するにはどうしたらよいでしょうか？
+Summarioでは、`h1{:html}`見出しだけを表せるような、`heading`に代わる新たな識別子を用意することでこの制約を実現しました。
+
+### タイトル専用のカスタムノード
+
+```ts showLineNumbers
+import { Node } from "@tiptap/core"
+
+export const TitleBlockNode = Node.create({
+  name: "title_block",
+  group: "title",
+  content: "inline*",
+  marks: "code",
+  parseHTML() {
+    return [{ tag: "title-block" }]
+  },
+  renderHTML({ HTMLAttributes }) {
+    return ["h1", HTMLAttributes, 0]
+  }
+})
+```
+
+- `group: "title"`とすることで、タイトルは文書内に1つだけに制限する
 
 - `parseHTML`はなぜ独自タグ？
-- -> 将来的にimport機能を搭載したとして、万が一本文にh1が複数含まれていた場合、すべてをtitle-blockとして扱われると困る
+  - -> 将来的にimport機能を搭載したとして、万が一本文にh1が複数含まれていた場合、すべてをtitle-blockとして扱われると困る
+
+```ts showLineNumbers {4} /title/
+import Document from "@tiptap/extension-document"
+
+export const CustomDocument = Document.extend({
+  content: "title block*"
+})
+```
+
+```tsx showLineNumbers {15,17} /extensions:/
+import { useEditor } from "@tiptap/react"
+import StarterKit from "@tiptap/starter-kit"
+import { CustomDocument } from "./extensions/document.ts"
+import { TitleBlockNode } from "./extensions/title-block-node.ts"
+
+export default function MyTiptapEditor() {
+  const editor = useEditor({
+    shouldRerenderOnTransaction: true,
+    immediatelyRender: false,
+    extensions: [
+      StarterKit.configure({
+        document: false
+      }),
+      CustomDocument,
+      TitleBlockNode // カスタムノードを登録
+    ],
+    content: "<title-block>My First Note</title-block><p>Hello World!</p>"
+  })
+
+  return <EditorContent editor={editor} />
+}
+```
