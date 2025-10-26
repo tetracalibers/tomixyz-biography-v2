@@ -13,11 +13,11 @@ draft: true
 ---
 
 React Router v7では、データフェッチとその状態管理をフレームワーク側が担ってくれる仕組みが搭載されています。
-その仕組みにうまく乗せることで、APIフェッチを行う`useEffect`や、取得したデータやエラー状態などを保持する`useState`を使わずに済みます。
+その仕組みにうまく乗せることで、APIフェッチを行うための`useEffect{:.fn}`や、取得したデータやエラー状態などを保持するための`useState{:.fn}`が不要になります。
 
 圧倒的に充実しているReactのエコシステム（UIライブラリ等）を活用しながらも、React特有のつらいポイントを避けることができるのは大きなアドバンテージだと感じ、Next.jsではなくReact Router v7を選びました。
 
-しかし、1つのページに多数の機能を備えるアプリケーションでは、React Router v7の仕組みにうまく乗せられない部分も多く、結局データフェッチとその状態管理をTanstack Queryで補強する方針をとっています。
+しかし、1つのページに多数の機能を備えるアプリケーションでは、React Router v7の仕組みにうまく乗せきれない部分も多く、結局データフェッチとその状態管理をTanstack Queryで補強する方針をとっています。
 
 ## React Router v7で脱`useState`/`useEffect`できるか？
 
@@ -29,42 +29,108 @@ React Router v7のアプローチを知るには、Address Bookという公式�
 
 > 🧐 Wait a sec ... How did the sidebar update? Where did we call the `action` function? Where's the code to re-fetch the data? Where are `useState`, `onSubmit` and `useEffect`?!
 
-実際、このチュートリアルでは`useEffect`や`useState`はほとんど登場しません。
-巷のブログでも、React Router v7の仕組みをうまく使えば、タブUIやモーダルUIでさえ`useState`を使わずに実装できると評されています。
+実際、このチュートリアルでは`useEffect{:.fn}`や`useState{:.fn}`はほとんど登場しません。
+巷のブログでも、React Router v7の仕組みをうまく使えば、タブUIやモーダルUIでさえ`useState{:.fn}`を使わずに実装できると評されています。
 
 - [React Router v7で実現するuseStateゼロ開発](https://zenn.dev/dorarep/articles/1dedd5c1b9ee82)
 - [React Router 7: Nested Routes](https://www.robinwieruch.de/react-router-nested-routes/)
 
-しかし、このような`useState`を使わない実装を叶える前提として、｢URLに状態を乗せること」が求められてきます。
-1つの機能に対し1つのURLを対応づけることが理想形であり、それができない場合のベストプラクティスについてはまだ情報が少ないと感じています。
+しかし、このような`useState{:.fn}`を使わない実装を叶える前提として、｢URLに状態を乗せること」が求められてきます。
+1つの機能を持つページに対し1つのURLを対応づけることが理想形であり、それができない場合のベストプラクティスについてはまだ情報が少ないと感じています。
+
+### ルートモジュールが持つ機能
+
+React Router v7の[Frameworkモード](https://react-router-docs-ja.techtalk.jp/start/modes#framework)では、ページを表すコンポーネントとページのURLを`app/routes.ts`という設定ファイルで対応づけます。
+
+- [ルーティング - React Router v7 ドキュメント](https://react-router-docs-ja.techtalk.jp/start/framework/routing)
+
+```ts title="app/routes.ts" showLineNumbers
+import { type RouteConfig, route } from "@react-router/dev/routes"
+
+export default [route("/list", "./list.tsx")] satisfies RouteConfig
+```
+
+この`app/routes.ts`に登録したページを表すコンポーネント（上の例では`./list.tsx`）を、React Router v7では**ルートモジュール**と呼びます。
+
+- [ルートモジュール - React Router v7 ドキュメント](https://react-router-docs-ja.techtalk.jp/start/framework/route-module)
+
+そして、ルートモジュールに限り、`loader{:.fn}`と`action{:.fn}`という関数が特別な意味を持ちます。
+
+```tsx title="list.tsx" showLineNumbers /loaderData/
+import { Form } from "react-router"
+import { TodoList } from "~/components/TodoList"
+
+// actionはサーバーで実行されるのでDBに直接アクセスできる
+export async function action({ request }) {
+  const data = await request.formData()
+  const todo = await fakeDb.addItem({
+    title: data.get("title")
+  })
+  return { ok: true }
+}
+
+// loaderはサーバーで実行されるのでDBに直接アクセスできる
+export async function loader() {
+  const items = await fakeDb.getItems()
+  return { items }
+}
+
+export default function Items({ loaderData }) {
+  return (
+    <div>
+      <List items={loaderData.items} />
+      <Form method="post" navigate={false} action="/list">
+        <input type="text" name="title" />
+        <button type="submit">Todoを作成</button>
+      </Form>
+    </div>
+  )
+}
+```
+
+`loader{:.fn}`はデータの取得、`action{:.fn}`はデータの更新を担い、これらの結果（戻り値）はルートモジュールで`loaderData` / `actionData`という`Props`として受け取れるようになっています。
+
+- [データローディング - React Router v7 ドキュメント](https://react-router-docs-ja.techtalk.jp/start/framework/data-loading)
+- [アクション - React Router v7 ドキュメント](https://react-router-docs-ja.techtalk.jp/start/framework/actions)
+
+また、`loader{:.fn}`は初期ロードを担うだけでなく、`action{:.fn}`の完了後にもロードされる（データの自動再検証が行われる）ため、コンポーネントでの`loaderData`を使った表示も自動的に更新されます。
+
+> データの変更は、ルートアクションを通じて行われます。アクションが完了すると、ページ上のすべてのローダーデータが再検証され、UIを最新の状態に保つためにコードを書く必要はありません。
+
+このように、React Router v7では、サーバー側のデータとクライアントの状態の同期をフレームワークが行い、まるでサーバー側の状態にクライアントから直接アクセスできるような書き味を持ちます。
+
+おかげで、クライアント側で明示的に管理しなければならなかった多くの状態をコードから排除することができるわけです。
+具体的にどのような状態管理から解放されるのかは、次のドキュメントにまとめられています。
+
+- [ステート管理 - React Router v7 ドキュメント](https://react-router-docs-ja.techtalk.jp/explanation/state-management)
 
 ### ルートモジュールの制約
 
-React Router v7（のFramework Mode）では、ページを表すコンポーネントとページのURLを`routes.ts`という設定ファイルで対応づけます。
-
-この`routes.ts`に登録したページを表すコンポーネントはルートモジュールと呼ばれ、ルートモジュールに限り、`loader`（あるいは`clientLoader`）と`action`（あるいは`clientAction`）という関数を置くことができます。
-ざっくり言えば`loader`はデータの取得、`action`はデータの更新を担い、これらの結果（戻り値）はルートモジュールで`Props`として受け取れるようになっています。
-
 ルートモジュールはページに対応するため、1ページにつき`loader`や`action`は1つずつしか置けないことになります。
-（厳密にいえば、Nested Routesを使って1つのページを複数のルートモジュールの入れ子として表現することで、各ルートモジュールに`loader`と`action`を置くことができるわけですが…レイアウトを共通化する目的以外でNested Routesを使うのは、個人的にはわかりづらい実装だと感じています。）
+（厳密にいえば、Nested Routesを使って1つのページを複数のルートモジュールの入れ子として表現することで、各ルートモジュールに`loader`と`action`を置くことができるわけですが…）
 
 ページで必要なすべてのデータを`loader`でロードするのはまだよいとして、ページ内の複数箇所で異なるデータ更新処理が必要な場合、「どの箇所で呼び出されたか？」によって`action`内で処理を分岐しなければなりません。
+
+### 初期データから新たなデータに切り替えたい場合
+
+- `loader`で初期データを取得、ボタンが押されたら`action`で新たなデータを取得し、表示を切り替える場合を考える
+
+- `loaderData`は`action`実行後に自動更新されるが、`loader`でさまざまなデータをまとめて取得している場合、広範囲に更新が及んでしまう
+- これを防ぐためには、別ファイルに`action`を分離する必要がある？
+
+- 初期状態では`loaderData`を、データ取得後には`actionData`を描画したい
+- `const data = actionData ?? loaderData`みたいにしてもいいけど…
+- `action`でエラーが起きた場合は`actionData`にエラーの詳細が入るような場合だと、分岐が面倒なことになる
 
 ### URLに状態を乗せたくない場合
 
 - URLに状態を乗せられるなら、`loader`だけで表示切り替えが済む
+- ボタンが押されたら`action`を呼び出すのではなく、URLパスやURLクエリパラメータを変えることで`loader`が呼び出されるようにすればよい
 - 実装例：https://reactrouter.com/tutorials/address-book#urlsearchparams-and-get-submissions
 
 - `FolderExprorer`でも同様に`?dir={folderId}`というURLクエリパラメータで表示の切り替えを試みた
 - しかし、URLクエリパラメータはキャッシュされない
 - 頻繁にクリックされ、「さっきのデータに戻る」ことも多いUIのため、毎回サーバーにリクエストされるのは避けたかった
-
-### 初期データと新たなデータを切り替えたい場合
-
-- `loader`で初期データを取得、ボタンが押されたら`action`で新たなデータを取得し、表示を切り替える場合を考える
-- このとき、初期状態では`loaderData`を、データ取得後には`actionData`を描画したい
-- `const data = actionData ?? loaderData`みたいにしてもいいけど…
-- `action`でエラーが起きた場合は`actionData`にエラーの詳細が入るような場合だと、分岐が面倒なことになる
 
 ## Tanstack Queryの導入
 
