@@ -45,7 +45,7 @@ Tiptapに興味を持ったのは、[Zenn](https://zenn.dev/)の作者catnoseさ
 ### 高いモジュール性
 
 まとまった機能を備えるWYSIWYGエディタライブラリはオーバースペックになりがちですが、Tiptapが提供するコア機能は最小限です。
-[Extension](https://tiptap.dev/docs/editor/extensions/overview)で欲しい機能だけを追加していくため、過不足なく要件を実現することができます。
+[Extension](https://tiptap.dev/docs/editor/core-concepts/extensions)で欲しい機能だけを追加していくため、過不足なく要件を実現することができます。
 
 次のコードは、ReactでTiptapを使う場合の最小構成例です。
 
@@ -79,7 +79,7 @@ Extensionを別途`npm install`し、`extensions`配列に追加していくこ�
 
 公式Extensionの粒度はとても小さく、例えばMarkdown記法のサポートは構文ごとにExtensionが用意されています。
 
-- [Don’t bend it, extend it. - Editor / Extensions / Overview](https://tiptap.dev/docs/editor/extensions/overview)
+- [Don’t bend it, extend it. - Extensions / Overview](https://tiptap.dev/docs/editor/extensions/overview)
 
 エディタ上でサポートしたいMarkdown構文を1つずつセットアップするのはやや面倒な作業ですが、[StarterKit](https://tiptap.dev/docs/editor/extensions/functionality/starterkit)を使えば、主要なMarkdown記法をサポートするExtensionをまとめて導入することができます。
 
@@ -105,6 +105,8 @@ Summarioで実際に実装したExtensionについては、このシリーズの
 ### ProseMirror由来の高度なカスタマイズ性
 
 Tiptapは[ProseMirror](https://prosemirror.net/)というリッチテキストエディタ構築ツールキットを使いやすくラップしたライブラリであり、ProseMirrorの高いカスタマイズ性を継承しながら、実装や学習のコストを大幅に抑えてくれています。
+
+- [ProseMirror - Tiptap Concepts](https://tiptap.dev/docs/editor/core-concepts/prosemirror)
 
 ProseMirrorベースだからこそ実現できる機能の一つとして、スキーマによる文書構造の強制があります。
 
