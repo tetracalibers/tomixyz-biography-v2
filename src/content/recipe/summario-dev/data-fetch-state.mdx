@@ -6,8 +6,20 @@ tags:
   - react-router
   - tanstack-query
 references:
+  - title: React Router v7 ドキュメント 日本語版
+    url: https://react-router-docs-ja.techtalk.jp/
+  - title: React Router v7 さわってみた
+    url: https://qiita.com/studio_haneya/items/a9f6f6c1d9aefcd40fd1
+  - title: Remixを使い始めた話
+    url: https://tech.mfkessai.co.jp/2024/03/remix/
+  - title: ブログ記事で Remix (React Router v7) に入門する
+    url: https://t28.dev/blog/getting-started-with-react-router-v7-using-blog-posts
+  - title: React Router v7 の内部構造を探る：リクエストからレンダリングまでの道のり
+    url: https://zenn.dev/coji/articles/react-router-v7-internal-flow
   - title: react-router 使う機能、使わない機能
     url: https://blog.ojisan.io/react-router-using/
+  - title: Remix (React Router v7) の思想が受け入れられなかった話
+    url: https://hidekatsu-izuno.hatenablog.com/entry/2025/02/20/021608
 series: summario-dev
 draft: true
 ---
@@ -18,6 +30,9 @@ React Router v7では、データフェッチとその状態管理をフレー�
 圧倒的に充実しているReactのエコシステム（UIライブラリ等）を活用しながらも、React特有のつらいポイントを避けることができるのは大きなアドバンテージだと感じ、Next.jsではなくReact Router v7を選びました。
 
 しかし、1つのページに多数の機能を備えるアプリケーションでは、React Router v7の仕組みにうまく乗せきれない部分も多く、結局データフェッチとその状態管理をTanstack Queryで補強する方針をとっています。
+
+今回は、React Router v7による実装で悩ましかったポイントを中心に取り上げる形になることをご了承ください。
+もちろんReact Router v7の便利さを実感したことも多くあるので、React Router v7の機能でうまく実装できた部分についても、別の回で取り上げたいと考えています。
 
 ## React Router v7で脱`useState`/`useEffect`できるか？
 
@@ -33,30 +48,29 @@ React Router v7のアプローチを知るには、Address Bookという公式�
 巷のブログでも、React Router v7の仕組みをうまく使えば、タブUIやモーダルUIでさえ`useState{:.fn}`を使わずに実装できると評されています。
 
 - [React Router v7で実現するuseStateゼロ開発](https://zenn.dev/dorarep/articles/1dedd5c1b9ee82)
-- [React Router 7: Nested Routes](https://www.robinwieruch.de/react-router-nested-routes/)
 
-しかし、このような`useState{:.fn}`を使わない実装を叶える前提として、｢URLに状態を乗せること」が求められてきます。
+しかし、このような`useState{:.fn}`を使わない実装を叶える前提として、｢URLに状態を載せること」が求められてきます。
 1つの機能を持つページに対し1つのURLを対応づけることが理想形であり、それができない場合のベストプラクティスについてはまだ情報が少ないと感じています。
 
 ### ルートモジュールが持つ機能
 
 React Router v7の[Frameworkモード](https://react-router-docs-ja.techtalk.jp/start/modes#framework)では、ページを表すコンポーネントとページのURLを`app/routes.ts`という設定ファイルで対応づけます。
 
-- [ルーティング - React Router v7 ドキュメント](https://react-router-docs-ja.techtalk.jp/start/framework/routing)
+- [Routing](https://reactrouter.com/start/framework/routing)
 
 ```ts title="app/routes.ts" showLineNumbers
 import { type RouteConfig, route } from "@react-router/dev/routes"
 
-export default [route("/list", "./list.tsx")] satisfies RouteConfig
+export default [route("list", "./list.tsx")] satisfies RouteConfig
 ```
 
 この`app/routes.ts`に登録したページを表すコンポーネント（上の例では`./list.tsx`）を、React Router v7では**ルートモジュール**と呼びます。
 
-- [ルートモジュール - React Router v7 ドキュメント](https://react-router-docs-ja.techtalk.jp/start/framework/route-module)
+- [Route Module](https://reactrouter.com/start/framework/route-module)
 
 そして、ルートモジュールに限り、`loader{:.fn}`と`action{:.fn}`という関数が特別な意味を持ちます。
 
-```tsx title="list.tsx" showLineNumbers /loaderData/
+```tsx title="app/list.tsx" showLineNumbers /loaderData/
 import { Form } from "react-router"
 import { TodoList } from "~/components/TodoList"
 
@@ -78,7 +92,7 @@ export async function loader() {
 export default function Items({ loaderData }) {
   return (
     <div>
-      <List items={loaderData.items} />
+      <TodoList items={loaderData.items} />
       <Form method="post" navigate={false} action="/list">
         <input type="text" name="title" />
         <button type="submit">Todoを作成</button>
@@ -90,8 +104,8 @@ export default function Items({ loaderData }) {
 
 `loader{:.fn}`はデータの取得、`action{:.fn}`はデータの更新を担い、これらの結果（戻り値）はルートモジュールで`loaderData` / `actionData`という`Props`として受け取れるようになっています。
 
-- [データローディング - React Router v7 ドキュメント](https://react-router-docs-ja.techtalk.jp/start/framework/data-loading)
-- [アクション - React Router v7 ドキュメント](https://react-router-docs-ja.techtalk.jp/start/framework/actions)
+- [Data Loading](https://reactrouter.com/start/framework/data-loading)
+- [Actions](https://reactrouter.com/start/framework/actions)
 
 また、`loader{:.fn}`は初期ロードを担うだけでなく、`action{:.fn}`の完了後にもロードされる（データの自動再検証が行われる）ため、コンポーネントでの`loaderData`を使った表示も自動的に更新されます。
 
@@ -102,27 +116,91 @@ export default function Items({ loaderData }) {
 おかげで、クライアント側で明示的に管理しなければならなかった多くの状態をコードから排除することができるわけです。
 具体的にどのような状態管理から解放されるのかは、次のドキュメントにまとめられています。
 
-- [ステート管理 - React Router v7 ドキュメント](https://react-router-docs-ja.techtalk.jp/explanation/state-management)
+- [State Management](https://reactrouter.com/explanation/state-management)
 
-### ルートモジュールの制約
+### `loader`と`action`の肥大化
 
-ルートモジュールはページに対応するため、1ページにつき`loader`や`action`は1つずつしか置けないことになります。
-（厳密にいえば、Nested Routesを使って1つのページを複数のルートモジュールの入れ子として表現することで、各ルートモジュールに`loader`と`action`を置くことができるわけですが…）
+このようなルートモジュールの仕組みはとても便利なものですが、ページ内に多数の機能を盛り込んだアプリケーションを開発する際には、厳しい制約にもなりうると感じています。
 
-ページで必要なすべてのデータを`loader`でロードするのはまだよいとして、ページ内の複数箇所で異なるデータ更新処理が必要な場合、「どの箇所で呼び出されたか？」によって`action`内で処理を分岐しなければなりません。
+Reactコンポーネントとしてのルートモジュールは各ページに対応するため、基本的には1つのページに`loader{:.fn}`や`action{:.fn}`は1つずつしか置けないことになります。
+すると、ページで必要なすべてのデータを1つの`loader{:.fn}`でロードすることになり、さらにページ内の複数箇所で異なるデータ更新処理が必要な場合は、「どの箇所で呼び出されたか？」によって`action{:.fn}`内で処理を分岐しなければなりません。
+
+この単一`loader{:.fn}` / `action{:.fn}`の肥大化を避けるアプローチが存在しないわけではなく、Nested Routesという仕組みを用いることで、1つのページを複数のルートモジュールの入れ子として表現できます。
+
+- [Nested Routes](https://reactrouter.com/start/framework/routing#nested-routes)
+- [Layout Routes](https://reactrouter.com/start/framework/routing#layout-routes)
+
+たとえば、全ページ共通のUIとなるサイドバーと、ページによって内容が異なるメインエリアを別のルートモジュールとして分離すれば、それぞれに`loader{:.fn}`や`action{:.fn}`を置くことが可能です。
+
+```ts title="app/routes.ts" showLineNumbers
+import type { RouteConfig } from "@react-router/dev/routes"
+import { layout, route } from "@react-router/dev/routes"
+
+export default [
+  // 親ルート
+  layout("layouts/sidebar.tsx", [
+    // 子ルート
+    route("items/:itemId", "routes/item.tsx")
+  ])
+] satisfies RouteConfig
+```
+
+```tsx title="app/layouts/sidebar.tsx（親ルート）" showLineNumbers
+import { Outlet } from "react-router"
+
+export async function loader() {
+  const allItems = await fakeDb.getItems()
+  return { allItems }
+}
+
+export default function SidebarLayout({ loaderData }) {
+  const { allItems } = loaderData
+
+  return (
+    <>
+      <aside className="sidebar-area">{/* allItemsを使った一覧表示 */}</aside>
+      <main className="main-area">
+        {/* Outletは子ルートをレンダリングする */}
+        <Outlet />
+      </main>
+    </>
+  )
+}
+```
+
+```tsx title="app/routes/item.tsx（子ルート）" showLineNumbers
+export async function loader({ params }) {
+  const { itemId } = params
+  const item = await fakeDb.getItem(itemId)
+  return { item }
+}
+
+export default function Item({ loaderData }) {
+  const { item } = loaderData
+
+  return (
+    <>
+      {/* Outlet部分に埋め込まれる内容 */}
+      <div className="main-area-inner">{/* itemを使った個別詳細表示 */}</div>
+    </>
+  )
+}
+```
+
+しかし、メインエリアに機能が集中するようなページでは、どちらにせよメインエリア側の`loader{:.fn}`や`action{:.fn}`が肥大化することは避けられません。
+
+`loaderData`は`action{:.fn}`実行後に自動で更新（再検証）されるため、`loader{:.fn}`でさまざまなデータをまとめて取得している場合、表示の更新が広範囲に及んでしまうことも問題となります。
 
 ### 初期データから新たなデータに切り替えたい場合
 
+- `loader`と`action`で同じデータを返す場合は綺麗に書ける、しかしそうでない場合は？
 - `loader`で初期データを取得、ボタンが押されたら`action`で新たなデータを取得し、表示を切り替える場合を考える
-
-- `loaderData`は`action`実行後に自動更新されるが、`loader`でさまざまなデータをまとめて取得している場合、広範囲に更新が及んでしまう
-- これを防ぐためには、別ファイルに`action`を分離する必要がある？
 
 - 初期状態では`loaderData`を、データ取得後には`actionData`を描画したい
 - `const data = actionData ?? loaderData`みたいにしてもいいけど…
 - `action`でエラーが起きた場合は`actionData`にエラーの詳細が入るような場合だと、分岐が面倒なことになる
 
-### URLに状態を乗せたくない場合
+### URLに状態を載せるべきとは限らない
 
 - URLに状態を乗せられるなら、`loader`だけで表示切り替えが済む
 - ボタンが押されたら`action`を呼び出すのではなく、URLパスやURLクエリパラメータを変えることで`loader`が呼び出されるようにすればよい
