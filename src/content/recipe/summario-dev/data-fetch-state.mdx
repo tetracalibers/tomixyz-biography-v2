@@ -140,7 +140,7 @@ Reactコンポーネントとしてのルートモジュールは各ページに
 
 たとえば、全ページ共通のUIとなるサイドバーと、ページによって内容が異なるメインエリアを別のルートモジュールとして分離すれば、それぞれに`loader{:.fn}`や`action{:.fn}`を置くことが可能です。
 
-```ts title="app/routes.ts" showLineNumbers
+```ts title="app/routes.ts" showLineNumbers {5-9}
 import type { RouteConfig } from "@react-router/dev/routes"
 import { layout, route } from "@react-router/dev/routes"
 
@@ -153,7 +153,7 @@ export default [
 ] satisfies RouteConfig
 ```
 
-```tsx title="app/layouts/sidebar.tsx（親ルート）" showLineNumbers
+```tsx title="app/layouts/sidebar.tsx（親ルート）" showLineNumbers {15-16}
 import { Outlet } from "react-router"
 
 export async function loader() {
@@ -199,7 +199,7 @@ export default function Item({ loaderData }) {
 
 さらに、`loaderData`は`action{:.fn}`実行後に自動で更新（再検証）されるため、`loader{:.fn}`でさまざまなデータをまとめて取得している場合、表示の更新（再描画）が広範囲に及んでしまうことも問題となります。
 
-## データの流れとURLの状態
+## データの流れとURLによる状態の表現
 
 React Router v7では、`action{:.fn}`はデータの更新に専念し、`action{:.fn}`の実行によって自動更新される`loaderData`をもとに表示を行うという形にすることで、データの流れが自然になります。
 
@@ -209,49 +209,160 @@ loader -> component -> action -> loader
 
 つまり、`action{:.fn}`でデータを返してそれを表示に使うようなことはせず、表示は`loader{:.fn}`からのデータのみに頼るという実装が理想形です。`action{:.fn}`はあくまでもデータ「更新」だけに徹し、データ「取得」は常に`loader{:.fn}`が担うという役割分担を崩さないようにするのです。
 
-### 任意のタイミングでデータを取得する
+### ユーザー操作による表示データの置き換え
 
-データの自動再検証によってフレームワーク側が表示を更新してくれる仕組みはとても強力ですが、ユーザーによるボタンクリック操作など、新たなデータを取得するタイミングを指定したい場合もあります。
+ページへのアクセス時には、サーバー側で予めロードされた初期データが表示されているとします。
+ここで、何らかのユーザー操作によって新たなデータを取得し、表示を更新したいというシナリオについて考えてみます。サーバー側のデータ更新が伴うか否かという視点で眺めてみましょう。
 
-1. サーバー側のデータ更新後に表示も更新したい場合
-2. サーバー側のデータ更新は伴わず、違うデータのリクエストを行って表示を更新したい場合
+- サーバー側のデータを更新し、更新されたデータで表示も更新したい場合
+- 今表示しているデータとは異なるデータを取得して表示を更新したい場合（サーバー側のデータ更新は伴わない）
 
----
+ユーザー操作がサーバー側のデータの更新を伴うものなら、`action`実行後の自動再検証によって表示も更新される仕組みに乗せることができます。
+たとえば、`action`によって新規アイテムを追加し、追加に成功したら全アイテムの一覧表示も更新したいという場合です。このとき、`loader`が全アイテムを取得して返す実装になっていれば、自動的に一覧表示が更新されるため、特に新しいアプローチを考える必要はありません。
 
-- 1の例：`action`によって新規アイテムを追加し、全アイテムの一覧を更新したい
-- この場合は、`loader`が全アイテムを取得する実装になっていれば、`revalidate`によって自動で表示が更新される
+一方、ユーザー操作によって単にデータを取得したいだけの場合もあります。
+たとえば、初回表示では1〜10件目のアイテムを表示し、ユーザーが「次へ」ボタンを押したら11〜20件目のアイテムを表示するように切り替えたいという場合です。
+この場合は`action`を使う必要はなく、「今取得したいデータ範囲」の情報を何らかの形で`loader`に伝え、~~それに合わせて`loader`の出力が変わるような仕組みが必要になります~~。
 
----
+「何らかの形で」と書きましたが、実際のところ選択できるアプローチはあまり多くはなく、結局はURLにその情報を含める必要があります。
+`loader`は`GET`リクエストの処理（データ取得）を担い、`GET`リクエストはリクエストボディを持たないからです。
 
-- 2の例：初回表示では1〜10件目のアイテムを表示し、ユーザーが「次へ」ボタンを押したら11〜20件目のアイテムを表示するように切り替えたい
-- この場合は、`loader`に「取得したいデータ範囲」の情報を何らかの形で伝える必要がある
-- 推奨されるのは、URLクエリパラメータにその情報を載せること
-- もしくは専用の`loader`を用意し、ボタンクリック時に`fetcher.load`で読み込むことで、`action`を新しいデータの取得に使うことは避けられる
+### URLクエリパラメータによる状態表現
 
+- サイドバーの`FolderExprorer`を例に考える
+- 特定のフォルダ直下のエントリ（ファイルやフォルダ）を一覧表示する
+- フォルダ名をクリックしたら、URLクエリパラメータをもとにそのフォルダ直下のエントリを取得し、一覧表示を置き換える
+
+```tsx title="app/components/FolderExprorer.tsx" showLineNumbers {6-8,21-22}
+import { Link } from "react-router"
+
+export async function loader({ params, request }) {
+  const currentFileId = params.fileId
+
+  const url = new URL(request.url)
+  const folderId = url.searchParams.get("folder") ?? "root"
+  const entries = await getFolderEntries(folderId)
+
+  return { entries, currentFileId }
+}
+
+export default function FolderExprorer({ loaderData }) {
+  const { entries, currentFileId } = loaderData
+
+  return (
+    <ul>
+      {entries.map((entry) => (
+        <li key={entry.id}>
+          {entry.type === "folder" ? (
+            {/* フォルダを表すリンク（サイドバーのフォルダ一覧だけ更新） */}
+            <Link to={`/files/${currentFileId}?folder=${entry.id}`}>{entry.name}</Link>
+          ) : (
+            {/* ファイルを表すリンク（そのファイル内容のページに移動） */}
+            <Link to={`/files/${item.id}`}>{entry.name}</Link>
+          )}
+        </li>
+      ))}
+    </ul>
+  )
+}
+```
+
+- 表示は`loaderData`だけに依存
+- クリック時にURLクエリパラメータを変えることで`loader`が呼び出されるようにすればよい
+
+- しかし、URLクエリパラメータはキャッシュされない
+- 頻繁にクリックされ、「さっきのフォルダに戻る」ことも多いUIのため、毎回サーバーにリクエストされるのは避けたかった
+
+### URLパスによる状態表現
+
+- [Resource Routes](https://reactrouter.com/how-to/resource-routes)
+
+```ts title="app/routes.ts" showLineNumbers {8}
+import type { RouteConfig } from "@react-router/dev/routes"
+import { layout, route } from "@react-router/dev/routes"
+
+export default [
+  layout("layouts/sidebar.tsx", [
+    route("files/:fileId", "routes/file.tsx")
+  ]),
+  route("api/folders/:folderId", "routes/api/folder.ts");
+] satisfies RouteConfig
+```
+
+```ts title="routes/api/folder.ts" showLineNumbers {2-3}
+export async function loader({ params }) {
+  const { folderId } = params
+  const entries = await getFolderEntries(folderId)
+  return { entries }
+}
+```
+
+```tsx title="app/layouts/sidebar.tsx" showLineNumbers {4-7,10,15}
+import { Outlet } from "react-router"
+import FolderExprorer from "~/components/FolderExprorer.tsx"
+
+export async function loader() {
+  const initialEntries = await getFolderEntries("root")
+  return { initialEntries }
+}
+
+export default function SidebarLayout({ loaderData }) {
+  const { initialEntries } = loaderData
+
+  return (
+    <>
+      <aside className="sidebar-area">
+        <FolderExprorer initialEntries={initialEntries} />
+      </aside>
+      <main className="main-area">
+        <Outlet />
+      </main>
+    </>
+  )
+}
+```
+
+- [Using Fetchers](https://reactrouter.com/how-to/fetchers)
+
+```tsx title="app/components/FolderExprorer.tsx" showLineNumbers {4-5,12-15}
+import { Link, useFetcher } from "react-router"
+
+export default function FolderExprorer({ initialEntries }) {
+  const fetcher = useFetcher();
+  const entries = fetcher.data ?? initialEntries
+
+  return (
+    <ul>
+      {entries.map((entry) => (
+        <li key={entry.id}>
+          {entry.type === "folder" ? (
+            {/* フォルダを表すボタン（サイドバーのフォルダ一覧だけ更新） */}
+            <button type="button" onClick={() => fetcher.load(`/api/folders/${entry.id}`)}>
+              {entry.name}
+            </button>
+          ) : (
+            {/* ファイルを表すリンク（そのファイル内容のページに移動） */}
+            <Link to={`/files/${item.id}`}>{entry.name}</Link>
+          )}
+        </li>
+      ))}
+    </ul>
+  )
+}
+```
+
+- 独立したルートを用意する
+- 任意のタイミングでデータを取得する
 - `fetcher`はユーザーインタラクションによって`loader`や`action`を呼び出すための機能
-- https://reactrouter.com/how-to/fetchers#loading-data
-
----
-
-- `loader`で初期データを取得、ボタンが押されたら`fetcher.load`で新たなデータを取得し、表示を切り替える場合を考える
+- `loader`で初期データを取得、ボタンが押されたら`fetcher.load`で新たなデータを取得し、表示を切り替える
 
 - 初期表示に使うデータは`loader`で受け取りたい（`fetcher`に任せるとクライアントでの`fetch`になるので、初期表示に時間がかかる）
 - つまり、初期表示では`loaderData`を、データ取得後には`fetcher.data`を表示したい
 
+- 専用の`loader`を用意し、ボタンクリック時に`fetcher.load`で読み込む
+
 - `const data = fetcher.data ?? loaderData`みたいにしてもいいけど…
 - `loader`でエラーが起きた場合はレスポンスボディにエラーの詳細を入れて返す場合では、分岐が面倒なことになる
-
-### URLに状態を載せるべきとは限らない
-
-- URLに状態を乗せられるなら、`loader`だけで表示切り替えが済む
-- ボタンが押されたら`action`を呼び出すのではなく、URLパスやURLクエリパラメータを変えることで`loader`が呼び出されるようにすればよい
-- 実装例：https://reactrouter.com/tutorials/address-book#urlsearchparams-and-get-submissions
-
-- `FolderExprorer`でも同様に`?dir={folderId}`というURLクエリパラメータで表示の切り替えを試みた
-- しかし、URLクエリパラメータはキャッシュされない
-- 頻繁にクリックされ、「さっきのデータに戻る」ことも多いUIのため、毎回サーバーにリクエストされるのは避けたかった
-
-### 初期データから新たなデータに切り替えたい場合
 
 ## Tanstack Queryの導入
 
