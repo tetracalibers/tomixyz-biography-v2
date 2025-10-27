@@ -179,7 +179,7 @@ pre[data-language]::before {
   border-top-left-radius: 0;
 }
 /** 言語ごとのラベル */
-pre[data-language="plaintext"]::before {
+pre:is([data-language="plaintext"], [data-language="txt"])::before {
   content: "";
   display: flex;
 }
