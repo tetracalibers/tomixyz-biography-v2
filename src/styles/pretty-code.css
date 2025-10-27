@@ -76,7 +76,7 @@ html.dark pre > code > [data-highlighted-line] {
 }
 
 pre > code:has([data-highlighted-line]) > :not([data-highlighted-line]) {
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 /** show line numbers */
