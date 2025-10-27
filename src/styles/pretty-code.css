@@ -179,6 +179,10 @@ pre[data-language]::before {
   border-top-left-radius: 0;
 }
 /** 言語ごとのラベル */
+pre[data-language="plaintext"]::before {
+  content: "";
+  display: flex;
+}
 pre[data-language="js"]::before {
   content: "JavaScript";
 }
