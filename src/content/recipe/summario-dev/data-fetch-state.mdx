@@ -36,30 +36,38 @@ draft: true
 
 充実したReactのエコシステム（UIライブラリ等）を活用しながらも、React特有のつらいポイントを避けることができるのは大きなアドバンテージだと感じ、Summarioの開発では[Next.js](https://nextjs.org/)ではなくReact Router v7を選びました。
 
-しかし、1つのページに多数の機能を備えるアプリケーションでは、React Router v7の仕組みにうまく乗せきれない部分も多く、結局データフェッチとその状態管理を[Tanstack Query](https://tanstack.com/query/latest)で補強する方針をとっています。
+しかし、1つのページに多数の機能を備えるアプリケーションでは、React Router v7の仕組みにうまく乗せきれない部分もあり、結局データフェッチとその状態管理では[Tanstack Query](https://tanstack.com/query/latest)の力を借りた方が綺麗に収まるのではなかろうかという結論に…
 
-今回は、React Router v7による実装で悩ましかったポイントを中心に取り上げる形になることをご了承ください。
-もちろんReact Router v7の便利さを実感したことも多くあるので、React Router v7の機能でうまく実装できた部分についても、別の回で取り上げたいと考えています。
+今回は、React Router v7による実装で悩ましかったポイントを中心に取り上げる形になってしまいますが、もっとReact Routerを使いこなせるようになったら、うまく実装できたエピソードも増やしていきたいと思っています。
 
 ## React Router v7で脱`useState`/`useEffect`できるか？
 
-React Router v7のアプローチを知るには、Address Bookという公式のチュートリアルを一読するのがおすすめです。
+まずはReact Router v7での実装アプローチを知るために、Address Bookという公式のチュートリアルを一読しました。
 
 - [Address Book](https://reactrouter.com/tutorials/address-book)
 
-このチュートリアルで登場する次の言葉が印象的で、React Router v7が単にReactの機能に依存するフレームワークではないことが窺えます。
+このチュートリアルで登場する次の言葉が印象的で、React Router v7は単にReactの機能に依存するフレームワークではないことが窺えます。
 
 > 🧐 Wait a sec ... How did the sidebar update? Where did we call the `action` function? Where's the code to re-fetch the data? Where are `useState`, `onSubmit` and `useEffect`?!
 
 実際、このチュートリアルでは`useEffect{:.fn}`や`useState{:.fn}`はほとんど使われていません。
-巷のブログでも、React Router v7の仕組みをうまく使えば、タブUIやモーダルUIでさえ`useState{:.fn}`を使わずに実装できると評されています。
+巷のブログを漁るともっと夢のような話もあって、たとえば次の記事では、React Router v7の仕組みをうまく使うことで、タブUIやモーダルUIでさえ`useState{:.fn}`を使わずに実装できるというアプローチが解説されているのです。
 
 - [React Router v7で実現するuseStateゼロ開発](https://zenn.dev/dorarep/articles/1dedd5c1b9ee82)
 
-しかし、このような`useState{:.fn}`になるべく頼らない実装を叶える前提として、｢URLに状態を載せること」が求められてきます。
-1つの機能を持つページに対し1つのURLを対応づけることが理想形であり、それができない場合のベストプラクティスについてはまだ情報が少ないと感じています。
+では`useState{:.fn}`を使わないとしたら、`useState{:.fn}`に持たせていた状態はどう表現するのかというと…
+React Router v7が裏で管理してくれる状態も多くありますが、React Router v7の仕組みが求めてくるのは「URLで状態を表現する」ことです。
+
+究極には、1つの機能を持つページ（のUI）に対し1つのURLを対応づけることが理想形なのかもしれません。
+URLに載せきれないような複雑な状態を扱う場合や、URLに状態を載せることが望ましいとはいえない場合のベストプラクティスについてはほとんど情報がないので、あえて「こんな場合はどうするんだ…？」という事例を取り上げて模索してみようというのが今回の記事の主な内容です。（しかし今のところの終着点はTanstack Query…）
+
+React Router v7の仕組みを概説しつつ、純粋に良いな〜と思った部分についても積極的に話していきたいと思います。
 
 ## ルートモジュールの機能と制約
+
+先ほど、1つの機能を持つUIに対して1つのURLを対応づけることが理想形なのかもしれない、と書いたのは、React Router v7による開発では**ルートモジュール**という仕組みが主軸になってくるからです。まずはその機能について簡単にまとめてみます。
+
+### ルーティングとルートモジュール
 
 React Router v7の[Frameworkモード](https://react-router-docs-ja.techtalk.jp/start/modes#framework)では、ページを表すコンポーネントとページのURLを`app/routes.ts`という設定ファイルで対応づけます。
 
@@ -127,18 +135,19 @@ export default function Items({ loaderData }) {
 
 ### `loader`と`action`の肥大化
 
-このようなルートモジュールの仕組みはとても便利なものですが、ページ内に多数の機能を盛り込んだアプリケーションを開発する際には、厳しい制約にもなりうると感じています。
+このようなルートモジュールの仕組みは画期的なもので、たしかにこうしてまとめることができたら綺麗ではあるのです。
+しかし、ページ内に多数の機能を盛り込んだアプリケーションを開発する際には、良くも悪くもこの仕組みに縛られ、その中にうまく処理を収めることが悩ましくもありました。
 
-Reactコンポーネントとしてのルートモジュールは各ページに対応するため、基本的には1つのページに`loader{:.fn}`や`action{:.fn}`は1つずつしか置けないことになります。
+ルートモジュールは各URLに対応するため、基本的には1つのページに`loader{:.fn}`や`action{:.fn}`は1つずつしか置けないことになります。
 
 すると、ページで必要なすべてのデータを1つの`loader{:.fn}`でロードすることになり、さらにページ内の複数箇所で異なるデータ更新処理が必要な場合は、「どの箇所で呼び出されたか？」によって`action{:.fn}`内で処理を分岐しなければなりません。
 
-この単一`loader{:.fn}` / `action{:.fn}`の肥大化を避けるアプローチが存在しないわけではなく、Nested Routesという仕組みを用いることで、1つのページを複数のルートモジュールの入れ子として表現できます。
+この単一`loader{:.fn}` / `action{:.fn}`の肥大化を避けるアプローチが存在しないわけではなく、**ネストされたルート**を用いることで、1つのページを複数のルートモジュールの入れ子として表現することはできます。
 
 - [Nested Routes](https://reactrouter.com/start/framework/routing#nested-routes)
 - [Layout Routes](https://reactrouter.com/start/framework/routing#layout-routes)
 
-たとえば、全ページ共通のUIとなるサイドバーと、ページによって内容が異なるメインエリアを別のルートモジュールとして分離すれば、それぞれに`loader{:.fn}`や`action{:.fn}`を置くことが可能です。
+たとえば、全ページ共通のUIとなるサイドバーと、ページによって内容が異なるメインエリアを別のルートモジュールとして分離すれば、それぞれに`loader{:.fn}`や`action{:.fn}`を置くことが可能になるのです。
 
 ```ts title="app/routes.ts" showLineNumbers {5-9}
 import type { RouteConfig } from "@react-router/dev/routes"
@@ -153,7 +162,7 @@ export default [
 ] satisfies RouteConfig
 ```
 
-```tsx title="app/layouts/sidebar.tsx（親ルート）" showLineNumbers {15-16}
+```tsx title="app/layouts/sidebar.tsx（親ルート）" showLineNumbers {3-6,15-16}
 import { Outlet } from "react-router"
 
 export async function loader() {
@@ -168,7 +177,7 @@ export default function SidebarLayout({ loaderData }) {
     <>
       <aside className="sidebar-area">{/* allItemsを使った一覧表示 */}</aside>
       <main className="main-area">
-        {/* Outletは子ルートをレンダリングする */}
+        {/* Outletは子ルートの内容をレンダリングする */}
         <Outlet />
       </main>
     </>
@@ -176,7 +185,7 @@ export default function SidebarLayout({ loaderData }) {
 }
 ```
 
-```tsx title="app/routes/item.tsx（子ルート）" showLineNumbers
+```tsx title="app/routes/item.tsx（子ルート）" showLineNumbers {1-5}
 export async function loader({ params }) {
   const { itemId } = params
   const item = await fakeDb.getItem(itemId)
@@ -197,7 +206,7 @@ export default function Item({ loaderData }) {
 
 このようにルートのネストをあまり深くすることなく綺麗に分けられるならよいのですが、どちらにせよメインエリアに機能が集中するようなページでは、メインエリア側の`loader{:.fn}`や`action{:.fn}`が肥大化することは避けられなくなってきます。
 
-さらに、`loaderData`は`action{:.fn}`実行後に自動で更新（再検証）されるため、`loader{:.fn}`でさまざまなデータをまとめて取得している場合、表示の更新（再描画）が広範囲に及んでしまうことも問題となります。
+さらに、`loaderData`は`action{:.fn}`実行後に自動で更新（再検証）されるため、`loader{:.fn}`でさまざまなデータをまとめて取得している場合、表示の更新（再描画）が広範囲に及んでしまうことも悩ましいポイントでした。
 
 ## データの流れとURLによる状態の表現
 
@@ -381,6 +390,8 @@ export async function loader({ params }) {
   return { entries }
 }
 ```
+
+- `useRouteLoaderData`を使って綺麗にまとまらないか？と試したけれど、ドキュメントも旧バージョンのコード例なので正解が分からず…どうやっても返ってくるのは`undefined`…
 
 ## Tanstack Queryの導入
 
