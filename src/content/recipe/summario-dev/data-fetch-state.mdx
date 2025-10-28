@@ -1,5 +1,5 @@
 ---
-title: React Router v7のactionとTanstack Query
+title: React Router v7の状態管理とTanstack Query
 date: "2025-10-23"
 description: React Router v7の美しさと難しさに向き合う
 tags:
@@ -27,12 +27,27 @@ references:
     summary: React Router v7の機能に無理やり乗せようとせず、良いと思った機能を取捨選択して使うという発想はこの記事から学びました。
   - title: Remix (React Router v7) の思想が受け入れられなかった話
     url: https://hidekatsu-izuno.hatenablog.com/entry/2025/02/20/021608
+  - title: TanStack Query 〜プロダクトで採用するための勘所〜
+    url: https://zenn.dev/taisei_13046/books/133e9995b6aadf
 series: summario-dev
 draft: true
 ---
 
-[React Router v7](https://reactrouter.com/)では、サーバー側のデータに関する状態管理をフレームワーク側が担ってくれる仕組みが搭載されています。
-その仕組みにうまく乗せることで、APIフェッチを行うための`useEffect{:.fn}`や、取得したデータやエラー状態などを保持するための`useState{:.fn}`が不要になります。
+## React Router v7とServer State
+
+[React Router v7](https://reactrouter.com/)は、[Remix](https://remix.run/)とReact Routerが合流して生まれたフルスタックフレームワークです。
+
+- [React Router v7](https://remix.run/blog/react-router-v7)
+
+> React Router v7 brings everything you love about Remix back into React Router proper.
+
+Remixのコンセプトを受け継いでいるReact Router v7には、サーバー側のデータに関する状態管理をフレームワーク側が担ってくれる仕組みが備わっています。
+
+- [Fullstack Data Flow](https://v2.remix.run/docs/discussion/data-flow)
+
+> One of the primary features of Remix is the way it automatically keeps your UI in sync with persistent server state.
+
+その仕組みにうまく乗せることで、APIフェッチを行うために`useEffect{:.fn}`を生やしたり、取得したデータやエラー状態などを保持するための`useState{:.fn}`を用意したりする必要がなくなります。
 
 充実したReactのエコシステム（UIライブラリ等）を活用しながらも、React特有のつらいポイントを避けることができるのは大きなアドバンテージだと感じ、Summarioの開発では[Next.js](https://nextjs.org/)ではなくReact Router v7を選びました。
 
@@ -142,7 +157,7 @@ export default function Items({ loaderData }) {
 
 すると、ページで必要なすべてのデータを1つの`loader{:.fn}`でロードすることになり、さらにページ内の複数箇所で異なるデータ更新処理が必要な場合は、「どの箇所で呼び出されたか？」によって`action{:.fn}`内で処理を分岐しなければなりません。
 
-この単一`loader{:.fn}` / `action{:.fn}`の肥大化を避けるアプローチが存在しないわけではなく、**ネストされたルート**を用いることで、1つのページを複数のルートモジュールの入れ子として表現することはできます。
+この単一`loader{:.fn}` / `action{:.fn}`の肥大化を避けるアプローチが存在しないわけではなく、**ネストされたルート**を用いることで、1つのページを複数のルートモジュールの入れ子として表現することができます。
 
 - [Nested Routes](https://reactrouter.com/start/framework/routing#nested-routes)
 - [Layout Routes](https://reactrouter.com/start/framework/routing#layout-routes)
@@ -225,18 +240,19 @@ loader -> component -> action -> loader
 
 `action{:.fn}`でデータを返してそれを表示に使うようなことはせず、表示は`loader{:.fn}`からのデータのみに頼るという実装が、このデータフローに沿った一つの理想形ともいえます。`action{:.fn}`はあくまでもデータ「更新」だけに徹し、データ「取得」は常に`loader{:.fn}`が担うという役割分担を崩さないようにするのです。
 
-### ユーザー操作による表示データの置き換え
+### ユーザー操作によるデータ取得
 
-ここで、何らかのユーザー操作をトリガーにクライアント側で新たなデータを取得し、それを用いて表示を更新したいというシナリオについて考えてみたいと思います。
+データの自動同期はとても強力な仕組みですが、実際のアプリケーション開発ではデータの取得を手動で行いたい場面も多くあります。
+そこで、何らかのユーザー操作をトリガーにクライアント側で新たなデータを取得し、それを用いて表示を更新したいというシナリオについて考えてみたいと思います。
 
-初期表示ではサーバー側で実行される`loader`で取得したデータが予め表示されているとします。初期データはサーバー側で予め取得しておくことで、ページにアクセスした際にデータ取得を待つことなく初回の表示を提供できます。
+前提として、初期表示ではサーバー側で実行される`loader`で取得したデータが予め表示されているとします。初期データはサーバー側で予め取得しておくことで、ページにアクセスした際にデータ取得を待つことなく初回の表示を提供できます。
 
 このとき、サーバー側でのデータ更新が伴う（`action`を経由する）かどうかによって、表示を更新するアプローチが異なってきます。そこで、次の2つの場合に着目します。
 
 - サーバー側でデータを更新し、更新されたデータを表示に同期したい場合
 - サーバー側でのデータ更新を伴わず、単にデータを取得して表示を置き換えたい場合
 
-前者の場合についてはすでに議論していて、ユーザー操作がサーバー側のデータの更新を伴うものなら、`action`実行後の自動再検証によって表示データも更新される仕組みに乗せることができます。
+前者の場合についてはすでに述べたとおりで、ユーザー操作がサーバー側のデータの更新を伴うものなら、`action`実行後の自動再検証によって表示データも更新される仕組みに乗せることができます。
 たとえば、`action`によって新規アイテムを追加し、追加に成功したら全アイテムの一覧表示も更新したいという場合です。このとき、`loader`が全アイテムを取得して返す実装になっていれば、自動的に一覧表示が更新されるため、特に新しいアプローチを考える必要はありません。
 
 一方、ユーザー操作によって単にデータを取得したいだけの場合もあります。
@@ -244,13 +260,15 @@ loader -> component -> action -> loader
 この場合は`action`を使う必要はなく、「今取得したいデータ範囲」の情報を何らかの形で`loader`に伝え、それに合わせて`loader`の出力が変わるような仕組みが必要になります。
 
 「何らかの形で」と書きましたが、実際のところ選択できるアプローチはあまり多くはなく、結局はURLにその情報を含める必要があります。
-`loader`は`GET`リクエストの処理（データ取得）を担い、`GET`リクエストはリクエストボディを持たないからです。
+`loader`は`GET`リクエストの処理（データ取得）を担い、`GET`リクエストはリクエストボディを持たないため、サーバー側に伝えたい情報はURLクエリパラメータかパスで表現するしかないからです。
 
-### URLクエリパラメータによる表現
+### URLクエリパラメータによる状態表現
 
-- サイドバーの`FolderExprorer`を例に考える
-- 特定のフォルダ直下のエントリ（ファイルやフォルダ）を一覧表示する
-- フォルダ名をクリックしたら、URLクエリパラメータをもとにそのフォルダ直下のエントリを取得し、一覧表示を置き換える
+URLに状態をどう載せるか？という点で特に悩んだのは、Summarioのサイドバーにある`FolderExprorer`を実装するときでした。
+`FolderExprorer`はあるフォルダの「直下のエントリだけ見せる」作りになっていて、次のような要件を持ちます。
+
+- 指定されたidを持つフォルダ直下のエントリ（ファイルやフォルダ）を一覧表示する
+- フォルダ名をクリックしたら、そのフォルダ直下のエントリを取得し、一覧表示を置き換える
 
 ```tsx title="app/layouts/sidebar.tsx" showLineNumbers {6-8,14,24}
 import { Outlet, Link } from "react-router"
@@ -299,7 +317,7 @@ export default function SidebarLayout({ loaderData }) {
 - しかし、URLクエリパラメータはキャッシュされない
 - 頻繁にクリックされ、「さっき見たフォルダに戻る」ことも多いUIのため、毎回サーバーにリクエストされるのは避けたかった
 
-### 独立したAPIルートのパスによる表現
+### 独立したAPIルートのパスによる状態表現
 
 - [Resource Routes](https://reactrouter.com/how-to/resource-routes)
 
@@ -393,7 +411,7 @@ export async function loader({ params }) {
 
 - `useRouteLoaderData`を使って綺麗にまとまらないか？と試したけれど、ドキュメントも旧バージョンのコード例なので正解が分からず…どうやっても返ってくるのは`undefined`…
 
-## Tanstack Queryの導入
+## こんなとき、Tanstack Queryがあれば…
 
 ### `useQuery`の効用
 
@@ -409,3 +427,10 @@ export async function loader({ params }) {
 - DBにアクセスして処理を行う`action`を`fetch`で呼び出せる必要が生じた
 - つまり、各アクションにURLを割り当てる必要がある
 - そこで、APIエンドポイントのように`action`だけをexportするルートモジュールを定義している
+
+## こんなとき、誰かと議論できたら…
+
+それでも、やっぱりフレームワークが持つ仕組みをもっとうまく使えたら…という思いは残っています。
+今回は私が考えつくアイデアでは解決しきれなかった事例について書いてみましたが、それは私の限界であって、フレームワークの限界ではないかもしれません。
+
+本当にこれでいいのか…？という迷いは全然拭えていないので、ノウハウやご意見がある方、ぜひ[issue](https://github.com/tetracalibers/tomixyz-biography-v2/issues)や[Bluesky](https://bsky.app/profile/tetracalibers.bsky.social)でお話ししましょう…！
