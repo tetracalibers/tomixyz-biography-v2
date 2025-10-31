@@ -11,4 +11,4 @@ articles:
   - summario-dev/tiptap-add-block-by-dnd
 ---
 
-個人で開発している、[Summario](https://github.com/tetracalibers/summario-proto)という少し変わった要約アプリの構想や実装の記録です。
+個人で開発している、[Summario](https://github.com/tetracalibers/summario-proto)という要約アプリの構想や実装の記録です。
