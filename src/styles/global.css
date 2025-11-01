@@ -68,6 +68,14 @@ img {
   height: auto;
 }
 
+video {
+  max-width: 100%;
+  height: auto;
+  margin: 0;
+  padding: clamp(0.2rem, 2.5vw, 0.75rem);
+  background-color: rgba(203, 213, 225, 0.3);
+}
+
 :where(a[target="_blank"])::after {
   content: "";
   display: inline-block;
