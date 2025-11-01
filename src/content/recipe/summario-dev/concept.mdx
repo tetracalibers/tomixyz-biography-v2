@@ -10,6 +10,13 @@ references:
 draft: true
 ---
 
+import FigureBox from "$/components/image-wrapper/FigureBox.astro"
+
+import img_XmindMindmapExample from "../../../assets/recipes/summario-dev/xmind-mindmap-example.png"
+import img_EditorPage from "../../../assets/recipes/summario-dev/editor-page.png"
+import img_FolderStructureMapPage from "../../../assets/recipes/summario-dev/folder-structure-map-page.png"
+import img_AllViewCards from "../../../assets/recipes/summario-dev/all-view-cards.png"
+
 どうしたら知識をシンプルな形でI/Oできるのか、学んだことを脳に格納する最適なフォーマットを相変わらず探し続けています。
 「相変わらず」と言う所以は、このシリーズは去年の年末に書いた次のブログの続編ともいえるからです。
 
@@ -34,7 +41,7 @@ draft: true
 
 ## アプリのコンセプトとモチベーション
 
-要約という作業のハードルを上げる要因はいくつかあります。オリジナルの要約アプリ「Summario（仮）」で達成したいこととして、次の3つのスローガンを決めました。
+オリジナルの要約アプリで達成したいこととして、次の3つのスローガンを決めました。
 
 - どう整理しよう？と悩む時間を減らす
 - 写経を脱し、自分なりに分解して整理できるようになる
@@ -65,6 +72,8 @@ TODO...
 Summarioでは、1つのノート（ファイル）を`term`という単位で呼んでいます。
 つまり、1つの用語（概念）につき、1つのノートを作成する方式です。
 
+<FigureBox src={img_EditorPage} />
+
 1つのノートの中で複数の概念を扱うことはせず、これ以上分解できない単位で1つのノートを作るようにしています。
 たとえば、「HTTPメソッド」というノートの中に「`GET`」「`POST`」…といったセクションを設けるのではなく、「HTTPメソッド」というフォルダの中に「`GET`」「`POST`」…といったタイトルのファイルを作成するようにします。
 
@@ -81,6 +90,10 @@ Summarioでは、1つのノート（ファイル）を`term`という単位で�
 
 ## 視点カード：1つの概念をさらに分解する
 
+<video muted playsinline autoplay loop>
+  <source src="/movie/summario-dev/drag-view-card.webm" type="video/webm" />
+</video>
+
 ### 写経を回避する
 
 - 写経（丸写し）に陥ってしまうのは、どんな観点で整理したいのかが定まっていないから
@@ -95,15 +108,26 @@ Summarioでは、1つのノート（ファイル）を`term`という単位で�
 - しかし、たとえばNotionのテンプレート機能では、項目の組み合わせごとにテンプレートを用意しなければいけない
 - そこで、セクションの候補を予め用意しておいて、その都度自由にセクションを組み合わせていくアプリを作ろうと思った
 
+<FigureBox src={img_AllViewCards} />
+
 ### セクションごとの並び替え
 
 ブロックエディタではブロックの並び替えができるが、見出しと段落はそれぞれ別のブロックになってしまう
 セクションごと入れ替えられる機能が欲しかった
 
+<video muted playsinline autoplay loop>
+  <source src="/movie/summario-dev/drag-section-block.webm" type="video/webm" />
+</video>
+
 ## 関連グラフ：他の概念と繋げる
 
 - 関連用語を登録できる
 - 関連用語を登録するとグラフが更新される
+
+<video muted playsinline autoplay loop>
+  <source src="/movie/summario-dev/related-graph-and-miniview.webm" type="video/webm" />
+</video>
+
 - obsidianから着想を得た
 - obsidianのように内部リンクに応じてグラフが作成されるわけでなく、明示的に関連用語を登録する必要がある
 - このような作りにしたのは、obsidianの方式だとあらゆる関係性がグラフに含まれてしまうから（どの関係性をグラフで表現するかを制御できない）
@@ -124,6 +148,10 @@ Summarioでは、1つのノート（ファイル）を`term`という単位で�
 
 ### ファイルエクスプローラ
 
+<video muted playsinline autoplay loop>
+  <source src="/movie/summario-dev/folder-exprorer.webm" type="video/webm" />
+</video>
+
 - obsidianは全ディレクトリが常に見えてしまう（vaultは基本1つだけ？）
 - vscodeで特定のフォルダを開く時のように、集中するスコープを絞りたい
 - 全ディレクトリが目に入ると気が散ることもある（ファイル整理が始まったり）
@@ -135,11 +163,16 @@ Summarioでは、1つのノート（ファイル）を`term`という単位で�
 
 ## 構造マップ：全体を俯瞰する
 
+<FigureBox src={img_FolderStructureMapPage} />
+
 - マインドマップとの融合
 - マインドマップとの違いは「孤児から始められる」こと
 - 全体の中でどこに属するか？という立ち位置が見て分かる（これはディレクトリツリーだけではできないこと）
 
 私はまず本をざっと読んで、出てきた用語をマインドマップで一覧化してから、各用語を掘り下げていくことが多い
+
+<FigureBox src={img_XmindMindmapExample} />
+
 しかし、マインドマップと各用語の詳細ノートは別アプリで作らなければいけなかった
 マインドマップに長文の詳細ノートを載せることなく、マインドマップから詳細ノートにリンクできたら…と思っていた
 
