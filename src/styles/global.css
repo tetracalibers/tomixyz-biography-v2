@@ -72,8 +72,9 @@ video {
   max-width: 100%;
   height: auto;
   margin: 0;
-  padding: clamp(0.2rem, 2.5vw, 0.75rem);
+  padding: clamp(0.4rem, 0.197rem + 0.868vw, 0.75rem);
   background-color: rgba(203, 213, 225, 0.3);
+  box-sizing: border-box;
 }
 
 :where(a[target="_blank"])::after {
