@@ -31,7 +31,7 @@ Prismaではなく[Drizzle](https://orm.drizzle.team/)を選んだのは、い�
 
 - [【T3 Stack入門】ORM比較（Prisma VS Drizzle）](https://zenn.dev/maicom/articles/f42edb80db3a1c)
 
-Summarioにはノートをグルーピングできる「フォルダ」機能がありますが、フォルダの階層構造をRDB上ではAdjacency List Model（隣接リストモデル）で表現しています。
+Summarioにはノートをグルーピングできるフォルダ機能がありますが、フォルダの階層構造をRDB上ではAdjacency List Model（隣接リストモデル）で表現しています。
 このモデルでは、データを`SELECT`する際に`WITH RECURSIVE`句による再帰CTE（ざっくりいえばSQLで再帰処理を実現する構文）を活用することになりますが、この`WITH RECURSIVE`句など、ORMのAPIではまだサポートされていないSQL構文を使う可能性があったため、drizzleを採用しました。
 
 ## エディタ機能：Tiptap
@@ -47,7 +47,7 @@ Tiptapに興味を持ったのは、[Zenn](https://zenn.dev/)の作者catnoseさ
 まとまった機能を備えるWYSIWYGエディタライブラリはオーバースペックになりがちですが、Tiptapが提供するコア機能は最小限です。
 [Extension](https://tiptap.dev/docs/editor/core-concepts/extensions)で欲しい機能だけを追加していくため、過不足なく要件を実現することができます。
 
-次のコードは、ReactでTiptapを使う場合の最小構成例です。
+たとえば、次のコードはReactでTiptapを使う場合の最小構成例です。
 
 - [React - Editor / Get started / Install](https://tiptap.dev/docs/editor/getting-started/install/react)
 
@@ -81,7 +81,7 @@ Extensionを別途`npm install`し、`extensions`配列に追加していくこ�
 
 - [Don’t bend it, extend it. - Extensions / Overview](https://tiptap.dev/docs/editor/extensions/overview)
 
-エディタ上でサポートしたいMarkdown構文を1つずつセットアップするのはやや面倒な作業ですが、[StarterKit](https://tiptap.dev/docs/editor/extensions/functionality/starterkit)を使えば、主要なMarkdown記法をサポートするExtensionをまとめて導入することができます。
+エディタ上でサポートしたいMarkdown構文を1つずつセットアップするのは手間がかかる作業ですが、[StarterKit](https://tiptap.dev/docs/editor/extensions/functionality/starterkit)を使えば、主要なMarkdown記法をサポートするExtensionをまとめて導入することができます。
 
 ```tsx title="StarterKitの導入" showLineNumbers {2,8}
 import { useEditor } from "@tiptap/react"
@@ -131,40 +131,37 @@ Tiptapは単なるリッチなテキストエリアとして使えるだけで�
 
 ## UIライブラリ：Mantine
 
-UIコンポーネントは[Mantine](https://mantine.dev/)をベースに実装しています。
+UIはReact向けのコンポーネントライブラリである[Mantine](https://mantine.dev/)をベースに実装しています。
 
-### Mantineは高機能なツールキット体系
+### 必要に応じて利用できる豊富な機能
 
-MantineはUIコンポーネントの豊富さでもトップクラスですが、Mantineを「UIコンポーネントライブラリ」という言葉で括っていいのかは、個人的に少し疑問です。
-
-なぜなら、MantineはスタイリングされたUIコンポーネントを数多く提供するだけでなく、
+MantineはスタイリングされたUIコンポーネントだけでなく、
 
 - ヘッドレスUIライブラリとしての利用を可能にする[Mantine hooks](https://mantine.dev/hooks/package/)
 - フォームバリデーションライブラリとしても利用できる[Mantine form](https://mantine.dev/form/package/)
 - チャートや通知トーストなどを必要に応じて個別に導入できる[Mantine extensions](https://mantine.dev/x/extensions/)
 
-といった、アプリケーションのフロントエンドに必要な機能を網羅しつつあるツールキット群でもあるからです。
+といった、多数のユーティリティや追加機能を提供しています。
 
-### ニーズに合わせて柔軟に組み合わせられる
+特に、TiptapをベースとしたリッチテキストエディタUIを提供する[Rich text editor](https://mantine.dev/x/tiptap/) Extensionもあり、現時点ではTiptap公式のUIコンポーネントよりカスタマイズ性の面で優れていたことから、エディタのUIもMantineをベースに実装しています。
 
-実現したい高度なUIをサクッと実装できるという意味では、[PrimeReact](https://primereact.org/)も検討しました。
-しかし、Mantineはユーティリティも充実しているため、UIの実装やスタイリングで直面する地味な困りごとを解決してくれる感覚があります。
-
-- TODO: ユーティリティの例を挙げる（`ScrollArea`、レイアウトなど）
-
-PrimeReactが「壮大なことが簡単に実現できる」ライブラリだとしたら、Mantineは「小さなことをうまくやる」ライブラリといえるかもしれません。
-
-### スタイリング都合のHTMLタグを増やさない
+### スタイルを維持しつつ適切なHTMLタグを選べる
 
 Mantineの特徴の一つに、[Polymorphic components](https://mantine.dev/guides/polymorphic/)という機能があります。
+コンポーネント内部のルート要素として使われるデフォルトのHTMLタグ（またはコンポーネント）を、`component`Propsで自由に指定できる機能です。
 
-コンポーネント内部のルートで使われるデフォルトのHTML要素（またはコンポーネント）を、`component` Propsで自由に指定できる機能です。
+たとえば、`Button`コンポーネントで削除ボタンを実装するとします。
+このとき、削除不可の場合はボタンを`disabled`にし、削除できない理由を述べたヘルプへのリンクを含めたいのですが、`button`タグの中に`a`タグを含めるのは望ましくありません。
 
-- TODO: この機能のメリット、余計なタグを増やさずに済む例
+そこで、削除可能な場合は`button`タグを、削除不可の場合は`div`タグを使うことにします。
+どちらの場合でも基本的なスタイルは同じにしたいものの、`Button`コンポーネント内部で使われるHTMLタグを変えられない場合、削除不可の場合は`Button`コンポーネントを使うことを諦めざるを得ません。
 
-### Tiptapとの相性が良い
+Mantineであれば、削除不可の場合は`component`Propsの値を`"div"`に指定することで、`Button`コンポーネントのスタイルを適用したままどちらのケースにも対応できます。
 
-- TODO: tiptapと相性が良かったのが決め手
+## その他：ビジュアライズ系
+
+- 関連グラフではvis-networkを利用
+- 構造マップではReact Flowを利用
 
 ## 余談：デスクトップアプリにしてもよかったが
 
