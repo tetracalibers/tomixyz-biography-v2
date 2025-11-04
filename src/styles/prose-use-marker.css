@@ -3,7 +3,7 @@
 @layer prose-use-marker {
   :where(.prose :is(mark, a:not(.no-marker))) {
     --marker-color: rgba(191, 225, 252, 0.5);
-    background: linear-gradient(rgba(255, 255, 255, 0) 80%, var(--marker-color) 20%);
+    background: linear-gradient(rgba(255, 255, 255, 0) 85%, var(--marker-color) 15%);
     font-weight: bold;
     color: light-dark(var(--slate-500), var(--slate-200));
   }
@@ -47,9 +47,9 @@
 
   .prose li > a:not(.no-marker) {
     font-size: 1em;
-    background: linear-gradient(rgba(255, 255, 255, 0) 80%, #f9e0ec 20%);
+    background: linear-gradient(rgba(255, 255, 255, 0) 85%, #f9e0ec 15%);
   }
   .dark .prose li > a:not(.no-marker) {
-    background: linear-gradient(rgba(255, 255, 255, 0) 70%, rgb(242 137 188 / 34%) 30%);
+    background: linear-gradient(rgba(255, 255, 255, 0) 85%, rgb(242 137 188 / 34%) 15%);
   }
 }
