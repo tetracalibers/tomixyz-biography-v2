@@ -50,6 +50,6 @@
     background: linear-gradient(rgba(255, 255, 255, 0) 85%, #f9e0ec 15%);
   }
   .dark .prose li > a:not(.no-marker) {
-    background: linear-gradient(rgba(255, 255, 255, 0) 85%, rgb(242 137 188 / 34%) 15%);
+    background: linear-gradient(rgba(255, 255, 255, 0) 90%, rgb(242 137 188 / 44%) 10%);
   }
 }
