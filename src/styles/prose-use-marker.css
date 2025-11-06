@@ -28,9 +28,13 @@
   }
 
   :where(.prose a:not(.no-marker)) {
+    --marker-color: #f9e0ec;
     text-decoration: none;
     font-weight: bold;
     line-height: 1.3;
+  }
+  :where(.dark .prose a:not(.no-marker)) {
+    --marker-color: rgb(242 137 188 / 44%);
   }
   :where(.prose a:not(.no-marker))::after {
     content: "";
@@ -47,9 +51,5 @@
 
   .prose li > a:not(.no-marker) {
     font-size: 1em;
-    background: linear-gradient(rgba(255, 255, 255, 0) 85%, #f9e0ec 15%);
-  }
-  .dark .prose li > a:not(.no-marker) {
-    background: linear-gradient(rgba(255, 255, 255, 0) 90%, rgb(242 137 188 / 44%) 10%);
   }
 }
