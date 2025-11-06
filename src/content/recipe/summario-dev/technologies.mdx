@@ -1,6 +1,6 @@
 ---
 title: 知識整理アプリの技術構成
-date: coming-soon
+date: "2025-11-07"
 description: TODO
 tags:
   - tiptap
@@ -10,7 +10,6 @@ tags:
   - react-router
   - drizzle
 series: summario-dev
-draft: true
 ---
 
 構想をまずは形に起こしてみたいということで、ライブラリが充実しているReactで開発を始めました。
@@ -129,7 +128,7 @@ Tiptapは単なるリッチなテキストエリアとして使えるだけで�
 - コンポーネントのスタイルが[Sass](https://sass-lang.com/)で書かれていて、余計な依存が増える
 - ノードの削除を行うUIコンポーネントがカスタムノードに対してうまく動かなかった
 
-代わりにMantine（※後述）の[Rich text editor](https://mantine.dev/x/tiptap/)を使ってエディタUIを実装しています。
+代わりに、後述するMantineの[Rich text editor](https://mantine.dev/x/tiptap/)を使ってエディタUIを実装しています。
 
 ## UIライブラリ：Mantine
 
@@ -162,8 +161,9 @@ Mantineであれば、削除不可の場合は`component`Propsの値を`"div"`�
 
 ## その他：ビジュアライズ系
 
-- 関連グラフではvis-networkを利用
-- 構造マップではReact Flowを利用
+関係性を可視化する機能でも、ライブラリの力を借りています。
+
+テーマ同士の関係性をネットワークグラフで表す==関連グラフ==機能では[vis-network](https://github.com/visjs/vis-network)を、フォルダ構造をマインドマップとして編集できる==構造マップ==機能では[React Flow](https://reactflow.dev/)を利用しています。
 
 ## 余談：デスクトップアプリにしてもよかったが
 
@@ -177,6 +177,8 @@ Mantineであれば、削除不可の場合は`component`Propsの値を`"div"`�
 たとえば、複数のノートを見比べながら編集したいというニーズは、アプリ内でタブ機能を実装しなくても、ブラウザのタブを複数開くことで実現することができます。
 しかしその場合、複数のタブで同じページが編集されたらどうするのか？を考えなくてはなりません。
 
-他にも、[IndexedDB](https://developer.mozilla.org/ja/docs/Web/API/IndexedDB_API/Using_IndexedDB)を使えばオフライン対応もできそうですが、オフラインで編集され、その端末からサーバーへの同期が行われないまま、別のデバイスでオンライン編集されたらどうするのか？
+他にも、[IndexedDB](https://developer.mozilla.org/ja/docs/Web/API/IndexedDB_API/Using_IndexedDB)を使えばオフライン対応も実現できるでしょう。
+しかし、オフラインで編集され、その端末からサーバーへの同期が行われないまま、別のデバイスでオンライン編集されたら…
 
-…こんなことを考えるのが面白い。[Broadcast Channel API](https://developer.mozilla.org/ja/docs/Web/API/Broadcast_Channel_API)や[Web Locks API](https://developer.mozilla.org/ja/docs/Web/API/Web_Locks_API)といった、今まで存在すら知らなかったブラウザAPIも、いずれこのアプリで使う日が来るかもしれません。
+…こんなことを考えるのが面白く、どこまで実装するかは置いておいて、調査の過程だけでもさまざまな学びがあります。
+[Broadcast Channel API](https://developer.mozilla.org/ja/docs/Web/API/Broadcast_Channel_API)や[Web Locks API](https://developer.mozilla.org/ja/docs/Web/API/Web_Locks_API)といった、今まで存在すら知らなかったブラウザAPIも、このアプリを開発する中でいずれ使う日が来るのかもしれません。
