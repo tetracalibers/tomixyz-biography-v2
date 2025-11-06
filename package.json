@@ -7,7 +7,8 @@
     "build": "astro build",
     "preview": "astro preview --open",
     "astro": "astro",
-    "format": "prettier --write --plugin prettier-plugin-astro --plugin prettier-plugin-svelte ."
+    "format": "prettier --write --plugin prettier-plugin-astro --plugin prettier-plugin-svelte .",
+    "webm2poster": "zx ./scripts/generate-webm-poster.mjs 'public/movie/**/*.webm' --out public/poster"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
