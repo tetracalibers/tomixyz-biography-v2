@@ -23,7 +23,7 @@ export const CATEGORY_META = {
   },
   techs: {
     title: "Tech",
-    subtitle: "学びやアイデアの記録"
+    subtitle: "技術に対する学びやアイデアの記録"
   }
 }
 
