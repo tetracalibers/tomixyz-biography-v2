@@ -1,0 +1,184 @@
+---
+title: 知識整理アプリの技術構成
+date: "2025-11-07"
+description: ライブラリの選定とWebならではの面白さ
+tags:
+  - tiptap
+  - prosemirror
+  - mantine
+  - react
+  - react-router
+  - drizzle
+series: summario-dev
+---
+
+構想をまずは形に起こしてみたいということで、ライブラリが充実しているReactで開発を始めました。
+現時点で利用しているライブラリと、その気に入っているところなどを書き留めておきたいと思います。
+
+## フレームワーク：React Router
+
+[React Router](https://reactrouter.com/) v7系の[Framework Mode](https://reactrouter.com/start/modes#framework)をベースに、フロントエンドとバックエンドを共存させる形で開発しています。
+
+プロトタイプ段階ゆえ、メインのフレームワークにはなるべく依存したくありませんでした。
+[Next.js](https://nextjs.org/)のApp Routerも学びがいがあり、選択肢の一つだったのですが、Next.jsの場合「フレームワークが何かしてくれているから動く」「コードがフレームワーク特有の書き方に染まる」という状況に陥りかねないと感じたのです。
+
+React Routerの方がWeb標準に近いことも魅力に感じていましたが、結局React Routerの思想に乗せきれなかった部分もあり、React Routerの機能を徹底的に使いこなすというよりは適材適所で薄く使う形になっています。
+この辺りの詳細は回を改めて書けたらいいなと思います。
+
+## ORM：Drizzle
+
+TypeScriptで使えるORMといえば[Prisma](https://www.prisma.io/orm)が人気という印象を受けます。
+Prismaではなく[Drizzle](https://orm.drizzle.team/)を選んだのは、いざとなったら生のSQLを書きたかったからです。
+
+- [【T3 Stack入門】ORM比較（Prisma VS Drizzle）](https://zenn.dev/maicom/articles/f42edb80db3a1c)
+
+Summarioにはノートをグルーピングできるフォルダ機能がありますが、フォルダの階層構造をRDB上ではAdjacency List Model（隣接リストモデル）で表現しています。
+このモデルでは、データを`SELECT`する際に`WITH RECURSIVE`句による再帰CTE（ざっくりいえばSQLで再帰処理を実現する構文）を活用することになりますが、この`WITH RECURSIVE`句など、ORMのAPIではまだサポートされていないSQL構文を使う可能性があったため、Drizzleを採用しました。
+
+## エディタ機能：Tiptap
+
+Summarioのノート編集画面に組み込まれているエディタは、Headless Editor Frameworkである[Tiptap](https://tiptap.dev/)を使って実装しています。
+
+Tiptapに興味を持ったのは、[Zenn](https://zenn.dev/)の作者catnoseさんが開発されている執筆サービス「[しずかなインターネット](https://sizu.me/home)」でも使われているということからでした。
+
+- [しずかなインターネットの技術構成](https://zenn.dev/catnose99/articles/f8a90a1616dfb3)
+
+### 高いモジュール性
+
+まとまった機能を備えるWYSIWYGエディタライブラリはオーバースペックになりがちですが、Tiptapが提供するコア機能は最小限です。
+[Extension](https://tiptap.dev/docs/editor/core-concepts/extensions)で欲しい機能だけを追加していくため、過不足なく要件を実現することができます。
+
+たとえば、次のコードはReactでTiptapを使う場合の最小構成例です。
+
+- [React - Editor / Get started / Install](https://tiptap.dev/docs/editor/getting-started/install/react)
+
+```tsx title="ReactでTiptapを使う例" showLineNumbers
+import { useEditor } from "@tiptap/react"
+
+export default function MyTiptapEditor() {
+  const editor = useEditor({
+    // エディタ内部のトランザクション（文書の変更）が発生したタイミングで、
+    // Reactコンポーネントの再レンダーを促す
+    shouldRerenderOnTransaction: true,
+
+    // SSRのHydrationで不整合が出ないように、
+    // クライアント側でマウントされてからエディタを初期化・描画させる
+    immediatelyRender: false,
+
+    // ここに使いたい機能（Extension）を追加していく
+    extensions: [],
+
+    // 初期コンテンツ（省略可）
+    content: "<h1>My First Note</h1><p>Hello World!</p>"
+  })
+
+  return <EditorContent editor={editor} />
+}
+```
+
+Extensionを別途`npm install`し、`extensions`配列に追加していくことで、エディタの機能を増やしていくことができます。
+
+公式Extensionの粒度はとても小さく、例えばMarkdown記法のサポートは構文ごとにExtensionが用意されています。
+
+- [Don’t bend it, extend it. - Extensions / Overview](https://tiptap.dev/docs/editor/extensions/overview)
+
+エディタ上でサポートしたいMarkdown構文を1つずつセットアップするのは手間がかかる作業ですが、[StarterKit](https://tiptap.dev/docs/editor/extensions/functionality/starterkit)を使えば、主要なMarkdown記法をサポートするExtensionをまとめて導入することができます。
+
+```tsx title="StarterKitの導入" showLineNumbers {2,8}
+import { useEditor } from "@tiptap/react"
+import StarterKit from "@tiptap/starter-kit"
+
+export default function MyTiptapEditor() {
+  const editor = useEditor({
+    shouldRerenderOnTransaction: true,
+    immediatelyRender: false,
+    extensions: [StarterKit],
+    content: "<h1>My First Note</h1><p>Hello World!</p>"
+  })
+
+  return <EditorContent editor={editor} />
+}
+```
+
+また、独自のExtensionを実装することで、独自の機能の追加や、細かい挙動の制御も可能です。
+Summarioで実際に実装したExtensionについては、このシリーズの別の回で紹介したいと思います。
+
+### ProseMirror由来の高度なカスタマイズ性
+
+Tiptapは[ProseMirror](https://prosemirror.net/)というリッチテキストエディタ構築ツールキットを使いやすくラップしたライブラリであり、ProseMirrorの高いカスタマイズ性を継承しながら、実装や学習のコストを大幅に抑えてくれています。
+
+- [ProseMirror - Tiptap Concepts](https://tiptap.dev/docs/editor/core-concepts/prosemirror)
+
+ProseMirrorベースだからこそ実現できる機能の一つとして、スキーマによる文書構造の強制があります。
+
+Tiptapは単なるリッチなテキストエリアとして使えるだけでなく、「最上部には必ずタイトルを書いてほしい」などといった、文書構造の規則を定めることができるのです。
+これはProseMirrorのScheme（スキーマ）という概念によって実現できるもので、Tiptap（ProseMirror）では、設定したスキーマに反する構造のコンテンツはそもそも作れないようになっています。
+
+スキーマの設定についても、別の記事で詳しく解説する予定です。
+
+また、独自のExtensionを実装する際にも、TiptapのAPIだけでは実現できない場合はProseMirrorのAPIにアクセスすることができます。
+
+### 公式のエディタUIコンポーネント群
+
+"Headless" Editorということで、エディタに必要なUIの実装や、エディタ上のコンテンツのタイポグラフィを含むスタイリングは独自に行うことになりますが、公式の[UIコンポーネント](https://tiptap.dev/docs/ui-components/components/overview)も必要に応じて使うことが可能です。
+
+しかし、次のような理由から、今回はTiptap公式のUIコンポーネントは利用していません。
+
+- パッケージとしてインストールするのではなく、[Tiptap CLI](https://tiptap.dev/docs/ui-components/getting-started/cli)でコンポーネントのコードをコピーする仕組みなので、内部コードのメンテナンスコストを利用側が負う必要がある
+- コンポーネントのスタイルが[Sass](https://sass-lang.com/)で書かれていて、余計な依存が増える
+- ノードの削除を行うUIコンポーネントがカスタムノードに対してうまく動かなかった
+
+代わりに、後述するMantineの[Rich text editor](https://mantine.dev/x/tiptap/)を使ってエディタUIを実装しています。
+
+## UIライブラリ：Mantine
+
+UIはReact向けのコンポーネントライブラリである[Mantine](https://mantine.dev/)をベースに実装しています。
+
+### 必要に応じて利用できる豊富な機能
+
+MantineはスタイリングされたUIコンポーネントだけでなく、
+
+- ヘッドレスUIライブラリとしての利用を可能にする[Mantine hooks](https://mantine.dev/hooks/package/)
+- フォームバリデーションライブラリとしても利用できる[Mantine form](https://mantine.dev/form/package/)
+- チャートや通知トーストなどを必要に応じて個別に導入できる[Mantine extensions](https://mantine.dev/x/extensions/)
+
+といった、多数のユーティリティや追加機能を提供しています。
+
+特に、TiptapをベースとしたリッチテキストエディタUIを提供する[Rich text editor](https://mantine.dev/x/tiptap/) Extensionもあり、現時点ではTiptap公式のUIコンポーネントよりカスタマイズ性の面で優れていたことから、エディタのUIもMantineをベースに実装しています。
+
+### スタイルを維持しつつ適切なHTMLタグを選べる
+
+Mantineの特徴の一つに、[Polymorphic components](https://mantine.dev/guides/polymorphic/)という機能があります。
+コンポーネント内部のルート要素として使われるデフォルトのHTMLタグ（またはコンポーネント）を、`component`Propsで自由に指定できる機能です。
+
+たとえば、`Button`コンポーネントで削除ボタンを実装するとします。
+このとき、削除不可の場合はボタンを`disabled`にし、削除できない理由を述べたヘルプへのリンクを含めたいのですが、`button`タグの中に`a`タグを含めるのは望ましくありません。
+
+そこで、削除可能な場合は`button`タグを、削除不可の場合は`div`タグを使うことにします。
+どちらの場合でも基本的なスタイルは同じにしたいものの、`Button`コンポーネント内部で使われるHTMLタグを変えられない場合、削除不可の場合は`Button`コンポーネントを使うことを諦めざるを得ません。
+
+Mantineであれば、削除不可の場合は`component`Propsの値を`"div"`に指定することで、`Button`コンポーネントのスタイルを適用したままどちらのケースにも対応できます。
+
+## その他：ビジュアライズ系
+
+関係性を可視化する機能でも、ライブラリの力を借りています。
+
+テーマ同士の関係性をネットワークグラフで表す==関連グラフ==機能では[vis-network](https://github.com/visjs/vis-network)を、フォルダ構造をマインドマップとして編集できる==構造マップ==機能では[React Flow](https://reactflow.dev/)を利用しています。
+
+## 余談：デスクトップアプリにしてもよかったが
+
+このアプリを作り始めるとき、Webブラウザで動作するアプリケーションではなく、デスクトップアプリケーションにしようかとも考えました。
+
+とてもスマホで心地よさを発揮できるような機能群でもないし、ローカルで動かせた方がAIとの相性だっていい。
+それでもやっぱりWebの技術を磨く機会を作りたくて、Webならではの難しさにも向き合ってみたいと思いました。
+
+ブラウザの機能に乗せられる部分も多いですが、ブラウザの機能の豊富さが生む自由度が厄介になることもあります。
+
+たとえば、複数のノートを見比べながら編集したいというニーズは、アプリ内でタブ機能を実装しなくても、ブラウザのタブを複数開くことで実現することができます。
+しかしその場合、複数のタブで同じページが編集されたらどうするのか？を考えなくてはなりません。
+
+他にも、[IndexedDB](https://developer.mozilla.org/ja/docs/Web/API/IndexedDB_API/Using_IndexedDB)を使えばオフライン対応も実現できるでしょう。
+しかし、オフラインで編集され、その端末からサーバーへの同期が行われないまま、別のデバイスでオンライン編集されたら…
+
+…こんなことを考えるのが面白く、どこまで実装するかは置いておいて、調査の過程だけでもさまざまな学びがあります。
+[Broadcast Channel API](https://developer.mozilla.org/ja/docs/Web/API/Broadcast_Channel_API)や[Web Locks API](https://developer.mozilla.org/ja/docs/Web/API/Web_Locks_API)といった、今まで存在すら知らなかったブラウザAPIも、このアプリを開発する中でいずれ使う日が来るのかもしれません。

@@ -1,0 +1,136 @@
+---
+title: ProseMirrorの文書構造を知る
+date: "2025-11-08"
+description: ProseMirrorを知ればTiptapの仕組みを紐解ける
+tags:
+  - tiptap
+  - prosemirror
+references:
+  - title: ProseMirrorの概要
+    url: https://zenn.dev/wintyo/articles/0b3ff5b82ec4f9
+  - title: ProseMirror Guide(日本語訳)
+    url: https://zenn.dev/mh4gf/articles/d25ef1ff30b5a6
+  - title: ProseMirror Guide
+    url: https://prosemirror.net/docs/guide
+series: summario-dev
+---
+
+今回からしばらく、Tiptapによるエディタ開発の話をする予定です。
+
+[技術構成の回](/recipes/summario-dev/technologies)でお話ししたように、Tiptapの内部ではProseMirrorが使われています。
+
+ProseMirrorの全貌を追うことは大変な作業ですが、Tiptapを使っていても見える部分だけに絞って、ProseMirrorの構成要素を大まかに知っておくと、Tiptapエディタのカスタマイズがスムーズに進められます。
+
+## ProseMirrorの文書構造
+
+### DocumentとNode
+
+ProseMirrorのエディタ内部では、テキストや段落などのコンテンツはすべて`Document`と呼ばれる木構造のデータとして表現・管理されています。
+
+```html title="エディタに設定したコンテンツ"
+<p>
+  Hello
+  <strong>world</strong>
+</p>
+```
+
+```tree title="ProseMirror内部で持つ文書データの構造"
+Document
+ └─ Node(type="paragraph")
+     ├─ Node(type="text") "Hello "
+     └─ Node(type="text", marks=[bold]) "world"
+```
+
+`Document`内の各要素は`Node`と呼ばれ、概ねHTML要素が1つの`Node`に対応しているように見えます。
+HTMLタグの中のただのテキストも、`type="text"`の`Node`として扱われていることに注目しましょう。
+
+### 属性としてのMark
+
+重要なのは、`strong`要素に対応する`Node`はなく、`marks=[bold]`というテキストノードの属性として表現されているところです。
+ProseMirrorでは、テキストに適用される装飾を`Mark`と呼びます。
+
+現代のHTMLでは、装飾のためだけにHTML要素を使うことはあまり推奨されないものです。
+テキストを太字に装飾したい場合は、`strong`要素を使うよりも、CSSで`font-style: bold;`と指定する方が良いでしょう。
+
+「HTMLは文書構造 / CSSは装飾」という役割分担と同様に、ProseMirrorでも「文書構造の構成要素は`Node` / 装飾は`Mark`」というように分けられています。
+そして、HTML要素の`style`属性でCSSを付与できるのと同じように、`Mark`は`Node`に付与できる属性として扱われるのです。
+
+### Documentは特別なNode
+
+ちなみに、`Document`自体も`type="doc"`の`Node`として扱われます。
+`doc`ノードはルート専用の特別な`Node`で、文書ツリーのすべての`Node`を包むように必ず存在する必要があります。
+
+```json title="Document全体をJSONで表したもの"
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "paragraph",
+      "content": [
+        { "type": "text", "text": "Hello " },
+        { "type": "text", "marks": [{ "type": "bold" }], "text": "world" }
+      ]
+    }
+  ]
+}
+```
+
+## スキーマによる文書構造の制限
+
+ProseMirrorには、コンテンツの文書構造を制限する、[スキーマ](https://prosemirror.net/docs/guide/#schema)という仕組みが備わっています。
+スキーマは、「各ノードごとの文法ルール」を束ねたオブジェクトです。
+
+### NodeSpec：各ノードごとのルール
+
+たとえば、段落を表す`paragraph`ノードに対して、
+
+- `paragraph`はブロック要素である
+- `paragraph`の中にはインライン要素を含めることができる
+
+というルールを定めることで、「`paragraph`のネストはできない」という文法が表現できます。
+
+このように、ノードに対して、
+
+- ノードのカテゴリ（ブロック要素なのかインライン要素なのか）
+- 許可する子ノードの種類
+- 許可する`Mark`の種類（※`text`ノードの場合）
+
+などを定義しておくと、ノード自体とその内部（子ノード）に対するルールを制御できます。
+
+このようなノードごとの設定を[`NodeSpec`](https://prosemirror.net/docs/ref/#model.NodeSpec)といい、次のような項目（フィールド）を持ちます。
+
+| フィールド           | 説明                                             |
+| -------------------- | ------------------------------------------------ |
+| `group`              | どのカテゴリに属するか（例：`block` / `inline`） |
+| `content`            | どんな子ノードを持てるか                         |
+| `marks`              | どんなマーク（装飾）を許可するか                 |
+| `parseDOM` / `toDOM` | HTMLとの相互変換ルール                           |
+| `attrs`              | 属性の定義                                       |
+
+### Content Expressions：文法ルールを表す構文
+
+`NodeSpec`の`content`フィールドには、許可する子ノードの配置を[Content Expressions](https://zenn.dev/mh4gf/articles/d25ef1ff30b5a6#content-expressions)という構文に従う文字列で指定します。
+
+たとえば、`paragraph`ノードの`NodeSpec`の`content`フィールドに`text*`という文字列を指定すると、「`paragraph`の子として0個以上の`text`ノードが許可される」という制約が与えられます。
+単なるテキストだけでなく、インラインコードなども含めたい場合は、`inline*`と書くことになります。
+
+また、「0個以上」ということで`*`がついていましたが、子ノードの存在を必須にしたい場合は、「1つ以上」を表す`+`を用いて、`inline+`とします。
+
+### DocumentのNodeSpec：文書全体のルール
+
+ここで思い出してほしいのが、`Document`もノードの一種（`doc`ノード）であるという事実です。
+つまり、`doc`ノードにも`NodeSpec`が用意されます。そして、その`content`フィールドの値が、文書全体に対する文法ルールとなるのです。
+
+たとえば、`heading block*`という文字列を`content`に指定することで、「文書の最初にはまず見出しを置く」というルールを表現できます。
+
+Tiptapで文書全体のルールを設定したいときも、`Document`の`content`を書き換える形で行うことになります。
+詳しい実装は次回解説しますが、このようなTiptapでのカスタマイズはすべて`Extension`で表現することになるので、`Extension`について軽く紹介しておきたいと思います。
+
+## TiptapではExtensionがカスタマイズの単位
+
+Tiptapでは、独自の`Node`や`Mark`、ショートカットや履歴管理などエディタの機能を追加する仕組みを`Extension`として提供しています。
+
+本来はProseMirrorのさまざまな概念を区別して組み合わせなければならないカスタマイズも、Tiptapでは`Extension`という一貫した枠組みで実装できるようになっています。
+エディタの動作を制御するプラグインも、`Node`や`Mark`の定義も、スキーマ定義を持つ`Document`も、Tiptapではすべて`Extension`として実装され、初期化時に設定することで使えるようになるのです。
+
+Tiptapでは、`Extension`が内部的にProseMirrorの`NodeSpec`などを自動生成してくれることで、ProseMirrorの概念に深く触れずにノードや機能を追加することができます。

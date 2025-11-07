@@ -1,0 +1,238 @@
+---
+title: Tiptapでタイトルを必須化する
+date: coming-soon
+description: カスタムノードと組み合わせて具体的なスキーマを実現するテクニック
+tags:
+  - tiptap
+  - prosemirror
+references:
+  - title: プレスリリースのエディターでTiptapを使って新機能開発をした話
+    url: https://developers.prtimes.jp/2024/09/05/developing-new-features-in-editor-using-tiptap-react-typescript/
+    summary: Tiptapエディタをカスタマイズする実践的なアイデアが詰まっている記事で、さまざまなカスタムノードの実装例が紹介されています。
+  - title: Node (tiptap)
+    url: https://scrapbox.io/mrsekut-p/Node_(tiptap)
+  - title: メモアプリ開発④リッチテキストエディタ【Tiptap】
+    url: https://inakademac.com/simpl-tiptap/
+series: summario-dev
+draft: true
+---
+
+- ref: https://chatgpt.com/c/68f94cbb-2dac-8320-9b95-85e5bfa25407
+
+## タイトルをどう扱うか
+
+Summarioに限らず、ブログアプリケーション等においても、「タイトルの入力を必須にしたい」という要件は自然と生まれるものでしょう。
+このとき、タイトル用の入力欄と本文用のテキストエリアを分けてしまえば、HTMLの`required`属性や独自のフォームバリデーションによって「必須入力」を保証することが容易くなります。
+
+しかし、Summarioでは、タイトルにもインラインコードを含めることを許容したかったのです。
+それゆえ、タイトル入力部分でもTiptapの力を借りたかった。
+
+では、Tiptapの世界の中で、ノート冒頭のタイトルの存在を保証するには、どうしたらよいでしょうか？
+その答えの一部となるのが、[前回](/recipes/summario-dev/tiptap-document)解説したスキーマを定義することです。
+
+## 見出しを必須にするスキーマ定義
+
+文書全体に対して、`heading block*`というルールを設定できれば、「最初に必ず見出しを置く」ことを強制することができます。
+[前回](/recipes/summario-dev/tiptap-document)解説したように、文書全体は`Document`で表されるため、`Document`にルールを設定すればよいことになります。
+
+あらゆるカスタマイズを`Extension`経由で行うTiptapでは、`Document`という`Extension`を拡張（`extend{:.fn}`）することで独自のルールの設定が実現できます。
+
+```ts title="Documentのスキーマ定義をカスタマイズする" showLineNumbers /heading/
+import Document from "@tiptap/extension-document"
+
+export const CustomDocument = Document.extend({
+  content: "heading block*"
+})
+```
+
+デフォルトの`Document`の代わりに`CustomDocument`を使うには、次のように初期化時の`extensions`を書き換える必要があります。
+
+```tsx title="CustomDocumentを使うように設定" showLineNumbers {10-13} /extensions:/
+import { useEditor } from "@tiptap/react"
+import StarterKit from "@tiptap/starter-kit"
+import { CustomDocument } from "./extensions/document.ts"
+
+export default function MyTiptapEditor() {
+  const editor = useEditor({
+    shouldRerenderOnTransaction: true,
+    immediatelyRender: false,
+    extensions: [
+      StarterKit.configure({
+        document: false // デフォルトのDocumentを無効化
+      }),
+      CustomDocument // CustomDocumentを使う
+    ],
+    content: "<h1>My First Note</h1><p>Hello World!</p>"
+  })
+
+  return <EditorContent editor={editor} />
+}
+```
+
+このように設定することで、冒頭の`h2{:html}`見出しはエディタ上で何度`delete`キーを叩いても削除することができなくなります。
+設定したスキーマに反する構造にコンテンツを書き換えようとする操作は、すべてTiptap（の中のProseMirror）が阻止してくれるわけです。
+
+## 特定のレベルの見出しに制限するには？
+
+`heading block*`というルールの設定によって、「最初に必ず見出しを置く」という制約は実現できました。
+しかし、`heading`は見出しレベルの情報を持たないため、`h1{:html}`, `h2{:html}`, `h3{:html}`, ...etc.のどれでも許可されてしまいます。
+
+より具体的な制約として、「最初に必ず`h1`見出しを置く」というルールを実現するにはどうしたらよいでしょうか？
+さらに言えば、「`h1`見出しは文書内で1つ」という制約も加えられるとベターです。
+
+Summarioでは、`h1{:html}`見出しだけを表せるような、`heading`に代わる新たなノードを用意することでこの制約を実現しています。
+
+```ts title="独自のtitleノードを用いたスキーマ定義" showLineNumbers {4} /title/
+import Document from "@tiptap/extension-document"
+
+export const CustomDocument = Document.extend({
+  content: "title block*"
+})
+```
+
+文書全体の構造を表すルール（`Document`の`content`）のうち、`heading`としていた箇所を`title`に書き換えました。
+ここでの`title`が指すのは独自に実装したノードです。次に、その具体的な実装内容を紹介していきます。
+
+## タイトルを表すカスタムノード
+
+Tiptapでは、独自のノードを`Extension`として実装し、追加することができます。
+
+- [Creating a node](https://tiptap.dev/docs/editor/extensions/custom-extensions/create-new/node#creating-a-node)
+
+```tsx title="エディタの初期化設定" showLineNumbers {15,17} /extensions:/
+import { useEditor } from "@tiptap/react"
+import StarterKit from "@tiptap/starter-kit"
+import { CustomDocument } from "./extensions/document.ts"
+import { TitleBlockNode } from "./extensions/title-block-node.ts"
+
+export default function MyTiptapEditor() {
+  const editor = useEditor({
+    shouldRerenderOnTransaction: true,
+    immediatelyRender: false,
+    extensions: [
+      StarterKit.configure({
+        document: false
+      }),
+      CustomDocument,
+      TitleBlockNode // カスタムノードを登録
+    ],
+    content: "<title-block>My First Note</title-block><p>Hello World!</p>"
+  })
+
+  return <EditorContent editor={editor} />
+}
+```
+
+`extensions`に新たに追加した`TitleBlockNode`が、コンテンツ冒頭に置くタイトルを表す独自のノードです。
+これは次のように実装しています。
+
+```ts title="タイトルを表すカスタムノードの実装" showLineNumbers
+import { Node } from "@tiptap/core"
+
+export const TitleBlockNode = Node.create({
+  name: "title_block",
+  group: "title",
+  content: "inline*",
+  marks: "code",
+  parseHTML() {
+    return [{ tag: "title-block" }]
+  },
+  renderHTML({ HTMLAttributes }) {
+    return ["h1", HTMLAttributes, 0]
+  }
+})
+```
+
+独自のノードを実装するには、`Node.create(){:js}`ファクトリの引数に、ノードの名前、ノード内の構造（どんな子を持てるか）、HTMLとの相互変換、エディタ上での振る舞い（ドラッグ可否など）をまとめて定義します。
+
+- [Node options](https://tiptap.dev/docs/editor/extensions/custom-extensions/create-new/node#node-options)
+
+### `name`：ノードの識別子
+
+`Node`は必ず`type`という属性を持ち、この値によってノードの種類を識別することができます。
+
+```tree title="例：Tiptap内部で持つ文書データの構造"
+Document
+ └─ Node(type="paragraph")
+     ├─ Node(type="text") "Hello "
+     └─ Node(type="text", marks=[bold]) "world"
+```
+
+`Node.create(){:js}`ファクトリでは、この`type`属性の値となる文字列を`name`で指定します。
+ここでは、`name`に`"title_block"`と指定することで、`type="title_block"`の`Node`を作成しています。
+
+```ts title="タイトルを表すカスタムノードの実装（抜粋）" {2}
+export const TitleBlockNode = Node.create({
+  name: "title_block"
+  // ...
+})
+```
+
+### `group`：スキーマ上での識別子
+
+- [Group - Node options / The node schema](https://tiptap.dev/docs/editor/core-concepts/schema#group)
+
+```ts title="タイトルを表すカスタムノードの実装（抜粋）" {3}
+export const TitleBlockNode = Node.create({
+  // ...
+  group: "title"
+  // ...
+})
+```
+
+- `group: "title"`とすることで、タイトルは文書内に1つだけに制限する
+
+### `content`：ノード内に入れられる子要素
+
+- [Content - Node options / The node schema](https://tiptap.dev/docs/editor/core-concepts/schema#content)
+
+```ts title="タイトルを表すカスタムノードの実装（抜粋）" {3}
+export const TitleBlockNode = Node.create({
+  // ...
+  content: "inline*"
+  // ...
+})
+```
+
+### `marks`：ノードに付与できるMark
+
+- [Marks - Node options / The node scheme](https://tiptap.dev/docs/editor/core-concepts/schema#marks)
+
+```ts title="タイトルを表すカスタムノードの実装（抜粋）" {3}
+export const TitleBlockNode = Node.create({
+  // ...
+  marks: "code"
+  // ...
+})
+```
+
+### `parseHTML`：HTMLからノードへの変換
+
+- [`parseHTML` - Node options](https://tiptap.dev/docs/editor/extensions/custom-extensions/create-new/node#parsehtml)
+
+```ts title="タイトルを表すカスタムノードの実装（抜粋）" {3-5}
+export const TitleBlockNode = Node.create({
+  // ...
+  parseHTML() {
+    return [{ tag: "title-block" }]
+  }
+  // ...
+})
+```
+
+- `parseHTML`はなぜ独自タグ？
+  - -> 将来的にimport機能を搭載したとして、万が一本文にh1が複数含まれていた場合、すべてをtitle-blockとして扱われると困る
+
+### `renderHTML`：ノードからHTMLへの変換
+
+- [`renderHTML` - Node options](https://tiptap.dev/docs/editor/extensions/custom-extensions/create-new/node#renderhtml)
+
+```ts title="タイトルを表すカスタムノードの実装（抜粋）" {3-5}
+export const TitleBlockNode = Node.create({
+  // ...
+  renderHTML({ HTMLAttributes }) {
+    return ["h1", HTMLAttributes, 0]
+  }
+  // ...
+})
+```

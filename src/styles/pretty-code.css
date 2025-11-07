@@ -76,7 +76,7 @@ html.dark pre > code > [data-highlighted-line] {
 }
 
 pre > code:has([data-highlighted-line]) > :not([data-highlighted-line]) {
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 /** show line numbers */
@@ -179,11 +179,21 @@ pre[data-language]::before {
   border-top-left-radius: 0;
 }
 /** 言語ごとのラベル */
+pre:is([data-language="plaintext"], [data-language="txt"])::before {
+  content: "";
+  display: flex;
+}
 pre[data-language="js"]::before {
   content: "JavaScript";
 }
 pre[data-language="ts"]::before {
   content: "TypeScript";
+}
+pre[data-language="jsx"]::before {
+  content: "JSX";
+}
+pre[data-language="tsx"]::before {
+  content: "TSX";
 }
 pre[data-language="html"]::before {
   content: "HTML";

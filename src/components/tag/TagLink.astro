@@ -29,7 +29,7 @@ const tag = await getEntry("tag", tagId)
     align-items: baseline;
     justify-content: center;
     gap: 0.25em;
-    color: light-dark(var(--slate-600), white);
+    color: light-dark(var(--slate-500), white);
     background-image: repeating-linear-gradient(
       225deg,
       rgba(191, 228, 255, 0.1) var(--twinkle-width),
@@ -43,10 +43,11 @@ const tag = await getEntry("tag", tagId)
     text-decoration: none;
     border-bottom-right-radius: var(--border-radius);
     border-top-left-radius: var(--border-radius);
-    font-size: clamp(1rem, 0.856rem + 0.616vw, 1.25rem);
+    font-size: clamp(1rem, 0.913rem + 0.37vw, 1.15rem);
     line-height: 1.4;
     padding-inline: 1rem;
     padding-block: 0.25rem;
+    font-family: "Ubuntu Mono";
   }
 
   :global(.dark) .Tag {
@@ -66,8 +67,6 @@ const tag = await getEntry("tag", tagId)
 
   .count {
     font-size: 0.75em;
-    font-family: "Oldenburg", serif;
-    line-height: 1em;
-    color: light-dark(var(--slate-400), var(--slate-300));
+    color: light-dark(var(--slate-500), var(--slate-300));
   }
 </style>

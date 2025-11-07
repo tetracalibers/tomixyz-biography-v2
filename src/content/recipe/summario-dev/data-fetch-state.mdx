@@ -1,0 +1,436 @@
+---
+title: React Router v7の状態管理とTanstack Query
+date: coming-soon
+description: React Router v7で難しいと感じたこと
+tags:
+  - react-router
+  - tanstack-query
+  - react
+references:
+  - title: React Router v7 ドキュメント 日本語版
+    url: https://react-router-docs-ja.techtalk.jp/
+    summary: この記事では英語版の公式ドキュメントへリンクしていましたが、日本語版のドキュメントもあります。
+  - title: React Router v7 さわってみた
+    url: https://qiita.com/studio_haneya/items/a9f6f6c1d9aefcd40fd1
+    summary: React Router v7の主要機能が簡潔なコード例とともにまとめられています。ドキュメントをじっくり読む前に、各機能のユースケースをざっくり把握したい段階で非常に参考になります。
+  - title: Remixを使い始めた話
+    url: https://tech.mfkessai.co.jp/2024/03/remix/
+    summary: Remixの良さと苦労した点が実務的な視点で語られています。その多くはReact Router v7にも通ずるもので、共感できるところも多くありました。
+  - title: ブログ記事で Remix (React Router v7) に入門する
+    url: https://t28.dev/blog/getting-started-with-react-router-v7-using-blog-posts
+    summary: React RouterとRemixの歴史がまとめられており、React Router v7にも受け継がれている設計思想を垣間見ることができます。
+  - title: React Router v7 の内部構造を探る：リクエストからレンダリングまでの道のり
+    url: https://zenn.dev/coji/articles/react-router-v7-internal-flow
+    summary: React Router v7の内部の仕組みが整理されており、予期せぬ挙動にぶつかったときに非常に参考になりそうです。
+  - title: react-router 使う機能、使わない機能
+    url: https://blog.ojisan.io/react-router-using/
+    summary: React Router v7の機能に無理やり乗せようとせず、良いと思った機能を取捨選択して使うという発想はこの記事から学びました。
+  - title: Remix (React Router v7) の思想が受け入れられなかった話
+    url: https://hidekatsu-izuno.hatenablog.com/entry/2025/02/20/021608
+  - title: TanStack Query 〜プロダクトで採用するための勘所〜
+    url: https://zenn.dev/taisei_13046/books/133e9995b6aadf
+series: summario-dev
+draft: true
+---
+
+## React Router v7とServer State
+
+[React Router v7](https://reactrouter.com/)は、[Remix](https://remix.run/)とReact Routerが合流して生まれたフルスタックフレームワークです。
+
+- [React Router v7](https://remix.run/blog/react-router-v7)
+
+> React Router v7 brings everything you love about Remix back into React Router proper.
+
+Remixのコンセプトを受け継いでいるReact Router v7には、サーバー側のデータに関する状態管理をフレームワーク側が担ってくれる仕組みが備わっています。
+
+- [Fullstack Data Flow](https://v2.remix.run/docs/discussion/data-flow)
+
+> One of the primary features of Remix is the way it automatically keeps your UI in sync with persistent server state.
+
+その仕組みにうまく乗せることで、APIフェッチを行うために`useEffect{:.fn}`を生やしたり、取得したデータやエラー状態などを保持するための`useState{:.fn}`を用意したりする必要がなくなります。
+
+充実したReactのエコシステム（UIライブラリ等）を活用しながらも、React特有のつらいポイントを避けることができるのは大きなアドバンテージだと感じ、Summarioの開発では[Next.js](https://nextjs.org/)ではなくReact Router v7を選びました。
+
+しかし、1つのページに多数の機能を備えるアプリケーションでは、React Router v7の仕組みにうまく乗せきれない部分もあり、結局データフェッチとその状態管理では[Tanstack Query](https://tanstack.com/query/latest)の力を借りた方が綺麗に収まるのではなかろうかという結論に…
+
+今回は、React Router v7による実装で悩ましかったポイントを中心に取り上げる形になってしまいますが、もっとReact Routerを使いこなせるようになったら、うまく実装できたエピソードも増やしていきたいと思っています。
+
+## React Router v7で脱`useState`/`useEffect`できるか？
+
+まずはReact Router v7での実装アプローチを知るために、Address Bookという公式のチュートリアルを一読しました。
+
+- [Address Book](https://reactrouter.com/tutorials/address-book)
+
+このチュートリアルで登場する次の言葉が印象的で、React Router v7は単にReactの機能に依存するフレームワークではないことが窺えます。
+
+> 🧐 Wait a sec ... How did the sidebar update? Where did we call the `action` function? Where's the code to re-fetch the data? Where are `useState`, `onSubmit` and `useEffect`?!
+
+実際、このチュートリアルでは`useEffect{:.fn}`や`useState{:.fn}`はほとんど使われていません。
+巷のブログを漁るともっと夢のような話もあって、たとえば次の記事では、React Router v7の仕組みをうまく使うことで、タブUIやモーダルUIでさえ`useState{:.fn}`を使わずに実装できるというアプローチが解説されているのです。
+
+- [React Router v7で実現するuseStateゼロ開発](https://zenn.dev/dorarep/articles/1dedd5c1b9ee82)
+
+では`useState{:.fn}`を使わないとしたら、`useState{:.fn}`に持たせていた状態はどう表現するのかというと…
+React Router v7が裏で管理してくれる状態も多くありますが、React Router v7の仕組みが求めてくるのは「URLで状態を表現する」ことです。
+
+究極には、1つの機能を持つページ（のUI）に対し1つのURLを対応づけることが理想形なのかもしれません。
+URLに載せきれないような複雑な状態を扱う場合や、URLに状態を載せることが望ましいとはいえない場合のベストプラクティスについてはほとんど情報がないので、あえて「こんな場合はどうするんだ…？」という事例を取り上げて模索してみようというのが今回の記事の主な内容です。（しかし今のところの終着点はTanstack Query…）
+
+React Router v7の仕組みを概説しつつ、純粋に良いな〜と思った部分についても積極的に話していきたいと思います。
+
+## ルートモジュールの機能と制約
+
+先ほど、1つの機能を持つUIに対して1つのURLを対応づけることが理想形なのかもしれない、と書いたのは、React Router v7による開発では**ルートモジュール**という仕組みが主軸になってくるからです。まずはその機能について簡単にまとめてみます。
+
+### ルーティングとルートモジュール
+
+React Router v7の[Frameworkモード](https://react-router-docs-ja.techtalk.jp/start/modes#framework)では、ページを表すコンポーネントとページのURLを`app/routes.ts`という設定ファイルで対応づけます。
+
+- [Routing](https://reactrouter.com/start/framework/routing)
+
+```ts title="app/routes.ts" showLineNumbers
+import { type RouteConfig, route } from "@react-router/dev/routes"
+
+export default [route("list", "./list.tsx")] satisfies RouteConfig
+```
+
+この`app/routes.ts`に登録したページを表すコンポーネント（上の例では`./list.tsx`）を、React Router v7では**ルートモジュール**と呼びます。
+
+- [Route Module](https://reactrouter.com/start/framework/route-module)
+
+そして、ルートモジュールに限り、`loader{:.fn}`と`action{:.fn}`という関数が特別な意味を持ちます。
+
+```tsx title="app/list.tsx" showLineNumbers /loaderData/
+import { Form } from "react-router"
+import { TodoList } from "~/components/TodoList"
+
+// actionはサーバーで実行されるのでDBに直接アクセスできる
+export async function action({ request }) {
+  const data = await request.formData()
+  const todo = await fakeDb.addItem({
+    title: data.get("title")
+  })
+  return { ok: true }
+}
+
+// loaderはサーバーで実行されるのでDBに直接アクセスできる
+export async function loader() {
+  const items = await fakeDb.getItems()
+  return { items }
+}
+
+export default function Items({ loaderData }) {
+  return (
+    <div>
+      <TodoList items={loaderData.items} />
+      <Form method="post" navigate={false} action="/list">
+        <input type="text" name="title" />
+        <button type="submit">Todoを作成</button>
+      </Form>
+    </div>
+  )
+}
+```
+
+`loader{:.fn}`はデータの取得、`action{:.fn}`はデータの更新を担い、これらの結果（戻り値）はルートモジュールで`loaderData` / `actionData`という`Props`として受け取れるようになっています。
+
+- [Data Loading](https://reactrouter.com/start/framework/data-loading)
+- [Actions](https://reactrouter.com/start/framework/actions)
+
+また、`loader{:.fn}`は初期ロードを担うだけでなく、`action{:.fn}`の完了後にもロードされる（データの自動再検証が行われる）ため、コンポーネントでの`loaderData`を使った表示も自動的に更新されます。
+
+> データの変更は、ルートアクションを通じて行われます。アクションが完了すると、ページ上のすべてのローダーデータが再検証され、UIを最新の状態に保つためにコードを書く必要はありません。
+
+このように、React Router v7では、サーバー側のデータとクライアントの状態の同期をフレームワークが行い、まるでサーバー側の状態にクライアントから直接アクセスできるような書き味を持ちます。
+
+おかげで、クライアント側で明示的に管理しなければならなかった多くの状態をコードから排除することができるわけです。
+具体的にどのような状態管理から解放されるのかは、次のドキュメントにまとめられています。
+
+- [State Management](https://reactrouter.com/explanation/state-management)
+
+### `loader`と`action`の肥大化
+
+このようなルートモジュールの仕組みは画期的なもので、たしかにこうしてまとめることができたら綺麗ではあるのです。
+しかし、ページ内に多数の機能を盛り込んだアプリケーションを開発する際には、良くも悪くもこの仕組みに縛られ、その中にうまく処理を収めることが悩ましくもありました。
+
+ルートモジュールは各URLに対応するため、基本的には1つのページに`loader{:.fn}`や`action{:.fn}`は1つずつしか置けないことになります。
+
+すると、ページで必要なすべてのデータを1つの`loader{:.fn}`でロードすることになり、さらにページ内の複数箇所で異なるデータ更新処理が必要な場合は、「どの箇所で呼び出されたか？」によって`action{:.fn}`内で処理を分岐しなければなりません。
+
+この単一`loader{:.fn}` / `action{:.fn}`の肥大化を避けるアプローチが存在しないわけではなく、**ネストされたルート**を用いることで、1つのページを複数のルートモジュールの入れ子として表現することができます。
+
+- [Nested Routes](https://reactrouter.com/start/framework/routing#nested-routes)
+- [Layout Routes](https://reactrouter.com/start/framework/routing#layout-routes)
+
+たとえば、全ページ共通のUIとなるサイドバーと、ページによって内容が異なるメインエリアを別のルートモジュールとして分離すれば、それぞれに`loader{:.fn}`や`action{:.fn}`を置くことが可能になるのです。
+
+```ts title="app/routes.ts" showLineNumbers {5-9}
+import type { RouteConfig } from "@react-router/dev/routes"
+import { layout, route } from "@react-router/dev/routes"
+
+export default [
+  // 親ルート
+  layout("layouts/sidebar.tsx", [
+    // 子ルート
+    route("items/:itemId", "routes/item.tsx")
+  ])
+] satisfies RouteConfig
+```
+
+```tsx title="app/layouts/sidebar.tsx（親ルート）" showLineNumbers {3-6,15-16}
+import { Outlet } from "react-router"
+
+export async function loader() {
+  const allItems = await fakeDb.getItems()
+  return { allItems }
+}
+
+export default function SidebarLayout({ loaderData }) {
+  const { allItems } = loaderData
+
+  return (
+    <>
+      <aside className="sidebar-area">{/* allItemsを使った一覧表示 */}</aside>
+      <main className="main-area">
+        {/* Outletは子ルートの内容をレンダリングする */}
+        <Outlet />
+      </main>
+    </>
+  )
+}
+```
+
+```tsx title="app/routes/item.tsx（子ルート）" showLineNumbers {1-5}
+export async function loader({ params }) {
+  const { itemId } = params
+  const item = await fakeDb.getItem(itemId)
+  return { item }
+}
+
+export default function Item({ loaderData }) {
+  const { item } = loaderData
+
+  return (
+    <>
+      {/* Outlet部分に埋め込まれる内容 */}
+      <div className="main-area-inner">{/* itemを使った個別詳細表示 */}</div>
+    </>
+  )
+}
+```
+
+このようにルートのネストをあまり深くすることなく綺麗に分けられるならよいのですが、どちらにせよメインエリアに機能が集中するようなページでは、メインエリア側の`loader{:.fn}`や`action{:.fn}`が肥大化することは避けられなくなってきます。
+
+さらに、`loaderData`は`action{:.fn}`実行後に自動で更新（再検証）されるため、`loader{:.fn}`でさまざまなデータをまとめて取得している場合、表示の更新（再描画）が広範囲に及んでしまうことも悩ましいポイントでした。
+
+## データの流れとURLによる状態の表現
+
+React Router v7では、`action{:.fn}`はデータの更新に専念し、`action{:.fn}`の実行によって自動更新される`loaderData`をもとに表示を行うという形にすることで、アプリケーションとネットワーク全体で自然なデータの流れを保つことができます。
+
+```txt title="データが一方向に循環的に流れる"
+loader -> component -> action -> loader
+```
+
+このコンセプトはRemix時代から受け継がれているものです。
+「状態の関数としてUIを表現する」というReactの関数型コンポーネントの考え方を、サーバー側の状態まで包むように拡張するという思想には、純粋に美しさを感じました。
+
+- [Data Flow in Remix](https://remix.run/blog/remix-data-flow)
+
+> With Remix, your UI becomes a function of state across the network, not just locally.
+
+`action{:.fn}`でデータを返してそれを表示に使うようなことはせず、表示は`loader{:.fn}`からのデータのみに頼るという実装が、このデータフローに沿った一つの理想形ともいえます。`action{:.fn}`はあくまでもデータ「更新」だけに徹し、データ「取得」は常に`loader{:.fn}`が担うという役割分担を崩さないようにするのです。
+
+### ユーザー操作によるデータ取得
+
+データの自動同期はとても強力な仕組みですが、実際のアプリケーション開発ではデータの取得を手動で行いたい場面も多くあります。
+そこで、何らかのユーザー操作をトリガーにクライアント側で新たなデータを取得し、それを用いて表示を更新したいというシナリオについて考えてみたいと思います。
+
+前提として、初期表示ではサーバー側で実行される`loader`で取得したデータが予め表示されているとします。初期データはサーバー側で予め取得しておくことで、ページにアクセスした際にデータ取得を待つことなく初回の表示を提供できます。
+
+このとき、サーバー側でのデータ更新が伴う（`action`を経由する）かどうかによって、表示を更新するアプローチが異なってきます。そこで、次の2つの場合に着目します。
+
+- サーバー側でデータを更新し、更新されたデータを表示に同期したい場合
+- サーバー側でのデータ更新を伴わず、単にデータを取得して表示を置き換えたい場合
+
+前者の場合についてはすでに述べたとおりで、ユーザー操作がサーバー側のデータの更新を伴うものなら、`action`実行後の自動再検証によって表示データも更新される仕組みに乗せることができます。
+たとえば、`action`によって新規アイテムを追加し、追加に成功したら全アイテムの一覧表示も更新したいという場合です。このとき、`loader`が全アイテムを取得して返す実装になっていれば、自動的に一覧表示が更新されるため、特に新しいアプローチを考える必要はありません。
+
+一方、ユーザー操作によって単にデータを取得したいだけの場合もあります。
+たとえば、初回表示では1〜10件目のアイテムを表示し、ユーザーが「次へ」ボタンを押したら11〜20件目のアイテムを表示するように切り替えたいという場合です。
+この場合は`action`を使う必要はなく、「今取得したいデータ範囲」の情報を何らかの形で`loader`に伝え、それに合わせて`loader`の出力が変わるような仕組みが必要になります。
+
+「何らかの形で」と書きましたが、実際のところ選択できるアプローチはあまり多くはなく、結局はURLにその情報を含める必要があります。
+`loader`は`GET`リクエストの処理（データ取得）を担い、`GET`リクエストはリクエストボディを持たないため、サーバー側に伝えたい情報はURLクエリパラメータかパスで表現するしかないからです。
+
+### URLクエリパラメータによる状態表現
+
+URLに状態をどう載せるか？という点で特に悩んだのは、Summarioのサイドバーにある`FolderExprorer`を実装するときでした。
+`FolderExprorer`はあるフォルダの「直下のエントリだけ見せる」作りになっていて、次のような要件を持ちます。
+
+- 指定されたidを持つフォルダ直下のエントリ（ファイルやフォルダ）を一覧表示する
+- フォルダ名をクリックしたら、そのフォルダ直下のエントリを取得し、一覧表示を置き換える
+
+```tsx title="app/layouts/sidebar.tsx" showLineNumbers {6-8,14,24}
+import { Outlet, Link } from "react-router"
+
+export async function loader({ params, request }) {
+  const currentFileId = params.fileId
+
+  const url = new URL(request.url)
+  const folderId = url.searchParams.get("folder") ?? "root"
+  const entries = await getFolderFromDB(folderId)
+
+  return { entries, currentFileId }
+}
+
+export default function SidebarLayout({ loaderData }) {
+  const { entries, currentFileId } = loaderData
+
+  return (
+    <>
+      <aside className="sidebar-area">
+        <ul>
+          {entries.map((entry) => (
+            <li key={entry.id}>
+              {entry.type === "folder" ? (
+                {/* フォルダを表すリンク（サイドバーのフォルダ一覧だけ更新） */}
+                <Link to={`/files/${currentFileId}?folder=${entry.id}`}>{entry.name}</Link>
+              ) : (
+                {/* ファイルを表すリンク（そのファイル内容のページに移動） */}
+                <Link to={`/files/${item.id}`}>{entry.name}</Link>
+              )}
+            </li>
+          ))}
+        </ul>
+      </aside>
+      <main className="main-area">
+        <Outlet />
+      </main>
+    </>
+  )
+}
+```
+
+- 表示は`loaderData`だけに依存
+- クリック時にURLクエリパラメータを変えることで`loader`が呼び出されるようにすればよい
+
+- しかし、URLクエリパラメータはキャッシュされない
+- 頻繁にクリックされ、「さっき見たフォルダに戻る」ことも多いUIのため、毎回サーバーにリクエストされるのは避けたかった
+
+### 独立したAPIルートのパスによる状態表現
+
+- [Resource Routes](https://reactrouter.com/how-to/resource-routes)
+
+```ts title="app/routes.ts" showLineNumbers {8}
+import type { RouteConfig } from "@react-router/dev/routes"
+import { layout, route } from "@react-router/dev/routes"
+
+export default [
+  layout("layouts/sidebar.tsx", [
+    route("files/:fileId", "routes/file.tsx")
+  ]),
+  route("api/folders/:folderId", "routes/api/folder.ts");
+] satisfies RouteConfig
+```
+
+```ts title="app/routes/api/folder.ts" showLineNumbers {2-3}
+export async function loader({ params }) {
+  const { folderId } = params
+  const entries = await getFolderFromDB(folderId)
+  return { entries }
+}
+```
+
+- [Using Fetchers](https://reactrouter.com/how-to/fetchers)
+
+```tsx title="app/layouts/sidebar.tsx" showLineNumbers {4,9-11,21-23}
+import { Outlet, Link, useFetcher } from "react-router"
+
+export async function loader() {
+  const initialEntries = await getFolderFromDB("root")
+  return { initialEntries }
+}
+
+export default function SidebarLayout({ loaderData }) {
+  const { initialEntries } = loaderData
+  const fetcher = useFetcher();
+  const entries = fetcher.data ?? initialEntries
+
+  return (
+    <>
+      <aside className="sidebar-area">
+        <ul>
+          {entries.map((entry) => (
+            <li key={entry.id}>
+              {entry.type === "folder" ? (
+                {/* フォルダを表すボタン（サイドバーのフォルダ一覧だけ更新） */}
+                <button type="button" onClick={() => fetcher.load(`/api/folders/${entry.id}`)}>
+                  {entry.name}
+                </button>
+              ) : (
+                {/* ファイルを表すリンク（そのファイル内容のページに移動） */}
+                <Link to={`/files/${item.id}`}>{entry.name}</Link>
+              )}
+            </li>
+          ))}
+        </ul>
+      </aside>
+      <main className="main-area">
+        <Outlet />
+      </main>
+    </>
+  )
+}
+```
+
+- 独立したルートを用意する
+- 任意のタイミングでデータを取得する
+- `fetcher`はユーザーインタラクションによって`loader`や`action`を呼び出すための機能
+- `loader`で初期データを取得、ボタンが押されたら`fetcher.load`で新たなデータを取得し、表示を切り替える
+
+- 初期表示に使うデータは`loader`で受け取りたい（`fetcher`に任せるとクライアントでの`fetch`になるので、初期表示に時間がかかる）
+- つまり、初期表示では`loaderData`を、データ取得後には`fetcher.data`を表示したい
+
+- 専用の`loader`を用意し、ボタンクリック時に`fetcher.load`で読み込む
+
+- `const data = fetcher.data ?? loaderData`みたいにしてもいいけど…
+- `loader`でエラーが起きた場合はレスポンスボディにエラーの詳細を入れて返す場合では、分岐が面倒なことになる
+
+```ts title="app/routes/api/folder.ts" showLineNumbers {5-7}
+import { data } from "react-router"
+
+export async function loader({ params }) {
+  const { folderId } = params
+  if (!folderId) {
+    return data({ error: "missing :folderId" }, { status: 404 })
+  }
+  const entries = await getFolderFromDB(folderId)
+  return { entries }
+}
+```
+
+- `useRouteLoaderData`を使って綺麗にまとまらないか？と試したけれど、ドキュメントも旧バージョンのコード例なので正解が分からず…どうやっても返ってくるのは`undefined`…
+
+## こんなとき、Tanstack Queryがあれば…
+
+### `useQuery`の効用
+
+- 初期データはルートモジュールの`loader`で提供し、`useQuery`の`placeholderData`にセット
+- `useQuery`の戻り値`data`は、新たなデータを取得するまでは`placeholderData`になり、データ取得後は新たなデータになる
+- JSX側では`data`をそのまま描画すればいい
+- 正常取得時の中身とエラー発生時の中身も分けて処理できる
+
+- すでに取得したデータはキャッシュしておける
+
+### `useMutation`との連携
+
+- DBにアクセスして処理を行う`action`を`fetch`で呼び出せる必要が生じた
+- つまり、各アクションにURLを割り当てる必要がある
+- そこで、APIエンドポイントのように`action`だけをexportするルートモジュールを定義している
+
+## こんなとき、誰かと議論できたら…
+
+それでも、やっぱりフレームワークが持つ仕組みをもっとうまく使えたら…という思いは残っています。
+今回は私が考えつくアイデアでは解決しきれなかった事例について書いてみましたが、それは私の限界であって、フレームワークの限界ではないかもしれません。
+
+本当にこれでいいのか…？という迷いは全然拭えていないので、ノウハウやご意見がある方、ぜひ[issue](https://github.com/tetracalibers/tomixyz-biography-v2/issues)や[Bluesky](https://bsky.app/profile/tetracalibers.bsky.social)でお話ししましょう…！

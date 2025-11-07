@@ -13,6 +13,9 @@ css:
 devtools:
   name: DevTools
   url: https://developer.chrome.com/docs/devtools?hl=ja
+drizzle:
+  name: Drizzle
+  url: https://orm.drizzle.team/
 excel:
   name: Excel
   url: https://www.microsoft.com/ja-jp/microsoft-365/excel
@@ -41,6 +44,9 @@ hyperref:
 javascript:
   name: JavaScript
   url: https://developer.mozilla.org/ja/docs/Web/JavaScript
+jotai:
+  name: Jotai
+  url: https://jotai.org/
 jquery:
   name: jQuery
   url: https://jquery.com/
@@ -50,6 +56,9 @@ laravel:
 latex:
   name: LaTeX
   url: https://ja.wikipedia.org/wiki/LaTeX
+mantine:
+  name: Mantine
+  url: https://mantine.dev/
 mdx:
   name: MDX
   url: https://mdxjs.com/
@@ -59,12 +68,18 @@ mysql:
 postgresql:
   name: PostgreSQL
   url: https://www.postgresql.org/
+prosemirror:
+  name: ProseMirror
+  url: https://prosemirror.net/
 python:
   name: Python
   url: https://www.python.org/
 react:
   name: React
   url: https://ja.react.dev/
+react-router:
+  name: React Router
+  url: https://reactrouter.com/
 rehype-pretty-code:
   name: Rehype Pretty Code
   url: https://rehype-pretty.pages.dev/
@@ -111,6 +126,9 @@ svg-js:
 tailwind-css:
   name: Tailwind CSS
   url: https://tailwindcss.com/
+tanstack-query:
+  name: TanStack Query
+  url: https://tanstack.com/query/latest
 tcolorbox:
   name: tcolorbox
   skill: false
@@ -122,6 +140,9 @@ tex2img:
 tikz:
   name: TikZ
   url: https://texwiki.texjp.org/TikZ
+tiptap:
+  name: Tiptap
+  url: https://tiptap.dev/
 typescript:
   name: TypeScript
   url: https://www.typescriptlang.org/

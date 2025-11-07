@@ -52,10 +52,10 @@ const meta = {
 
 <style>
   .Layout-inner {
-    max-width: 44rem;
     margin-inline: auto;
     display: grid;
     gap: 2rem;
+    grid-template-columns: minmax(0, 44rem);
   }
   .series-summary :global(:first-child) {
     margin-block-start: 0;

@@ -25,7 +25,7 @@ const { src, alt = "", caption, optimization = true, responsive, maxWidth } = As
 >
   .FigureBox {
     --_title-border: #6e85b7;
-    --_padding: clamp(0.2rem, 2.5vw, 0.75rem);
+    --_padding: clamp(0.4rem, 0.197rem + 0.868vw, 0.75rem);
 
     width: 100%;
     margin: 0;
@@ -47,6 +47,7 @@ const { src, alt = "", caption, optimization = true, responsive, maxWidth } = As
     width: fit-content;
 
     margin-block-start: calc(var(--_padding) * -1);
+    margin-block-end: calc(var(--_padding) * 0.7);
     margin-inline-start: calc(var(--_padding) * -1 + -6px);
     margin-inline-end: calc(var(--_padding) * -1);
 

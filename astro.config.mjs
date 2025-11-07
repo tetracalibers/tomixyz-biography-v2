@@ -28,6 +28,9 @@ const prettyCodeOptions = {
     light: "snazzy-light"
   },
   defaultLang: "plaintext",
+  tokensMap: {
+    fn: "entity.name.function"
+  },
   transformers: [transformerNotationErrorLevel()],
   onVisitLine(element) {
     addColorPreview(element)
