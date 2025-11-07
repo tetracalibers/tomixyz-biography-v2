@@ -79,7 +79,7 @@ const blog = defineCollection({
     })
 })
 
-const _recipeBase = z.object({
+const _techBase = z.object({
   title: z.string().max(100, "The title length must be less than or equal to 100 chars"),
   description: z.string(),
   meta: z
@@ -99,18 +99,18 @@ const _recipeBase = z.object({
     .array()
     .optional()
 })
-const _recipePublic = _recipeBase.extend({
+const _techPublic = _techBase.extend({
   date: z.coerce.date(),
   draft: z.literal(false).optional()
 })
-const _recipeDraft = _recipeBase.extend({
+const _techDraft = _techBase.extend({
   date: z.coerce.date().or(z.literal(COMING_SOON_KEY)),
   draft: z.literal(true)
 })
 
-const recipe = defineCollection({
-  loader: glob({ pattern: "**/*.mdx", base: "./src/content/recipe" }),
-  schema: () => z.discriminatedUnion("draft", [_recipePublic, _recipeDraft])
+const tech = defineCollection({
+  loader: glob({ pattern: "**/*.mdx", base: "./src/content/tech" }),
+  schema: () => z.discriminatedUnion("draft", [_techPublic, _techDraft])
 })
 
 const series = defineCollection({
@@ -118,7 +118,7 @@ const series = defineCollection({
   schema: () =>
     z.object({
       title: z.string(),
-      articles: z.array(reference("recipe"))
+      articles: z.array(reference("tech"))
     })
 })
 
@@ -150,4 +150,4 @@ const tag = defineCollection({
     })
 })
 
-export const collections = { like, project, event, blog, recipe, series, writing, tag }
+export const collections = { like, project, event, blog, tech, series, writing, tag }

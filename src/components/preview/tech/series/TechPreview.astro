@@ -6,16 +6,16 @@ import { formatDate } from "$/lib/date"
 import { isComingSoon, isNotComingSoon } from "$/lib/collection"
 
 interface Props {
-  entry: CollectionEntry<"recipe">
+  entry: CollectionEntry<"tech">
   indexOfList: number
 }
 
 const { entry, indexOfList } = Astro.props
 
-const pageUrl = SITE.base + "/recipes/" + entry.id
+const pageUrl = SITE.base + "/tech/" + entry.id
 ---
 
-<div class="RecipePreview" class:list={{ "-coming-soon": isComingSoon(entry) }}>
+<div class="TechPreview" class:list={{ "-coming-soon": isComingSoon(entry) }}>
   <div class="header">
     <div class="series-title">
       <Icon name="arcticons:pocketbook" size={16} stroke-width={2} />
@@ -42,7 +42,7 @@ const pageUrl = SITE.base + "/recipes/" + entry.id
 </div>
 
 <style>
-  .RecipePreview {
+  .TechPreview {
     --bd-color: light-dark(var(--slate-300), var(--slate-400));
 
     display: flex;
@@ -71,7 +71,7 @@ const pageUrl = SITE.base + "/recipes/" + entry.id
       2px 100%;
   }
   @media (max-width: 500px) {
-    .RecipePreview {
+    .TechPreview {
       text-align: center;
     }
   }

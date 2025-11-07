@@ -1,0 +1,21 @@
+---
+import type { CollectionEntry } from "astro:content"
+import TechPreview from "./TechPreview.astro"
+
+interface Props {
+  entries: CollectionEntry<"tech">[]
+}
+
+const { entries } = Astro.props
+---
+
+<div class="TechPreviewList">
+  {entries.map((entry, i) => <TechPreview entry={entry} indexOfList={i} />)}
+</div>
+
+<style>
+  .TechPreviewList {
+    display: grid;
+    gap: 1rem;
+  }
+</style>

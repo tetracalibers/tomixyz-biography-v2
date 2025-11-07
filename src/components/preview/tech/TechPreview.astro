@@ -3,52 +3,52 @@ import PublishDate from "./PublishDate.astro"
 import { SITE } from "$/config"
 import { getEntry } from "astro:content"
 import { Icon } from "astro-icon/components"
-import type { RecipeNotComingSoon } from "$/lib/collection"
+import type { TechNotComingSoon } from "$/lib/collection"
 
 interface Props {
-  entry: RecipeNotComingSoon
+  entry: TechNotComingSoon
 }
 
 const {
-  entry: { data: recipe, id }
+  entry: { data: tech, id }
 } = Astro.props
 
-const pageUrl = SITE.base + "/recipes/" + id
-const series = recipe.series ? await getEntry("series", recipe.series.id) : null
+const pageUrl = SITE.base + "/tech/" + id
+const series = tech.series ? await getEntry("series", tech.series.id) : null
 ---
 
-<div class="RecipePreview">
+<div class="TechPreview">
   <div class="inner">
-    <div class="date"><PublishDate date={recipe.date} /></div>
+    <div class="date"><PublishDate date={tech.date} /></div>
     <div class="content" class:list={[{ "-series-article": series }]}>
       {
         series && (
-          <a class="series-title" href={`/recipes/${series.id}`}>
+          <a class="series-title" href={`/tech/${series.id}`}>
             <Icon name="arcticons:pocketbook" size={16} stroke-width={2} />
             {series.data.title}
           </a>
         )
       }
       <h2 class="title">
-        <a href={pageUrl}>{recipe.title}</a>
+        <a href={pageUrl}>{tech.title}</a>
       </h2>
       <p class="desc">
-        {recipe.description}
+        {tech.description}
       </p>
     </div>
   </div>
 </div>
 
 <style>
-  .RecipePreview {
+  .TechPreview {
     display: flex;
     gap: 1.5rem;
   }
   @media (max-width: 499px) {
-    .RecipePreview {
+    .TechPreview {
       margin-block-start: -1.75rem;
     }
-    .RecipePreview:first-of-type {
+    .TechPreview:first-of-type {
       margin-block-start: -4.5rem;
     }
   }
@@ -166,25 +166,25 @@ const series = recipe.series ? await getEntry("series", recipe.series.id) : null
     color: light-dark(var(--slate-800), white);
   }
 
-  .RecipePreview {
+  .TechPreview {
     --theme-base: #fcd888;
   }
-  .RecipePreview:nth-child(2n) {
+  .TechPreview:nth-child(2n) {
     --theme-base: #b8f1f8;
   }
-  .RecipePreview:nth-child(3n) {
+  .TechPreview:nth-child(3n) {
     --theme-base: #fcdce0;
   }
-  .RecipePreview:nth-child(4n) {
+  .TechPreview:nth-child(4n) {
     --theme-base: #c6d9fd;
   }
-  .RecipePreview:nth-child(5n) {
+  .TechPreview:nth-child(5n) {
     --theme-base: #ccf5e6;
   }
-  .RecipePreview:nth-child(6n) {
+  .TechPreview:nth-child(6n) {
     --theme-base: #f9c0e7;
   }
-  .RecipePreview :global(.PublishDate svg) {
+  .TechPreview :global(.PublishDate svg) {
     --dark-color: oklch(from var(--theme-base) l calc(c + 0.05) h);
     color: light-dark(var(--theme-base), var(--dark-color));
   }

@@ -14,7 +14,7 @@ tags:
 
 import DemoLinkWithResult from "$/components/demo/DemoLinkWithResult.astro"
 
-import img_WebGpuTriangleNoBuffer from "../../../assets/recipes/webgpu-concept/webgpu-triangle.png"
+import img_WebGpuTriangleNoBuffer from "../../../assets/tech/webgpu-concept/webgpu-triangle.png"
 
 :SeriesPrevLink[前回]{series="webgpu-concept" current="webgpu-triangle-pipeline"}は、三角形の描画に必要なシェーダを実装しました。
 
@@ -229,7 +229,7 @@ const renderPipeline = device.createRenderPipeline({
 この`targets{:js}`が配列になっているのは、WebGPUでは、複数のレンダーターゲット（画像）に同時に出力することができるからです。
 
 > [!tip]
-> 前回解説した、[何番目のテクスチャに出力するのか](/recipes/webgpu-concept/webgpu-triangle-shader#何番目のテクスチャに出力するのか)というセクションを復習してみましょう。
+> 前回解説した、[何番目のテクスチャに出力するのか](/tech/webgpu-concept/webgpu-triangle-shader#何番目のテクスチャに出力するのか)というセクションを復習してみましょう。
 
 今回は、キャンバスに描画するだけなので、`targets{:js}`には1つだけ要素を指定します。
 

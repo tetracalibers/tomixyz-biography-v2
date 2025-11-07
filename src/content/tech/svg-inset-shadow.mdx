@@ -39,7 +39,7 @@ SVG Filterを触ったことがなくても、きっと大丈夫です。
 
 `<feGaussianBlur />`は、ガウスぼかしを実現するためのフィルタである。
 
-![](../../assets/recipes/svg-inset-shadow/blur.svg)
+![](../../assets/tech/svg-inset-shadow/blur.svg)
 
 `<feGaussianBlur/>`では、`stdDeviation`属性でぼかしの強さ（標準偏差）を指定できる。
 
@@ -94,7 +94,7 @@ rect {
 
 つまり、先ほどのコードの`<feGaussianBlur />`に`in="SourceGraphic"`と指定しても、表示は変わらない。
 
-![](../../assets/recipes/svg-inset-shadow/blur.svg)
+![](../../assets/tech/svg-inset-shadow/blur.svg)
 
 ```html showLineNumbers {4}
 <svg width="250" height="250" viewBox="0 0 250 250" xmlns="http://www.w3.org/2000/svg">
@@ -109,7 +109,7 @@ rect {
 
 一方で、`in="SourceAlpha"`と指定すると、次のような表示になる。
 
-![](../../assets/recipes/svg-inset-shadow/blur-in-alpha-1.svg)
+![](../../assets/tech/svg-inset-shadow/blur-in-alpha-1.svg)
 
 ```html showLineNumbers {4}
 <svg width="250" height="250" viewBox="0 0 250 250" xmlns="http://www.w3.org/2000/svg">
@@ -127,7 +127,7 @@ rect {
 仮に、`rect`要素に`fill-opacity`属性を指定することで、描画部分を半透明にすると、`SourceAlpha`の結果である影も薄くなる。
 要素が半透明になると、要素が完全に光を遮ることはなく、わずかに光が透過する…とイメージできる。
 
-![](../../assets/recipes/svg-inset-shadow/blur-in-alpha-2.svg)
+![](../../assets/tech/svg-inset-shadow/blur-in-alpha-2.svg)
 
 ```html showLineNumbers {7}
 <svg width="250" height="250" viewBox="0 0 250 250" xmlns="http://www.w3.org/2000/svg">
@@ -170,7 +170,7 @@ div {
 
 さて、前の節で見たように、入力画像を`SourceAlpha`として、`<feGaussianBlur />`を使えば、影用の四角形を作ることができる。
 
-![](../../assets/recipes/svg-inset-shadow/box-shadow-behind.svg)
+![](../../assets/tech/svg-inset-shadow/box-shadow-behind.svg)
 
 ```html showLineNumbers {4}
 <svg width="250" height="250" viewBox="0 0 250 250" xmlns="http://www.w3.org/2000/svg">
@@ -190,7 +190,7 @@ div {
 
 このようなニーズを叶えるのが、`<feMerge />`である。
 
-![](../../assets/recipes/svg-inset-shadow/box-shadow.svg)
+![](../../assets/tech/svg-inset-shadow/box-shadow.svg)
 
 ```html showLineNumbers {5-8}
 <svg width="250" height="250" viewBox="0 0 250 250" xmlns="http://www.w3.org/2000/svg">
@@ -261,7 +261,7 @@ div {
 `<feOffset />`を使うことで、入力画像をずらすことができる。
 $x$方向の移動量は`dx`属性で、$y$方向の移動量は`dy`属性で指定する。
 
-![](../../assets/recipes/svg-inset-shadow/offset-shadow.svg)
+![](../../assets/tech/svg-inset-shadow/offset-shadow.svg)
 
 ```html showLineNumbers {5}
 <svg width="250" height="250" viewBox="0 0 250 250" xmlns="http://www.w3.org/2000/svg">
@@ -310,7 +310,7 @@ div {
 
 とはいえ、`<feFlood />`は、フィルタがかかる領域を超えて、全面を指定した色で塗りつぶすものなので、これだけでは`<svg>`要素全体に色が載ってしまう。
 
-![](../../assets/recipes/svg-inset-shadow/use-flood.svg)
+![](../../assets/tech/svg-inset-shadow/use-flood.svg)
 
 ```html showLineNumbers {6}
 <svg width="250" height="250" viewBox="0 0 250 250" xmlns="http://www.w3.org/2000/svg">
@@ -349,7 +349,7 @@ div {
 
 という挙動になり、次のような表示が得られる。
 
-![](../../assets/recipes/svg-inset-shadow/color-shadow.svg)
+![](../../assets/tech/svg-inset-shadow/color-shadow.svg)
 
 ```html showLineNumbers {5,7}
 <svg width="250" height="250" viewBox="0 0 250 250" xmlns="http://www.w3.org/2000/svg">
@@ -384,15 +384,13 @@ div {
 
 `<feComposite />`での演算を考える際には、`in`属性の入力画像と`in2`属性の入力画像が、どのように重なっているかを考えるとよい。
 
-以下の図では、グレーに塗られている部分が影となる四角形、赤い枠線内が元の`<rect />`部分（`SourceAlpha`の領域）を表している。
-
-![](../../assets/recipes/svg-inset-shadow/diff.svg)
+以下の図では、グレーに塗られている部分が影となる四角形、赤い枠線内が元の`<rect />`部分（`SourceAlpha`の領域）![](../../assets/tech/svg-inset-shadow/diff.svg)
 
 `<feComposite />`の`in`属性を影の四角形、`in2`属性を`SourceAlpha`としよう。
 
 このとき、`operator="xor"`と指定すると、`in`画像と`in2`画像の**重ならない**部分のみが残る。
 
-![](../../assets/recipes/svg-inset-shadow/xor.svg)
+![](../../assets/tech/svg-inset-shadow/xor.svg)
 
 ```html showLineNumbers {6}
 <svg width="250" height="250" viewBox="0 0 250 250" xmlns="http://www.w3.org/2000/svg">
@@ -413,7 +411,7 @@ div {
 
 `operator="in"`と指定すると、`in`画像と`in2`画像の**重なる**部分のみが残るので、元の`<rect />`（`SourceAlpha`）の範囲外の部分は消えることになる。
 
-![](../../assets/recipes/svg-inset-shadow/xor-and-in.svg)
+![](../../assets/tech/svg-inset-shadow/xor-and-in.svg)
 
 ```html showLineNumbers {7}
 <svg width="250" height="250" viewBox="0 0 250 250" xmlns="http://www.w3.org/2000/svg">
@@ -433,7 +431,7 @@ div {
 
 完成形はこちら。
 
-![](../../assets/recipes/svg-inset-shadow/inset-shadow-1.svg)
+![](../../assets/tech/svg-inset-shadow/inset-shadow-1.svg)
 
 ```html showLineNumbers {6-7}
 <svg width="250" height="250" viewBox="0 0 250 250" xmlns="http://www.w3.org/2000/svg">
@@ -510,11 +508,11 @@ out = k1 * i1 * i2 + k2 * i1 + k3 * i2 + k4
 
 下の図でいえば、赤枠内のうち、影が乗っていない白い部分だけが残ることになる。
 
-![](../../assets/recipes/svg-inset-shadow/diff.svg)
+![](../../assets/tech/svg-inset-shadow/diff.svg)
 
 つまり、こうなる。（差集合はあくまでもイメージで、実際にはアルファ値の引き算を行っているため、ぼかしにより半透明になっている部分は、その透明度に応じて残ることになる。）
 
-![](../../assets/recipes/svg-inset-shadow/arithmetic.svg)
+![](../../assets/tech/svg-inset-shadow/arithmetic.svg)
 
 ```html showLineNumbers {6}
 <svg width="250" height="250" viewBox="0 0 250 250" xmlns="http://www.w3.org/2000/svg">
@@ -531,7 +529,7 @@ out = k1 * i1 * i2 + k2 * i1 + k3 * i2 + k4
 
 この演算を利用した完成形はこちら。
 
-![](../../assets/recipes/svg-inset-shadow/inset-shadow-2.svg)
+![](../../assets/tech/svg-inset-shadow/inset-shadow-2.svg)
 
 ```html showLineNumbers {6}
 <svg width="250" height="250" viewBox="0 0 250 250" xmlns="http://www.w3.org/2000/svg">
@@ -566,7 +564,7 @@ out = k1 * i1 * i2 + k2 * i1 + k3 * i2 + k4
 
 まずは`<feComponentTransfer />`の使い方の一例を見てみよう。
 
-![](../../assets/recipes/svg-inset-shadow/half-opacity.svg)
+![](../../assets/tech/svg-inset-shadow/half-opacity.svg)
 
 ```html showLineNumbers {4-6}
 <svg width="550" height="240" viewBox="0 0 550 240" xmlns="http://www.w3.org/2000/svg">
@@ -596,7 +594,7 @@ out = k1 * i1 * i2 + k2 * i1 + k3 * i2 + k4
 
 さて、透明な部分と塗りの部分を反転させるには、`tableValues`属性の値をどう設定すべきか、予想がついただろうか？
 
-![](../../assets/recipes/svg-inset-shadow/outside.svg)
+![](../../assets/tech/svg-inset-shadow/outside.svg)
 
 ```html showLineNumbers {4-6}
 <svg width="550" height="240" viewBox="0 0 550 240" xmlns="http://www.w3.org/2000/svg">
@@ -628,7 +626,7 @@ out = k1 * i1 * i2 + k2 * i1 + k3 * i2 + k4
 
 そのためには、`<feGaussianBlur />`の`in`属性の値が、`<feComponentTransfer />`の結果（壁）になるようにすればよい。
 
-![](../../assets/recipes/svg-inset-shadow/blur-outside.svg)
+![](../../assets/tech/svg-inset-shadow/blur-outside.svg)
 
 ```html showLineNumbers {4-6}
 <svg width="250" height="250" viewBox="0 0 250 250" xmlns="http://www.w3.org/2000/svg">
@@ -658,7 +656,7 @@ out = k1 * i1 * i2 + k2 * i1 + k3 * i2 + k4
 
 という挙動を実現する。
 
-![](../../assets/recipes/svg-inset-shadow/inset-shadow-only.svg)
+![](../../assets/tech/svg-inset-shadow/inset-shadow-only.svg)
 
 ```html showLineNumbers {11}
 <svg width="250" height="250" viewBox="0 0 250 250" xmlns="http://www.w3.org/2000/svg">
@@ -680,7 +678,7 @@ out = k1 * i1 * i2 + k2 * i1 + k3 * i2 + k4
 
 最後に、元の`<rect />`と影を合成するための`<feMerge />`を再度追加しよう。
 
-![](../../assets/recipes/svg-inset-shadow/inset-shadow-3.svg)
+![](../../assets/tech/svg-inset-shadow/inset-shadow-3.svg)
 
 ```html showLineNumbers {12-15}
 <svg width="250" height="250" viewBox="0 0 250 250" xmlns="http://www.w3.org/2000/svg">

@@ -121,26 +121,26 @@ export async function getStaticPaths() {
     }
   })
 
-  const recipesOgPaths = await Promise.all(
-    (await getCollection("recipe", (entry) => !entry.data.draft)).filter(isNotComingSoon).map(async (entry) => {
+  const techsOgPaths = await Promise.all(
+    (await getCollection("tech", (entry) => !entry.data.draft)).filter(isNotComingSoon).map(async (entry) => {
       if (!entry.data.series) {
         return {
-          params: { slug: "recipes/" + entry.id },
+          params: { slug: "tech/" + entry.id },
           props: {
             type: "category-child",
             title: entry.data.title,
-            category: CATEGORY_META.recipes.title,
+            category: CATEGORY_META.techs.title,
             ...commonProps
           }
         }
       }
       const series = await getEntry("series", entry.data.series.id)!
       return {
-        params: { slug: "recipes/" + entry.id },
+        params: { slug: "tech/" + entry.id },
         props: {
           type: "category-grouped-child",
           title: entry.data.title,
-          category: CATEGORY_META.recipes.title,
+          category: CATEGORY_META.techs.title,
           subcategory: series.data.title,
           ...commonProps
         }
@@ -149,11 +149,11 @@ export async function getStaticPaths() {
   )
   const seriesOgPaths = (await getCollection("series")).map((entry) => {
     return {
-      params: { slug: "recipes/" + entry.id },
+      params: { slug: "tech/" + entry.id },
       props: {
         type: "category-grouped-child",
         title: entry.data.title,
-        category: CATEGORY_META.recipes.title,
+        category: CATEGORY_META.techs.title,
         subcategory: "シリーズ記事一覧",
         ...commonProps
       }
@@ -166,7 +166,7 @@ export async function getStaticPaths() {
     ...blogOgPaths,
     ...projectsOgPaths,
     ...eventsOgPaths,
-    ...recipesOgPaths,
+    ...techsOgPaths,
     ...seriesOgPaths
   ]
 }

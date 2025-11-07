@@ -1,7 +1,7 @@
 import type { AstroComponentFactory } from "astro/runtime/server/index.js"
 import { getEntries, getEntry, render, type CollectionEntry } from "astro:content"
 
-type SeriesArticle = CollectionEntry<"recipe">
+type SeriesArticle = CollectionEntry<"tech">
 export type SeriesArticleSlug = SeriesArticle["id"]
 
 export interface SeriesArticles {
@@ -55,7 +55,7 @@ export const getPrev = async (seriesId: string, current: string) => {
   if (previousIndex < 0) return null
 
   const previousId = seriesIds[previousIndex]
-  const previousEntry = await getEntry("recipe", previousId)
+  const previousEntry = await getEntry("tech", previousId)
   if (!previousEntry) return null
 
   return {

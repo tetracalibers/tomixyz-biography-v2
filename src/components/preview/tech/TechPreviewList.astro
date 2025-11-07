@@ -1,0 +1,21 @@
+---
+import TechPreview from "./TechPreview.astro"
+import type { TechNotComingSoon } from "$/lib/collection"
+
+interface Props {
+  entries: TechNotComingSoon[]
+}
+
+const { entries } = Astro.props
+---
+
+<div class="TechPreviewList">
+  {entries.map((entry) => <TechPreview entry={entry} />)}
+</div>
+
+<style>
+  .TechPreviewList {
+    display: grid;
+    gap: 1rem;
+  }
+</style>

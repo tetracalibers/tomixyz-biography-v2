@@ -2,7 +2,7 @@
 import { getCollection, type CollectionEntry } from "astro:content"
 import DefaultPageLayout from "$/layouts/default.astro"
 import type { GetStaticPaths } from "astro"
-import RecipePreviewList from "$components/preview/recipe/series/RecipePreviewList.astro"
+import TechPreviewList from "$components/preview/tech/series/TechPreviewList.astro"
 import { render } from "astro:content"
 import Prose from "$components/prose/Prose.astro"
 import { getEntries } from "astro:content"
@@ -12,12 +12,12 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
   return Promise.all(
     series.map(async (series) => {
-      const recipes = await getEntries(series.data.articles)
+      const techs = await getEntries(series.data.articles)
 
       return {
         params: { series: series.id },
         props: {
-          recipes,
+          techs,
           series
         }
       }
@@ -26,18 +26,18 @@ export const getStaticPaths: GetStaticPaths = async () => {
 }
 
 interface Props {
-  recipes: CollectionEntry<"recipe">[]
+  techs: CollectionEntry<"tech">[]
   series: CollectionEntry<"series">
 }
 
-const { recipes, series } = Astro.props
+const { techs, series } = Astro.props
 
 const { Content } = await render(series)
 
 const title = series.data.title
 const subtitle = "シリーズ記事一覧"
 const meta = {
-  ogimage: `/og/recipes/${series}.png`
+  ogimage: `/og/tech/${series}.png`
 }
 ---
 
@@ -46,7 +46,7 @@ const meta = {
     <Prose>
       <div class="series-summary"><Content /></div>
     </Prose>
-    <RecipePreviewList entries={recipes} />
+    <TechPreviewList entries={techs} />
   </div>
 </DefaultPageLayout>
 

@@ -1,6 +1,6 @@
 ---
 import { SITE } from "$/config"
-import type { RecipeNotComingSoon } from "$/lib/collection"
+import type { TechNotComingSoon } from "$/lib/collection"
 import type { ArrayElement } from "$/types"
 import PublishDate from "./PublishDate.astro"
 import type { CollectionEntry } from "astro:content"
@@ -8,7 +8,7 @@ import type { CollectionEntry } from "astro:content"
 interface Props {
   entries:
     | CollectionEntry<"project" | "event">[]
-    | RecipeNotComingSoon[]
+    | TechNotComingSoon[]
     | {
         id: string
         collection: "writing"

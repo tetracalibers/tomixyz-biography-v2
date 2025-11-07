@@ -9,19 +9,19 @@ export const makeEntryMap = <T extends CollectionKey>(collection: CollectionEntr
   }, new Map<string, CollectionEntry<T>>())
 }
 
-export type RecipeNotComingSoon = {
-  data: ReplaceKeys<CollectionEntry<"recipe">["data"], "date", { date: Date }>
-} & Omit<CollectionEntry<"recipe">, "data">
-export const isNotComingSoon = (entry: CollectionEntry<"recipe">): entry is RecipeNotComingSoon => {
+export type TechNotComingSoon = {
+  data: ReplaceKeys<CollectionEntry<"tech">["data"], "date", { date: Date }>
+} & Omit<CollectionEntry<"tech">, "data">
+export const isNotComingSoon = (entry: CollectionEntry<"tech">): entry is TechNotComingSoon => {
   return entry.data.date !== COMING_SOON_KEY
 }
-export const isComingSoon = (entry: CollectionEntry<"recipe">) => {
+export const isComingSoon = (entry: CollectionEntry<"tech">) => {
   return entry.data.date === COMING_SOON_KEY
 }
 
-export const isNotDraft = (entry: CollectionEntry<"recipe">) => {
+export const isNotDraft = (entry: CollectionEntry<"tech">) => {
   return !entry.data.draft
 }
-export const isDraftNotComingSoon = (entry: CollectionEntry<"recipe">): entry is RecipeNotComingSoon => {
+export const isDraftNotComingSoon = (entry: CollectionEntry<"tech">): entry is TechNotComingSoon => {
   return !!entry.data.draft && entry.data.date instanceof Date
 }

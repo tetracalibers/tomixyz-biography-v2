@@ -9,7 +9,7 @@ import ArticleSummary from "$components/article-header/layout-2/ArticleSummary.a
 import ArticleHeaderBlock from "$components/article-header/layout-2/ArticleHeaderBlock.astro"
 import TagList from "$components/article-header/TagList.astro"
 import { collectSeriesArticles } from "$/lib/series"
-import RecipeToc from "$components/toc/RecipeToc.astro"
+import TechToc from "$components/toc/TechToc.astro"
 import NextStep from "$components/series/NextStep.astro"
 import SeriesTitle from "$components/series/SeriesTitle.astro"
 import References from "$components/series/References.astro"
@@ -17,7 +17,7 @@ import DraftAlert from "$components/dev-alert/DraftAlert.astro"
 import type { CollectionEntry } from "astro:content"
 
 interface Props {
-  entry: CollectionEntry<"recipe">
+  entry: CollectionEntry<"tech">
   headings: MarkdownHeading[]
   meta?: {
     description?: string
@@ -52,7 +52,7 @@ const indexInSeries = series && series.data.articles.findIndex((article) => arti
           <TagList tags={content.tags} />
         </ArticleHeaderBlock>
         {content.draft && <DraftAlert />}
-        <RecipeToc headings={headings} current={entry.id} series={series} />
+        <TechToc headings={headings} current={entry.id} series={series} />
         <ProseGridFill>
           <div class="main-content">
             <slot />
