@@ -9,11 +9,11 @@ type RefTagEntry = { data: { tags: ReferenceDataEntry<"tag">[]; date: Date } }
 export const getRefTagCollection = async (): Promise<RefTagEntry[]> => {
   const projects = await getCollection("project")
   const events = await getCollection("event")
-  const recipes = (await getCollection("recipe")).filter(isNotDraft)
+  const techs = (await getCollection("tech")).filter(isNotDraft)
   const writings = (await getCollection("writing")).flatMap((file) =>
     file.data.map((data) => ({ data: { ...data }, collection: "writing" }))
   )
-  return [...projects, ...events, ...recipes, ...writings].flat()
+  return [...projects, ...events, ...techs, ...writings].flat()
 }
 
 export const getSkillTag = async (): Promise<string[]> => {

@@ -28,12 +28,12 @@ Summarioに限らず、ブログアプリケーション等においても、「
 それゆえ、タイトル入力部分でもTiptapの力を借りたかった。
 
 では、Tiptapの世界の中で、ノート冒頭のタイトルの存在を保証するには、どうしたらよいでしょうか？
-その答えの一部となるのが、[前回](/recipes/summario-dev/tiptap-document)解説したスキーマを定義することです。
+その答えの一部となるのが、[前回](/tech/summario-dev/tiptap-document)解説したスキーマを定義することです。
 
 ## 見出しを必須にするスキーマ定義
 
 文書全体に対して、`heading block*`というルールを設定できれば、「最初に必ず見出しを置く」ことを強制することができます。
-[前回](/recipes/summario-dev/tiptap-document)解説したように、文書全体は`Document`で表されるため、`Document`にルールを設定すればよいことになります。
+[前回](/tech/summario-dev/tiptap-document)解説したように、文書全体は`Document`で表されるため、`Document`にルールを設定すればよいことになります。
 
 あらゆるカスタマイズを`Extension`経由で行うTiptapでは、`Document`という`Extension`を拡張（`extend{:.fn}`）することで独自のルールの設定が実現できます。
 

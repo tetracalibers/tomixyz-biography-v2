@@ -21,9 +21,9 @@ export const CATEGORY_META = {
     title: "Projects",
     subtitle: "個人的に作っているもの"
   },
-  recipes: {
-    title: "Recipes",
-    subtitle: "学びやアイデアの記録"
+  techs: {
+    title: "Tech",
+    subtitle: "技術の学びやアイデアの記録"
   }
 }
 
@@ -44,9 +44,9 @@ export const NAV_ITEMS: NavItems = {
     path: "/events/1",
     title: "events"
   },
-  recipes: {
-    path: "/recipes/1",
-    title: "recipes"
+  techs: {
+    path: "/tech/1",
+    title: "tech"
   },
   blog: {
     path: "/blog/1",

@@ -13,7 +13,7 @@ interface Props {
 const { series, current } = Astro.props
 
 const nextArticle = series.getNextArticle(current)
-const getRecipePageUrl = (articleId: string) => SITE.base + `/recipes/${articleId}`
+const getTechPageUrl = (articleId: string) => SITE.base + `/tech/${articleId}`
 ---
 
 {
@@ -24,7 +24,7 @@ const getRecipePageUrl = (articleId: string) => SITE.base + `/recipes/${articleI
         <div class="Next-item coming-soon">
           <Icon name="famicons:construct-outline" size={22} aria-label="coming soon" />
           {isDev() || !isProdBranch() ? (
-            <a class="no-marker" href={getRecipePageUrl(nextArticle.id)}>
+            <a class="no-marker" href={getTechPageUrl(nextArticle.id)}>
               {nextArticle.data.title}
             </a>
           ) : (
@@ -34,7 +34,7 @@ const getRecipePageUrl = (articleId: string) => SITE.base + `/recipes/${articleI
       ) : (
         <div class="Next-item">
           <Icon class="next-icon" name="hugeicons:trade-up" size={32} />
-          <a class="no-marker" href={getRecipePageUrl(nextArticle.id)}>
+          <a class="no-marker" href={getTechPageUrl(nextArticle.id)}>
             {nextArticle.data.title}
           </a>
         </div>
