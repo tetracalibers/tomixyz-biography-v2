@@ -6,8 +6,8 @@ const targets = await getRefTagCollection()
 const skills = new Set(await getSkillTag())
 
 const tags = collectTagIdsWithCount(targets)
-  .sort((a, b) => a.id.localeCompare(b.id))
   .filter((tag) => skills.has(tag.id))
+  .sort((a, b) => b.count - a.count || a.id.localeCompare(b.id))
 ---
 
 <ul class="TagsList">
