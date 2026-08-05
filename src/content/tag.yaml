@@ -1,3 +1,6 @@
+applescript:
+  name: AppleScript
+  url: https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptX/AppleScriptX.html
 astro:
   name: Astro
   url: https://astro.build/
@@ -7,6 +10,9 @@ bash:
 cf-pages:
   name: Cloudflare Pages
   url: https://pages.cloudflare.com/
+claude-code:
+  name: Claude Code
+  url: https://claude.com/claude-code
 css:
   name: CSS
   url: https://developer.mozilla.org/ja/docs/Web/CSS

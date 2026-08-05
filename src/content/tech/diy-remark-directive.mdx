@@ -1,0 +1,121 @@
+---
+title: 作ってしまおうremark-directive
+date: "2023-10-19"
+description: TODO
+tags:
+  - astro
+  - mdx
+  - remarkjs
+draft: true
+---
+
+## Astroとremark-directive v3
+
+remark-directiveを使ってMarkdownやMDXにディレクティブ記法を導入しているAstroプロジェクトがいくつかある。（会社サイトとか個人的なサイトとか）
+
+remark-directiveをv3にバージョンアップさせたら、エラーを吐いて動かなくなってしまった。
+
+> Failed to parse Markdown file "/illustrative-english/src/content/note/test.md":
+> Cannot set properties of undefined (setting 'directiveAttributes')
+
+## 問題が起こる条件
+
+テストリポジトリを作ってみた。
+https://github.com/tetracalibers/test-remark-directive-v3
+
+普通に`unified().use(remarkParse).use(remarkDirective)...`という処理を手書きした場合は正常に動作する。
+
+astro.config.mjsに`{ markdown: { remarkPlugin: [remarkDirective] } }`などと設定した場合は、mdだろうがmdxだろうが関係なくコケる。
+
+また、エラーが出るのは、波括弧による属性指定を含む場合のみ。
+
+```mdx:ERROR
+:::ex[私は日本に住んでいる。]{v=123}
+I live in Japan.
+:::
+```
+
+```mdx:OK
+:::ex[私は日本に住んでいる。]
+I live in Japan.
+:::
+```
+
+## v2 => v3 の変化
+
+remark-directiveのv2 => v3の変更点は、ほぼ依存のアップデートである。
+
+- https://github.com/remarkjs/remark-directive/releases/tag/3.0.0
+
+中でも、mdast-util-directiveがv2 => v3にアップデートされており、このアップデートでは結構大幅なリファクタリングを行っている。
+
+- https://github.com/syntax-tree/mdast-util-directive/compare/2.2.4...3.0.0
+
+## 見つけた解決方法
+
+mdast-util-directiveのコードを書き換えてしまえば、Astroで動くようにはなる。
+https://github.com/syntax-tree/mdast-util-directive/blob/main/lib/index.js
+
+```js:修正内容１
+// 現コード（this.dataがundefinedでエラーになる）
+this.data.directiveAttributes = hoge
+
+// 修正後コード
+this.setData('directiveAttributes', hoge)
+```
+
+```js:修正内容2
+// 現コード（this.dataがundefinedでエラーになる）
+const fuga = this.data.directiveAttributes
+
+// 修正後コード
+const fuga = this.getData('directiveAttributes')
+```
+
+実はこれは`directiveAttributes`周りのコードをv2に戻しただけ。
+
+## 作ってしまおうremark-directive
+
+本件と見つけた解決方法をPRとしてmdast-util-directiveに送っても良いが、mdast-util-directiveが修正されたところで、remark-directiveがその修正版を取り込んでくれるのがいつになるかは謎。
+しかも本件はAstro側の問題な可能性もあって、このバグをどこに投げたらよいものか本気で悩んでいる。
+
+remark-directiveの動向が心配なら、自分で作ることもできなくはない。
+
+```ts:mdのみ対応版
+import { fromMarkdown } from "mdast-util-from-markdown";
+import { directive } from "micromark-extension-directive";
+import { directiveFromMarkdown } from "mdast-util-directive";
+import * as unified from "unified";
+
+export default function remarkDirective() {
+  const self: unified.Processor = this;
+  self.Parser = function (doc: string) {
+    return fromMarkdown(doc, "utf-8", {
+      extensions: [directive()],
+      mdastExtensions: [directiveFromMarkdown()],
+    });
+  };
+}
+```
+
+```ts:MDX対応版
+import { mdxjs } from "micromark-extension-mdxjs";
+import { mdxFromMarkdown } from "mdast-util-mdx";
+import { fromMarkdown } from "mdast-util-from-markdown";
+import { directive } from "micromark-extension-directive";
+import { directiveFromMarkdown } from "mdast-util-directive";
+import * as unified from "unified";
+
+export default function remarkDirective() {
+  const self: unified.Processor = this;
+  self.Parser = function (doc: string) {
+    return fromMarkdown(doc, "utf-8", {
+      extensions: [mdxjs(), directive()],
+      mdastExtensions: [mdxFromMarkdown(), directiveFromMarkdown()],
+    });
+  };
+}
+```
+
+ほとんどはremark-directiveの内部で使っているライブラリをそのまま使っているだけ。
+しかしremark-directiveと同じ実装方法では状況が変わらないので、実装手法は変えている。
