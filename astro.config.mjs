@@ -21,6 +21,8 @@ import { remarkAlert } from "remark-github-blockquote-alert"
 import rehypeKatex from "rehype-katex"
 import rehypeWrapTable from "./plugins/rehype-wrap-table"
 
+import { tagIconInclude } from "./src/lib/tag-icon"
+
 /** @type {import("rehype-pretty-code").Options} */
 const prettyCodeOptions = {
   theme: {
@@ -99,7 +101,8 @@ export default defineConfig({
         "pepicons-print": ["arrow-left", "arrow-right"],
         ph: ["file-pdf"],
         ri: ["npmjs-line"],
-        stash: ["corner-down-right"]
+        stash: ["corner-down-right"],
+        ...tagIconInclude
       }
     }),
     svelte(),

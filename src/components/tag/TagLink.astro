@@ -1,21 +1,26 @@
 ---
 import { SITE } from "$/config"
 import { getEntry } from "astro:content"
+import { Icon } from "astro-icon/components"
+import { getTagIcon } from "$/lib/tag-icon"
 
 interface Props {
   tagId: string
   small?: boolean
   count?: number
+  withIcon?: boolean
 }
 
-const { tagId, small, count } = Astro.props
+const { tagId, small, count, withIcon } = Astro.props
 
 const hue = Math.floor(Math.random() * 360) + "deg"
 const href = SITE.base + "/tags/" + tagId
 const tag = await getEntry("tag", tagId)
+const icon = withIcon ? getTagIcon(tagId) : undefined
 ---
 
 <a href={href} class:list={["Tag", { "-small": small }]}>
+  {icon && <Icon name={icon} class="logo" />}
   <span>{tag!.data.name}</span>
   {count && <span class="count">({count})</span>}
 </a>
@@ -67,5 +72,20 @@ const tag = await getEntry("tag", tagId)
   .count {
     font-size: 0.75em;
     color: light-dark(var(--slate-500), var(--slate-300));
+  }
+
+  /* 横長のロゴも一律の枠に収める
+     svg内のsymbolがviewBoxを持つため、枠に合わせて縦横比を保ったまま縮小される */
+  .logo {
+    width: 1.35em;
+    height: 1.15em;
+    flex-shrink: 0;
+    align-self: center;
+    /* 親の.Tagにかかっているfilterを打ち消し、ロゴを本来の色で表示する */
+    filter: hue-rotate(calc(var(--hue) * -1));
+  }
+
+  :global(.dark) .logo {
+    filter: contrast(calc(1 / 1.2)) saturate(calc(1 / 1.5)) hue-rotate(calc(var(--hue) * -1));
   }
 </style>

@@ -14,7 +14,7 @@ const tags = collectTagIdsWithCount(targets)
   {
     tags.map((tag) => (
       <li>
-        <TagLink tagId={tag.id} count={tag.count} />
+        <TagLink tagId={tag.id} count={tag.count} withIcon />
       </li>
     ))
   }
