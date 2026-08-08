@@ -97,7 +97,8 @@ const _techBase = z.object({
       summary: z.string().optional()
     })
     .array()
-    .optional()
+    .optional(),
+  pinned: z.boolean().default(false)
 })
 const _techPublic = _techBase.extend({
   date: z.coerce.date(),
