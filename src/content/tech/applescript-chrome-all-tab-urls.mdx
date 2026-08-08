@@ -65,31 +65,31 @@ https://okaydev.co/articles/dive-into-webgpu-part-1
 osascript -e 'tell application "Google Chrome" to ...'
 ```
 
-- `osascript`：AppleScriptを実行するコマンド
-- `-e '...'`：インラインでAppleScriptを書くオプション
-- `tell application "Google Chrome"`：Chromeをオブジェクトとして操作する
+- `osascript{:bash}`：AppleScriptを実行するコマンド
+- `-e '...'{:bash}`：インラインでAppleScriptを書くオプション
+- `tell application "Google Chrome"{:applescript}`：Chromeをオブジェクトとして操作する
 
 ### 最前面ウィンドウの全タブのURLを取得する部分
 
-```bash
+```applescript
 get URL of tabs of front window
 ```
 
-- `front window`：最前面に表示されているChromeのウィンドウ
-- `tabs of ...`：そのウィンドウに含まれる全タブ
-- `get URL of ...`：その全タブが持っている URL プロパティを取得
+- `front window{:applescript}`：最前面に表示されているChromeのウィンドウ
+- `tabs of ...{:applescript}`：そのウィンドウに含まれる全タブ
+- `get URL of ...{:applescript}`：その全タブが持っている URL プロパティを取得
 
 これで全タブのURLがカンマ区切りのリストとして取得される：
 
-```bash
+```applescript
 "https://example.com", "https://example.org", ...
 ```
 
 ### 1行ずつの表示に整形する部分
 
-```bash
+```applescript
 | tr ',' '\n'
 ```
 
-- `|`：前のコマンドの出力を次のコマンドに渡す（パイプ）
-- `tr ',' '\n'`：カンマ`,`を改行`\n`に置換する
+- `|{:bash}`：前のコマンドの出力を次のコマンドに渡す（パイプ）
+- `tr ',' '\n'{:bash}`：カンマ`,`を改行`\n`に置換する

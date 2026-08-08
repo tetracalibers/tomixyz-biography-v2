@@ -65,6 +65,9 @@ latex:
 mantine:
   name: Mantine
   url: https://mantine.dev/
+mdsvex:
+  name: mdsvex
+  url: https://mdsvex.pngwn.io/
 mdx:
   name: MDX
   url: https://mdxjs.com/
