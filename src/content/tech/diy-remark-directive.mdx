@@ -11,31 +11,34 @@ draft: true
 
 ## Astroとremark-directive v3
 
-remark-directiveを使ってMarkdownやMDXにディレクティブ記法を導入しているAstroプロジェクトがいくつかある。（会社サイトとか個人的なサイトとか）
+個人サイトで、[remark-directive](https://github.com/remarkjs/remark-directive)を使ってMarkdownやMDXにディレクティブ記法を導入しているAstroプロジェクトがいくつかある。
 
-remark-directiveをv3にバージョンアップさせたら、エラーを吐いて動かなくなってしまった。
+その`remark-directive`をv3にバージョンアップさせたら、Astroサイトがエラーを吐いて動かなくなってしまった。
 
-> Failed to parse Markdown file "/illustrative-english/src/content/note/test.md":
-> Cannot set properties of undefined (setting 'directiveAttributes')
+```log
+Failed to parse Markdown file "/illustrative-english/src/content/note/test.md":
+Cannot set properties of undefined (setting 'directiveAttributes')
+```
 
 ## 問題が起こる条件
 
 テストリポジトリを作ってみた。
-https://github.com/tetracalibers/test-remark-directive-v3
 
-普通に`unified().use(remarkParse).use(remarkDirective)...`という処理を手書きした場合は正常に動作する。
+- https://github.com/tetracalibers/test-remark-directive-v3
 
-astro.config.mjsに`{ markdown: { remarkPlugin: [remarkDirective] } }`などと設定した場合は、mdだろうがmdxだろうが関係なくコケる。
+普通に`unified().use(remarkParse).use(remarkDirective)...{:js}`という処理を手書きした場合は正常に動作する。
+
+`astro.config.mjs`に`{ markdown: { remarkPlugin: [remarkDirective] } }{:js}`などと設定した場合は、mdだろうがmdxだろうが関係なくコケる。
 
 また、エラーが出るのは、波括弧による属性指定を含む場合のみ。
 
-```mdx:ERROR
+```mdx title="❌ エラーになる"
 :::ex[私は日本に住んでいる。]{v=123}
 I live in Japan.
 :::
 ```
 
-```mdx:OK
+```mdx title="✅ 正常に動作する"
 :::ex[私は日本に住んでいる。]
 I live in Japan.
 :::
