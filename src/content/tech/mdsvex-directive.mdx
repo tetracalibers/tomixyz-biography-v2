@@ -1,0 +1,259 @@
+---
+title: mdsvexでもディレクティブを使いたい
+date: "2026-03-20"
+description: micromark拡張を自前で噛ませて独自記法を解釈させる
+tags:
+  - svelte
+  - remarkjs
+  - mdsvex
+---
+
+SvelteKitで作ったWebアプリケーションで、ドキュメントページを作成したいことがある。
+`+page.svelte`にHTMLとして書くのは面倒だし、やっぱりできればMarkdownで書きたい。
+
+純粋なMarkdownを書きたいだけなら、[marked](https://marked.js.org/)等で変換してページに埋め込むだけで事足りるが、コンテンツ内にインタラクティブなデモ（`.svelte`コンポーネント）を載せたいとなると、MDXみたいな仕組みが欲しくなる。
+
+そんなとき、Svelte版MDXのような位置付けである[mdsvex](https://mdsvex.pngwn.io/)というライブラリがある。
+
+## SvelteKitでmdsvexを使う
+
+`mdsvex`では、`.svx`という拡張子のファイルにMarkdownとsvelteコンポーネントを混在させることができる。
+
+> [!NOTE]
+>
+> `.svx`ファイルでシンタックスハイライトを効かせたい場合は[VS Codeの拡張機能](https://marketplace.visualstudio.com/items?itemName=sebsojeda.vscode-svx)が必要
+
+```text
+---
+layout: guide
+title: PCCSとは？
+---
+
+<script lang="ts">
+  import ToneImageDiagram from "$lib/components/index/ToneImageDiagram.svelte"
+</script>
+
+## PCCSとは？
+
+PCCSは、色のイメージや配色を考えるときに便利な色の表し方です。
+PCCSでは、1つの色を色相とトーンによって表します。
+
+- 色相：赤・黄・緑・青・紫など、どの色みをもたせるか
+- トーン：どんなイメージをもたせるか
+
+<ToneImageDiagram />
+
+たとえば、dトーンは明度が低めなのでやや暗く、彩度も中間くらいであまり鮮やかとはいえず、「くすんだ」といったイメージになります。
+
+PCCSでは、トーンを調整することで、色のイメージを調整することができます。
+```
+
+`sv add{:bash}`コマンドで[SvelteKitにmdsvexを導入する](https://svelte.dev/docs/cli/mdsvex)と、`routes`配下に置いた`+page.svx`もページとして機能するようになる。
+
+```js
+// svelte.config.js
+import { mdsvex } from "mdsvex"
+import { fileURLToPath } from "url"
+
+/** @type {import('@sveltejs/kit').Config} */
+const config = {
+  // ...
+  preprocess: [
+    mdsvex({
+      layout: {
+        guide: fileURLToPath(new URL("./src/lib/layouts/guide.svelte", import.meta.url))
+      },
+      remarkPlugins: []
+    })
+  ],
+  extensions: [".svelte", ".svx"]
+}
+
+export default config
+```
+
+## remark-directiveを使いたいが…
+
+`mdsvex`でも、remarkプラグインやrehypeプラグインを使うことができる。
+
+しかし、なんでもかんでも動くわけではなく、特に行き詰まったのが[remark-directive](https://github.com/remarkjs/remark-directive)の導入だった。
+
+`remark-directive`は、Markdown内に`:::`で囲まれたカスタム構文を定義できるremarkプラグインで、Markdown内にHTMLタグを直接書かずに、特定のクラス等をもつ要素を生成できるようになる。
+
+たとえば、Markdown内の特定の要素にクラスを当てたり、HTMLタグで囲んでレイアウトを制御したい場合、通常は次のようにHTMLを直接書く必要があるが…
+
+```html
+<main id="readme">
+  Lorem ipsum.
+  <hr class="red" />
+  A
+  <i>lovely</i>
+  language know as
+  <abbr title="HyperText Markup Language">HTML</abbr>
+  .
+</main>
+```
+
+`remark-directive`を使えば、次のように書けるようになる。
+
+```md
+:::main{#readme}
+
+Lorem:br
+ipsum.
+
+::hr{.red}
+
+A :i[lovely] language know as :abbr[HTML]{title="HyperText Markup Language"}.
+
+:::
+```
+
+しかし、`mdsvex`の`remarkPlugins{:js}`として`remark-directive`を設定しても、上記のような構文が正しく変換されない問題に直面した。
+
+## mdsvexの依存パッケージが古い問題
+
+`mdsvex`は現在もメンテナンスされているものの、全体には手が回っていない印象がある。
+特に、`mdsvex`が依存しているremark関連のパッケージ（`remark-parse`や`unified`など）が古いバージョンのままなので、最新のremarkプラグインが正常に動作しない問題がある。
+
+Claude Codeに調べてもらった結果：
+
+> remark-directive v4 は micromark 拡張でパーサーを拡張しますが、mdsvex 0.12.x はバンドルした旧 remark-parse（micromark非対応）を使うため、remarkPlugins 経由では構文が認識されません。
+
+Claude Codeは、カスタムディレクティブをすべて正規表現で定義するようにし、`mdsvex`に食わせる前にHTMLに変換したら？という提案をしてくれた。
+
+> 解決策：Svelte マークアッププリプロセッサ
+>
+> - src/lib/preprocessors/svx-directives.ts を新規作成
+> - mdsvex が処理する前に .svx ファイルのディレクティブ記法を HTML に変換 > - HTML ブロック内ではマークダウンのインライン処理が走らないため、`code` → `<code>` の変換も内部で実施
+> - `svelte.config.js` では `svxDirectives()` を `mdsvex()` より前に配置
+
+とはいえ、カスタムディレクティブのバリエーションを増やすたびに正規表現の定義を追加するのはちょっと…
+
+`remark`の枠組みから逸れた完全独自の仕組みを作るよりも、いずれは正規の`remark-directive`にすぐに置き換えられるような、剥がしやすい仕組みでどうにかしたい。
+
+## 失敗：`package.json`の`overrides`
+
+まず最初に試みたのが、`mdsvex`が依存する`remark-parse`のバージョンを`overrides`で上書きすることだった。（若干投げやり）
+
+```jsonc title="package.json"
+{
+  // ...
+  "overrides": {
+    "mdsvex": {
+      "remark-parse": "^11.0.0"
+    }
+  }
+}
+```
+
+が、問題の解消には至らず。
+
+[mdsvexの依存関係](https://github.com/pngwn/MDsveX/blob/main/packages/mdsvex/package.json)を見てみると、`remark-parse`は`dependencies`ではなく`devDependencies`に入っているため、`overrides`で上書きしようがなかった。
+
+## 自作remark-directiveでmicromark拡張を噛ませる
+
+ちょっと昔の記憶を辿ると、Astroでも`remark-directive`がうまく動かない問題を経験したことがあったな…と思い出した。
+その時の暫定的な解決策として、`remark-directive`自体を自作したことがある。
+
+- [作ってしまおうremark-directive](/tech/diy-remark-directive)
+
+`mdsvex`の中の`remark-parse`が`micromark`拡張を呼び出してくれないのなら、自前の`remark-directive`で`micromark`拡張を呼び出せばよいのでは？
+
+ということで、過去に書いた[`src/lib/remark-mdx-directive.ts`](https://github.com/tetracalibers/astro-mdx-directive/blob/e83d1ddec01899e502df7a13b8c069993c59fbff/src/lib/remark-mdx-directive.ts)を参考に、svelte対応版を実装してみた。
+
+```ts
+import { fromMarkdown } from "mdast-util-from-markdown"
+import { directive } from "micromark-extension-directive"
+import { directiveFromMarkdown } from "mdast-util-directive"
+import { frontmatter } from "micromark-extension-frontmatter"
+import { frontmatterFromMarkdown } from "mdast-util-frontmatter"
+import type { Processor } from "unified"
+import type { Node } from "unist"
+
+export default function remarkDirective(this: Processor) {
+  // mdsvex bundles an old unified that only reads `this.Parser` (uppercase).
+  // Using `this.parser` (the non-deprecated form) breaks directive parsing
+  // because mdsvex never picks it up. Suppress the deprecation warning here.
+  this.Parser = function (doc: string) {
+    // fromMarkdown (CommonMark) cannot parse Svelte component attributes that
+    // use {expr} syntax — it fails to recognize the tag as HTML and wraps it
+    // in a <p>, causing a Svelte compile error on the " inside {[...]}.
+    //
+    // Fix: stash every self-closing component line before parsing, replace it
+    // with a plain <div> HTML block that fromMarkdown preserves as-is, then
+    // restore the originals after the AST is built.
+    const stash: string[] = []
+
+    const prepared = doc.replace(/^(<[A-Z][^\n]*\{[^\n]*\/>)\s*$/gm, (_, tag) => {
+      const i = stash.length
+      stash.push(tag)
+      return `<div data-svx="${i}"></div>`
+    })
+
+    const tree = fromMarkdown(prepared, "utf-8", {
+      extensions: [frontmatter(["yaml"]), directive()],
+      mdastExtensions: [frontmatterFromMarkdown(["yaml"]), directiveFromMarkdown()]
+    })
+
+    if (stash.length > 0) restore(tree, stash)
+
+    return tree
+  }
+}
+
+function restore(node: Node, stash: string[]): void {
+  const n = node as unknown as Record<string, unknown>
+  if (n["type"] === "html" && typeof n["value"] === "string") {
+    n["value"] = (n["value"] as string).replace(/<div data-svx="(\d+)"><\/div>/g, (_, i: string) => stash[+i])
+  }
+  if (Array.isArray(n["children"])) {
+    for (const child of n["children"] as Node[]) restore(child, stash)
+  }
+}
+```
+
+MDX版と変わったのは次の点：
+
+- svelteコンポーネントタグが埋め込まれた状態で`micromark-extension-directive`などに渡してもパースエラーになるため、正規表現でコンポーネントタグをスタッシュしておいて、ASTができた後に元に戻すようにしている。
+- frontmatterも同様にそのままだとパースエラーになるため、`micromark-extension-frontmatter`を挟んで、frontmatterも解釈できるようにしている。
+
+また、`this.Parser{:js}`のところで非推奨警告が出るが、これは仕方なくそのままにしている。最新の`unified`では`this.parser{:js}`が推奨されているが、`mdsvex`は古いバージョンを使っているため、`this.parser{:js}`に注入したところで、`mdsvex`はこの処理を使ってはくれない。
+
+`svelte.config.js`の`remarkPlugins{:js}`にこの自作プラグインを設定することで、`remark-directive`の構文が正しく解釈されるようになった。
+
+```js
+// svelte.config.js
+import { mdsvex } from "mdsvex"
+import { fileURLToPath } from "url"
+import remarkDirective from "./src/lib/remark/directive.ts"
+import remarkGuideDirectives from "./src/lib/remark/custom-directives.ts"
+
+/** @type {import('./src/lib/remark/custom-directives.ts').DirectiveConfigMap} */
+const guideDirectives = {
+  container: [
+    { name: "tips", tag: "div", classes: ["tips"] },
+    { name: "example", tag: "div", classes: ["example"] },
+    { name: "term-card", tag: "div", classes: ["term-card"] }
+  ],
+  leaf: [],
+  text: [{ name: "mark", tag: "span", classes: ["mark", "-brackets"] }]
+}
+
+/** @type {import('@sveltejs/kit').Config} */
+const config = {
+  preprocess: [
+    mdsvex({
+      layout: {
+        guide: fileURLToPath(new URL("./src/lib/layouts/guide.svelte", import.meta.url))
+      },
+      remarkPlugins: [remarkDirective, [remarkGuideDirectives, guideDirectives]]
+    })
+  ],
+  extensions: [".svelte", ".svx"]
+}
+
+export default config
+```
+
+ちょっと無理やりな感じもするが、`mdsvex`が最新のremarkに追従するようになったら、自作の`remarkDirective{:js}`を正規の`remark-directive`に置き換えればよいだけなので、当面はこんな感じで…

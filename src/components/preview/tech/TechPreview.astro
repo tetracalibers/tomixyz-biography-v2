@@ -17,24 +17,27 @@ const pageUrl = SITE.base + "/tech/" + id
 const series = tech.series ? await getEntry("series", tech.series.id) : null
 ---
 
-<div class="TechPreview">
+<div class="TechPreview" class:list={[{ "-pinned": tech.pinned }]}>
   <div class="inner">
     <div class="date"><PublishDate date={tech.date} /></div>
-    <div class="content" class:list={[{ "-series-article": series }]}>
-      {
-        series && (
-          <a class="series-title" href={`/tech/${series.id}`}>
-            <Icon name="arcticons:pocketbook" size={16} stroke-width={2} />
-            {series.data.title}
-          </a>
-        )
-      }
-      <h2 class="title">
-        <a href={pageUrl}>{tech.title}</a>
-      </h2>
-      <p class="desc">
-        {tech.description}
-      </p>
+    <div class="pin-container">
+      {tech.pinned && <Icon name="fluent-mdl2:pinned-solid" class="pin-icon" />}
+      <div class="content" class:list={[{ "-series-article": series }]}>
+        {
+          series && (
+            <a class="series-title" href={`/tech/${series.id}`}>
+              <Icon name="arcticons:pocketbook" size={16} stroke-width={2} />
+              {series.data.title}
+            </a>
+          )
+        }
+        <h2 class="title">
+          <a href={pageUrl}>{tech.title}</a>
+        </h2>
+        <p class="desc">
+          {tech.description}
+        </p>
+      </div>
     </div>
   </div>
 </div>
@@ -164,6 +167,16 @@ const series = tech.series ? await getEntry("series", tech.series.id) : null
     hyphens: auto;
     word-break: auto-phrase;
     color: light-dark(var(--slate-800), white);
+  }
+
+  /* .contentがz-index: 2のため、ピンアイコンがその下に隠れないようにする */
+  .pin-container :global(.pin-icon) {
+    z-index: 3;
+  }
+
+  .-pinned:not(:has(+ .-pinned)) {
+    margin-block-end: 1rem;
+    padding-block-end: 2rem;
   }
 
   .TechPreview {

@@ -4,16 +4,18 @@ import validateColorPkg from "validate-color"
 // @ts-ignore
 const { validateHTMLColorHex, validateHTMLColorName, validateHTMLColorRgb } = validateColorPkg
 
-const tokenValueWithRaw = (node: ElementContent) => {
+// 先読み時に範囲外のインデックスが渡されることがあるため、undefinedも受け取れるようにする
+const tokenValueWithRaw = (node: ElementContent | undefined) => {
+  if (!node) return null
   if (node.type !== "element") return null
   if (node.tagName !== "span") return null
   const [text] = node.children
-  if (text.type !== "text") return null
+  if (!text || text.type !== "text") return null
   const raw = text.value
   return { value: raw.trim(), raw }
 }
 
-const tokenValue = (node: ElementContent) => {
+const tokenValue = (node: ElementContent | undefined) => {
   return tokenValueWithRaw(node)?.value ?? null
 }
 
