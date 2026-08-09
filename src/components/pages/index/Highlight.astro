@@ -14,12 +14,12 @@ const { image, alt, href, body } = Astro.props
 ---
 
 <div class="Highlight">
-  <div class="Highlight-body">
-    <Fragment set:html={marked.parse(body)} />
-  </div>
   <a class="Highlight-image" href={href} target="_blank" rel="noopener noreferrer">
     <Image src={image} alt={alt} />
   </a>
+  <div class="Highlight-body">
+    <Fragment set:html={marked.parse(body)} />
+  </div>
 </div>
 
 <style>
@@ -71,14 +71,6 @@ const { image, alt, href, body } = Astro.props
     .Highlight {
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       gap: 2.5rem;
-    }
-    .Highlight-image {
-      grid-column: 1;
-      grid-row: 1;
-    }
-    .Highlight-body {
-      grid-column: 2;
-      grid-row: 1;
     }
   }
 </style>
