@@ -91,10 +91,10 @@ const history = [
 <DefaultPageLayout content={{ title, subtitle }} meta={meta}>
   <Prose>
     <div class="section -profile">
-      <Fragment set:html={marked.parse(profile)} />
       <div class="Image-wrapper">
-        <Image src={img_tomixy} alt="tomixy" style="max-width: 160px; opacity: 0.9;" />
+        <Image src={img_tomixy} alt="tomixy" style="max-width: 80px; opacity: 0.9;" />
       </div>
+      <Fragment set:html={marked.parse(profile)} />
     </div>
   </Prose>
   <Prose>
@@ -132,7 +132,8 @@ const history = [
   }
   .Image-wrapper {
     width: fit-content;
-    margin-inline-start: auto;
+    margin-inline: auto;
+    margin-block-start: -2rem;
   }
   .heading {
     margin: 0;
