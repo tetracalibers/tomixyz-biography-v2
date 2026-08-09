@@ -2,10 +2,12 @@
 import DefaultPageLayout from "$/layouts/default.astro"
 import { Image } from "astro:assets"
 import img_tomixy from "$/assets/profiles/pastel-tomixy_op.png"
+import img_color_prism from "$/assets/highlights/color-prism.png"
 import { marked } from "marked"
 import Timeline from "$components/pages/index/Timeline.astro"
 import Prose from "$components/prose/Prose.astro"
 import TagsList from "$components/pages/index/TagsList.astro"
+import Highlight from "$components/pages/index/Highlight.astro"
 
 const title = "tomixy"
 const subtitle = "I'm a front-end developer in Japan."
@@ -22,6 +24,16 @@ const profile = `
   次第にアクセシビリティやグラフィック表現に携わりたいという思いが強くなり、フロントエンドエンジニアの道を選ぶ。2022年11月に[株式会社ピクセルグリッド](https://www.pxgrid.com/)に入社。
   
   著書に「[Astro × GitHub × Cloudflareで学ぶモダンWeb開発](https://www.amazon.co.jp/dp/B0F7FH7BB6/)」（共著：KDP）がある。
+`
+
+const highlight = `
+  色のユニバーサルデザインの視点も備えた、色の専門家を目指して勉強中です。
+  その一環として、光と色について学べるサイトを運営しています。
+
+  - [Color Prism](https://color-prism.net/)
+
+  触って動かせるデモやゲーム、穴埋め問題集としても活用できるコンテンツを充実させています。
+  また、色彩だけでなく、光や色の理論の延長線上として、CGと画像処理も扱っています。
 `
 
 const history = [
@@ -86,6 +98,17 @@ const history = [
     </div>
   </Prose>
   <Prose>
+    <div class="section -highlight">
+      <h2 class="heading">Highlight</h2>
+      <Highlight
+        image={img_color_prism}
+        alt="Color Prism - 見て・触って学ぶ 色彩の暗記帳"
+        href="https://color-prism.net/"
+        body={highlight}
+      />
+    </div>
+  </Prose>
+  <Prose>
     <div class="section -skill-tag">
       <h2 class="heading">Skill Tag</h2>
       <TagsList />
@@ -103,7 +126,7 @@ const history = [
   .section {
     padding-inline: calc(2vw * 2.5);
   }
-  :is(.-history, .-skill-tag) {
+  :is(.-highlight, .-history, .-skill-tag) {
     display: grid;
     gap: 3rem;
   }

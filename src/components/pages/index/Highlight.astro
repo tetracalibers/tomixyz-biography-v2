@@ -1,0 +1,64 @@
+---
+import { Image } from "astro:assets"
+import { marked } from "marked"
+import type { ImageMetadata } from "astro"
+
+interface Props {
+  image: ImageMetadata
+  alt: string
+  href: string
+  body: string
+}
+
+const { image, alt, href, body } = Astro.props
+---
+
+<div class="Highlight">
+  <div class="Highlight-body">
+    <Fragment set:html={marked.parse(body)} />
+  </div>
+  <a class="Highlight-image" href={href} target="_blank" rel="noopener noreferrer">
+    <Image src={image} alt={alt} />
+  </a>
+</div>
+
+<style>
+  .Highlight {
+    display: grid;
+    gap: 2rem;
+    align-items: center;
+  }
+  .Highlight-body :global(:is(p, ul):first-child) {
+    margin-block-start: 0;
+  }
+  .Highlight-body :global(:is(p, ul):last-child) {
+    margin-block-end: 0;
+  }
+  .Highlight-image {
+    display: block;
+    font-size: 1rem;
+    text-decoration: none;
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+  .Highlight-image img {
+    display: block;
+    width: 100%;
+    height: auto;
+    opacity: 0.9;
+  }
+  @media (min-width: 768px) {
+    .Highlight {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 2.5rem;
+    }
+    .Highlight-image {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    .Highlight-body {
+      grid-column: 2;
+      grid-row: 1;
+    }
+  }
+</style>
