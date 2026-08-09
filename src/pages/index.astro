@@ -17,12 +17,9 @@ const meta = {
 const profile = `
   2002年生まれ。
   
-  高校時代に独学でプログラミングを始め、高校在学中からフリーランスとしてWeb開発に携わる。
-  卒業後は都内のIT企業にてフロントエンド・バックエンドともに設計・実装の主力となる傍らで、HTML・CSS・VBA・Laravelなどの勉強会講師も経験した。
+  高校時代に独学でプログラミングを始め、高校在学中からWeb開発のクライアントワークを経験。 高校卒業後は、都内のIT企業にてWebエンジニアとプログラミング講師を兼業した。
 
-  次第にアクセシビリティやグラフィック表現に携わりたいという思いが強くなり、フロントエンドの道を選ぶ。2022年11月に[株式会社ピクセルグリッド](https://www.pxgrid.com/)に入社。
-  
-  SVGベースのインタラクティブなビューワーなど幅広いUI実装を経験しながら、よりローレベルなグラフィックス技術にも関心を寄せ、個人ではシェーダープログラミングにも取り組んでいる。
+  次第にアクセシビリティやグラフィック表現に携わりたいという思いが強くなり、フロントエンドエンジニアの道を選ぶ。2022年11月に[株式会社ピクセルグリッド](https://www.pxgrid.com/)に入社。
   
   著書に「[Astro × GitHub × Cloudflareで学ぶモダンWeb開発](https://www.amazon.co.jp/dp/B0F7FH7BB6/)」（共著：KDP）がある。
 `
@@ -84,7 +81,7 @@ const history = [
     <div class="section -profile">
       <Fragment set:html={marked.parse(profile)} />
       <div class="Image-wrapper">
-        <Image src={img_tomixy} alt="tomixy" style="max-width: 160px;" />
+        <Image src={img_tomixy} alt="tomixy" style="max-width: 160px; opacity: 0.9;" />
       </div>
     </div>
   </Prose>
@@ -104,7 +101,6 @@ const history = [
 
 <style>
   .section {
-    font-size: 1.125rem;
     padding-inline: calc(2vw * 2.5);
   }
   :is(.-history, .-skill-tag) {
@@ -113,7 +109,7 @@ const history = [
   }
   .Image-wrapper {
     width: fit-content;
-    margin-inline: auto;
+    margin-inline-start: auto;
   }
   .heading {
     margin: 0;
