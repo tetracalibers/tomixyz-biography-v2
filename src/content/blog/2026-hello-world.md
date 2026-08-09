@@ -105,11 +105,11 @@ C言語だけ学んでも、「モジュールとはなんぞや」「オブジ�
 
 - https://x.com/PySimpleGUI/status/1365351922505515014?s=20
 
-> You started learning Python 10 days ago?  You learned the language and built a GUI after a couple more days?
+> You started learning Python 10 days ago? You learned the language and built a GUI after a couple more days?
 >
 > That's remarkable.
 >
-> Would like to see your code to understand a bit more about the refactoring reduction you achieved.  Do you have the code in a Repo?
+> Would like to see your code to understand a bit more about the refactoring reduction you achieved. Do you have the code in a Repo?
 >
 > Congratulations!
 
@@ -139,7 +139,7 @@ PySimpleGUIの開発者さんにコードを見てもらうため、慌ててGit
 
 - https://x.com/PySimpleGUI/status/1365698365757997060?s=20
 
-> You've got nothing to be embarrassed about! WOW! That's quite impressive!  The readme has images too. Fantastic job. Really appreciate you sharing. There's much for everyone to learn from each other. I learn from you too.
+> You've got nothing to be embarrassed about! WOW! That's quite impressive! The readme has images too. Fantastic job. Really appreciate you sharing. There's much for everyone to learn from each other. I learn from you too.
 
 和訳：
 
