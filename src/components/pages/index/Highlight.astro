@@ -35,6 +35,8 @@ const { image, alt, href, body } = Astro.props
     margin-block-end: 0;
   }
   .Highlight-image {
+    --icon-size: 0.9rem;
+    --icon-offset: 0.625rem;
     display: block;
     position: relative;
     font-size: 1rem;
@@ -49,22 +51,12 @@ const { image, alt, href, body } = Astro.props
     opacity: 0.9;
   }
   /* global.css の a[target="_blank"]::after を、画像の下ではなく画像内の右上に重ねる */
-  .Highlight-image::before,
   .Highlight-image::after {
     position: absolute;
-    top: 0.625rem;
-    right: 0.625rem;
-  }
-  .Highlight-image::before {
-    content: "";
-    width: 1.875rem;
-    height: 1.875rem;
-    border-radius: 50%;
-    background-color: rgb(255 255 255 / 0.75);
-  }
-  .Highlight-image::after {
-    width: 0.9rem;
-    height: 0.9rem;
+    top: var(--icon-offset);
+    right: var(--icon-offset);
+    width: var(--icon-size);
+    height: var(--icon-size);
     color: var(--slate-600);
   }
   @media (min-width: 768px) {
