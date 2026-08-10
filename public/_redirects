@@ -1,2 +1,3 @@
 /recipes      /tech        301
 /recipes/*    /tech/:splat 301
+/like         /passion     301

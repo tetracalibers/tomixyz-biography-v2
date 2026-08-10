@@ -5,8 +5,8 @@ export const CATEGORY_META = {
     title: "Writing",
     subtitle: "書いたもの"
   },
-  like: {
-    title: "Like",
+  passion: {
+    title: "Passion",
     subtitle: "好きなことと展望"
   },
   blog: {
@@ -32,9 +32,9 @@ export const NAV_ITEMS: NavItems = {
     path: "/",
     title: "about"
   },
-  like: {
-    path: "/like/",
-    title: "like"
+  passion: {
+    path: "/passion/",
+    title: "passion"
   },
   projects: {
     path: "/projects/1",
