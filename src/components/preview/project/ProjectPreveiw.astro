@@ -40,7 +40,7 @@ const pageUrl = SITE.base + "/projects/" + id
 
 <style>
   .ProjectPreview {
-    --breakpoint: 500px;
+    --breakpoint: 750px;
 
     display: flex;
     justify-content: space-between;
@@ -97,6 +97,9 @@ const pageUrl = SITE.base + "/projects/" + id
     justify-content: start;
     row-gap: 0.5rem;
     margin-block-start: 0.25rem;
+  }
+  .content :global(.Tag) {
+    font-size: 0.9rem;
   }
   .ProjectPreview-thumb {
     flex-basis: calc((var(--breakpoint) - 100%) * 999);
