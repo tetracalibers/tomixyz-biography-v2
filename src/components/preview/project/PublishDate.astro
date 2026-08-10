@@ -29,16 +29,17 @@ const year = dateObj.getFullYear().toString()
     color: light-dark(var(--gray-400), var(--gray-300));
     line-height: 1;
     font-weight: 600;
-    width: max(20%, 105px);
     height: 100%;
     position: absolute;
     top: -4rem;
     right: 0.5cqw;
+    height: fit-content;
+    align-self: start;
   }
   @media (min-width: 499px) {
     .PublishDate {
       position: relative;
-      top: 0;
+      top: -0.5rem;
       right: 0;
     }
   }

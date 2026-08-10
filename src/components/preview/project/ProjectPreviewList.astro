@@ -16,11 +16,12 @@ const { entries } = Astro.props
 <style>
   .ProjectPreviewList {
     display: grid;
-    gap: 2rem;
+    /* レイアウト最大幅(64rem)で2rem、カード内のレイアウトが1カラムに切り替わる500pxで5remになるよう、
+       画面幅が狭くなるほどgapを広げる */
+    gap: clamp(2rem, 7.863rem - 9.16vw, 5rem);
   }
   @media (max-width: 499px) {
     .ProjectPreviewList {
-      gap: 5rem;
       margin-block-start: 2rem;
     }
   }
