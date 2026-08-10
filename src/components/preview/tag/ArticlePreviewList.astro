@@ -17,6 +17,13 @@ interface Props {
 }
 
 const { entries } = Astro.props
+
+// コレクション名とルートのパスは一致しないため、明示的に対応付ける
+const COLLECTION_PATH: Record<"project" | "event" | "tech", string> = {
+  project: "projects",
+  event: "events",
+  tech: "tech"
+}
 ---
 
 <div class="ArticlePreviewList">
@@ -31,7 +38,7 @@ const { entries } = Astro.props
                   {entry.data.title}
                 </a>
               ) : (
-                <a href={`${SITE.base}/${entry.collection}s/${entry.id}`}>{entry.data.title}</a>
+                <a href={`${SITE.base}/${COLLECTION_PATH[entry.collection]}/${entry.id}`}>{entry.data.title}</a>
               )}
             </h2>
             <p class="desc">{entry.collection === "writing" ? (entry.data.sublabel ?? "") : entry.data.description}</p>
