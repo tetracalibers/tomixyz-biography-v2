@@ -2,8 +2,8 @@ import { defineCollection, reference, z } from "astro:content"
 import { file, glob } from "astro/loaders"
 import { COMING_SOON_KEY } from "./config"
 
-const like = defineCollection({
-  loader: glob({ pattern: "**/*.mdx", base: "./src/content/like" }),
+const passion = defineCollection({
+  loader: glob({ pattern: "**/*.mdx", base: "./src/content/passion" }),
   schema: () =>
     z.object({
       title: z.string().max(100, "The title length must be less than or equal to 100 chars"),
@@ -151,4 +151,4 @@ const tag = defineCollection({
     })
 })
 
-export const collections = { like, project, event, blog, tech, series, writing, tag }
+export const collections = { passion, project, event, blog, tech, series, writing, tag }

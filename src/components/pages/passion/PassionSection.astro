@@ -4,7 +4,7 @@ import type { CollectionEntry } from "astro:content"
 import { render } from "astro:content"
 
 interface Props {
-  section: CollectionEntry<"like">
+  section: CollectionEntry<"passion">
 }
 
 const { section } = Astro.props
@@ -12,17 +12,17 @@ const { Content } = await render(section)
 ---
 
 <Prose>
-  <h2 class="LikeSection-title">{section.data.title}</h2>
-  <div class="LikeSection-content"><Content /></div>
+  <h2 class="PassionSection-title">{section.data.title}</h2>
+  <div class="PassionSection-content"><Content /></div>
 </Prose>
 
 <style>
-  .LikeSection-title {
+  .PassionSection-title {
     text-transform: capitalize;
     text-align: center;
     word-break: auto-phrase;
   }
-  .LikeSection-content {
+  .PassionSection-content {
     max-width: 44rem;
     margin-inline: auto;
 

@@ -1,0 +1,37 @@
+---
+title: Boundless Learningの実現
+order: 3
+---
+
+import { Image } from "astro:assets"
+import FigureBox from "$/components/image-wrapper/FigureBox.astro"
+import GridGallery from "$/components/placement/GridGallery.astro"
+import VStack from "$/components/placement/VStack.astro"
+
+import img_PrismPage from "../../assets/topics/color-prism/prism-page.png"
+import img_JisColorMapCompare from "../../assets/topics/color-prism/jis-color-red-compare.png"
+
+こうしてオリジナルの教科書を作るのが趣味だったこともあり、教育業界に関心がありました。将来の夢は予備校講師だった時期もあったくらいです。
+
+教材を有料で販売しないか、そんなお声がけをいただいたこともあります。しかし、お金を払った人だけにしか届けられないのは、本意ではありませんでした。
+理想論かもしれませんが、学びに==境界==を持たせたくないのです。
+
+- 年齢や経歴、立場に関係なく学べるという「人の境界」
+- 専門分野に縛られず学ぶという「分野の境界」
+- 場所や環境に左右されず学べるという「場所の境界」
+- 今はここまで、と決めつけられない「可能性の境界」
+
+何かによって区切られず、自由に広がっていく学びに夢中になりたい。これは、私が通信制高校という環境に夢見たことでもありました。
+
+そして講師やエンジニアを経験して、特定の誰かに教えるというよりも、学べる土壌をシステムで実現したいという思いが芽生えています。
+
+1. ポータブルな技術で誰でも・どこでも「持ち運べる」学び
+2. グラフィック技術による、体験型の楽しい学び
+
+もっと多くの人に、まるで手に取れるような形で伝えたい。これはLaTeXばかり触っていた私が、Webの世界に入った理由の一つです。
+今育てている[Color Prism](https://color-prism.net/)というサイトは、Webでの学びの形を模索する第一歩として取り組んでいます。
+
+<VStack>
+  <FigureBox src={img_PrismPage} />
+  <FigureBox src={img_JisColorMapCompare} />
+</VStack>

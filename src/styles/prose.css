@@ -5,13 +5,12 @@
 
     min-width: fit-content;
 
-    line-height: 2;
     letter-spacing: 0.025em;
   }
 
   :where(.prose p) {
     margin-block: 1.25em;
-    color: light-dark(#374151, #e5e7eb);
+    color: light-dark(#121519, #fcfdff);
   }
 
   :where(.prose strong) {
@@ -49,10 +48,13 @@
     color: light-dark(#475569, #e2e8f0);
     text-decoration: underline;
     font-weight: 500;
+    font-size: 1.05em;
 
     text-underline-offset: 0.25rem;
     text-decoration-thickness: 1px;
     text-decoration-style: dotted;
+
+    overflow-wrap: anywhere;
   }
 
   :where(.prose a:hover) {

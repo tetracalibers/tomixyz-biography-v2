@@ -1,0 +1,18 @@
+---
+import DefaultPageLayout from "$/layouts/default.astro"
+import PassionSection from "$components/pages/passion/PassionSection.astro"
+import { getCollection } from "astro:content"
+
+import "$/styles/prose-use-marker.css"
+import { CATEGORY_META } from "$/config"
+
+const meta = {
+  ogimage: "/og/passion.png"
+}
+
+const sections = (await getCollection("passion")).sort((a, b) => a.data.order - b.data.order)
+---
+
+<DefaultPageLayout content={{ ...CATEGORY_META.passion }} meta={{ ...meta }}>
+  {sections.map((section) => <PassionSection section={section} />)}
+</DefaultPageLayout>
