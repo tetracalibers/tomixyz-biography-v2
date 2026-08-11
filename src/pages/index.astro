@@ -124,7 +124,9 @@ const history = [
 
 <style>
   .section {
-    padding-inline: calc(2vw * 2.5);
+    /* 帯として見せたい子要素（TagsList）が負マージンで打ち消せるよう、値を変数で公開する */
+    --section-padding-inline: calc(2vw * 2.5);
+    padding-inline: var(--section-padding-inline);
   }
   :is(.-highlight, .-history, .-skill-tag) {
     display: grid;
