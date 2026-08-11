@@ -56,6 +56,9 @@ hyperref:
   name: hyperref
   skill: false
   url: https://texwiki.texjp.org/?hyperref
+imagemagick:
+  name: ImageMagick
+  url: https://imagemagick.org/
 javascript:
   name: JavaScript
   url: https://developer.mozilla.org/ja/docs/Web/JavaScript
