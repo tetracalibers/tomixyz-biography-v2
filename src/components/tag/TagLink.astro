@@ -28,7 +28,8 @@ const icon = withIcon ? getTagIcon(tagId) : undefined
 <style define:vars={{ hue, "dark-twinkle-width": small ? "0.5rem" : "1rem" }}>
   .Tag {
     --twinkle-width: 24%;
-    --border-radius: clamp(1.25rem, 1.106rem + 0.616vw, 1.5rem);
+    /* 狭い画面では、角丸が大きいままだとアイコンが左上のカーブに食い込むため、padding-inlineと連動して縮める */
+    --border-radius: clamp(1.125rem, 0.908rem + 0.925vw, 1.5rem);
 
     display: inline-flex;
     align-items: baseline;
@@ -47,9 +48,9 @@ const icon = withIcon ? getTagIcon(tagId) : undefined
     text-decoration: none;
     border-bottom-right-radius: var(--border-radius);
     border-top-left-radius: var(--border-radius);
-    font-size: clamp(1rem, 0.913rem + 0.37vw, 1.15rem);
+    font-size: clamp(0.875rem, 0.716rem + 0.678vw, 1.15rem);
     line-height: 1.4;
-    padding-inline: 1rem;
+    padding-inline: clamp(0.875rem, 0.803rem + 0.308vw, 1rem);
     padding-block: 0.25rem;
     font-family: "Ubuntu Mono";
   }

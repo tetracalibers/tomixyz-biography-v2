@@ -25,7 +25,7 @@ const tags = collectTagIdsWithCount(targets)
     display: flex;
     list-style-type: none;
     flex-wrap: wrap;
-    gap: 0.75rem;
+    gap: clamp(0.5rem, 0.356rem + 0.616vw, 0.75rem);
     margin: 0;
     padding: 0;
   }
