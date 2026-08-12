@@ -51,6 +51,19 @@ const subtitleHtml = marked.parseInline(subtitleMd, { renderer })
 ---
 
 <DefaultPageLayout content={{ title, subtitle }} meta={{ ...meta }}>
-  <Fragment slot="subtitle" set:html={subtitleHtml} />
+  <Fragment slot="subtitle">
+    <span set:html={subtitleHtml} />
+    <span class="tag-description">{tag.description}</span>
+  </Fragment>
   <ArticlePreviewList entries={articles} />
 </DefaultPageLayout>
+
+<style>
+  .tag-description {
+    display: block;
+    margin-block-start: 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: light-dark(var(--slate-500), var(--slate-300));
+  }
+</style>
