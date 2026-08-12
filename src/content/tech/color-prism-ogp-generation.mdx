@@ -1,0 +1,182 @@
+---
+title: OGP画像生成にAIによる知能層を挟む
+date: "2026-07-24"
+description: 知能が必要な処理と、決定的な処理を分ける
+tags:
+  - claude-code
+  - claude-design
+  - svg
+  - imagemagick
+---
+
+import FigureBox from "$/components/image-wrapper/FigureBox.astro"
+import VStack from "$/components/placement/VStack.astro"
+import GridGallery from "$/components/placement/GridGallery.astro"
+
+import img_ClaudeDesignPages from "../../assets/tech/generate-ogp-with-claude/claude-design-svg-template-step-1.png"
+import img_ClaudeDesignProjectFiles from "../../assets/tech/generate-ogp-with-claude/claude-design-svg-template-step-2.png"
+import img_ClaudeDesignOgpTemplates from "../../assets/tech/generate-ogp-with-claude/claude-design-svg-template-step-3.png"
+
+import img_OgpDefault from "../../assets/topics/color-prism/ogp/default.png"
+import img_OgpConcept from "../../assets/topics/color-prism/ogp/concept.png"
+import img_OgpColorUniversalDesign from "../../assets/topics/color-prism/ogp/color-universal-design.png"
+import img_OgpPccsColorSystem from "../../assets/topics/color-prism/ogp/pccs-color-system.png"
+import img_OgpCoordinateSystems from "../../assets/topics/color-prism/ogp/coordinate-systems.png"
+
+最近育てている[Color Prism](/projects/color-prism)というサイトに、やっとOGP画像生成の仕組みを実装した話。
+Claude Codeの恩恵を受けつつ、やや複雑な要件を叶えたかったので、少し特殊な事例になるかもしれない。
+
+## 叶えたい要件の整理
+
+ページごとに異なるOGP画像にすることを前提にしつつ、次の4パターンに分類した。
+
+- `default`：サイト名を中心としたデザイン
+- `title-only`：ページタイトルを中心としたデザイン
+- `nested`：ページ階層を表すパンくずリストを加えたデザイン
+- `nested-fig`：図版画像も埋め込んだデザイン
+
+どうしても叶えたかったのは、ページ内に図版がある場合は、OGP画像にその図版画像を埋め込むこと。
+
+Color Prismのコンテンツでは、SVGやThree.jsで実装した図版やデモを多数盛り込み、ビジュアライズした解説を心がけている。せっかく図版をたくさん自作して盛り込んでいるので、シェアの段階でその図版をチラ見せしたい。
+
+<GridGallery col={2}>
+  <FigureBox src={img_OgpDefault} caption="default（サイト名中心）" />
+  <FigureBox src={img_OgpConcept} caption="title-only（ページタイトル中心）" />
+  <FigureBox src={img_OgpColorUniversalDesign} caption="nested（パンくずリスト有り）" />
+  <FigureBox src={img_OgpPccsColorSystem} caption="nested-fig（SVGの図版埋め込み）" />
+  <FigureBox src={img_OgpCoordinateSystems} caption="nested-fig（three.jsのデモ画像埋め込み）" />
+</GridGallery>
+
+## OGP画像のデザイン
+
+OGP画像のラフデザインは、[Claude Design](https://support.claude.com/ja/articles/14604416-claude-design%E3%82%92%E5%A7%8B%E3%82%81%E3%82%8B)で作成した。
+
+### Claude Designのデザインシステム
+
+Claude Designでは、コードベースからデザインシステムを作ることができる。
+そして、プロジェクト作成時にデザインシステムを指定すると、そのデザインルールに沿って新たな部品などのデザインを作成することができる。
+
+サイト専用のデザインシステムを踏襲しているおかげで、一発目から大体イメージに合うOGP画像のデザインが得られたので、あとは微調整。
+
+### デザインの書き出し
+
+今回はClaude Designとの同期を重視しないため、Handoffなどの連携機能は使っていない。
+
+そして、SVGテンプレートを作成する処理もClaude Designのチャット上で指示した。
+
+> 各画像のデザインを、JSでページタイトルやパンくずテキストを埋め込めるようなSVGテンプレートとして書き出したい。nested-figの図版部分は他のSVG画像に置き換える想定です。
+
+というような指示を出すと、Claude Designの同一プロジェクト内に別ページを用意してくれて、そこからSVGをダウンロードできる。
+
+<VStack>
+  <FigureBox src={img_ClaudeDesignPages} caption="プロジェクト内のページ切り替えメニュー" />
+  <FigureBox src={img_ClaudeDesignProjectFiles} caption="プロジェクトのファイル一覧に追加されたogp-templatesフォルダ" />
+  <FigureBox src={img_ClaudeDesignOgpTemplates} caption="ogp-templatesフォルダ内に書き出されたSVGテンプレート" />
+</VStack>
+
+## ブラウザレス描画の実現
+
+ビルド時にOGP画像を自動生成する仕組みは多く実装してきたが、今回は次のような理由で、ビルドでの生成ではなく、ローカルでスクリプトを叩いて生成する方式にした。
+
+- OGP画像は頻繁に更新が必要なものではないため、そのために毎度のビルド時間を増大させたくない
+- ImageMagickを使いたいため、CI環境の設定に工夫が必要
+- OGP画像生成時にAIの力を借りたい（対話しながら生成したい）
+
+すでにSVGで書かれたテンプレートがあるので、[vercel/og](https://vercel.com/docs/og-image-generation)や[Satori](https://github.com/vercel/satori)を使ってJSXからSVGを生成する必要はない。（むしろReactに依存することになり、処理もかなり遅くなる…）
+
+PuppeteerやPlaywrightなどのヘッドレスブラウザも使わず、Claude Designから書き出した4種類のSVGテンプレートにページごとの値を埋め込み、[resvg-js](https://github.com/thx/resvg-js)でPNGへ変換する。
+
+数あるSVG-to-PNGライブラリの中でも、`resvg-js`はフォント埋め込みの利便性・確実性が高いと感じているが、ブラウザのようなテキスト実測APIは当然備えていない。
+テキストレイアウトについては、全角・大文字・細い英字などの文字種から幅を概算してレイアウトを決めている。
+
+## 知能が必要な処理と決定的な処理の分離
+
+OGP画像の生成では、機械的に行える処理と、個別の判断を伴う処理がある。
+たとえば次のような判断は、知能・視覚に依存している。
+
+- タイトルをどこで改行するか
+- 記事を代表する図版はどれか
+- 背景を透過した方が自然に見えるか
+
+そこで、画像の生成自体はスクリプトで機械的に行うが、そのスクリプトを人間が直接実行するのではなく、専用のスキル経由でスクリプトを実行する仕組みにした。
+
+### スキルによるパイプライン化
+
+画像生成スクリプトをスキルによってラップすることで、OGP画像生成の仕組みは単なる画像生成処理ではなく、**判断・描画・記録・再生成までを含むパイプライン**としての設計が可能になる。
+
+具体的には、OGP画像の生成処理を**知能層**・**描画層**・**自動化層**の3層に分けている。
+
+1. **知能層**では、Claude Codeのスキルがページを読み、タイトルやパンくずを取得。OGP画像の種類やテーマを判定し、改行位置、図版、透過方法など、必要な項目だけ人間へ確認する。
+2. **描画層**では、確定した値をJSONとして受け取り、スクリプトがSVGテンプレートからPNGを生成する。同時に、その判断結果と使用した図版を永続化する。
+3. **自動化層**では、保存済みの記録だけを読み、AIとの対話なしで全画像を再生成する。
+
+自動化層については後述するが、AIとの対話を使い捨てにせず、**一度行った判断は再利用可能なデータへ変換**する目的がある。
+
+## 知能層：パラメータの決定
+
+スキルは知能層であり、スキルに考えさせた推奨パラメータをスクリプトに渡す方式。
+
+たとえば、タイトルが長い場合は、スキル側で1行で収まるかどうか、収まらなければ自然な改行位置を決めて生成する。
+どうしても1行に収めたい場合は文字を縮小する実装にしているので、1文字オーバー程度や改行すると不自然な場合は、1行に収めることもAIが検討してくれる。
+
+また、スキルはローカルでの手動実行ではあるが、OGP画像を生成したいページの指定を自然言語でできるのはとても便利。slugを渡してもいいし、glob形式で指定してもいいし、「図版のないページ」みたいな条件でもいい。
+
+```bash
+/generate-ogp-image 図版のない色彩ページ
+```
+
+## 描画層：ページごとの図版の埋め込み
+
+描画層の話題で中心となるのは、叶えたい要件である図版の埋め込み。
+
+1つのページに複数の図版がある場合も多く、どの図版を選ぶか、また1つの図版の中でもどの部分を切り取るか、動かせるデモの場合はどのパラメータでの表示を採用するか、ということは人間側で決めたい。
+なので、完全に自動化はできず、人力でスクショして画像パスを渡す運用になってしまっている。
+
+ただし、OGP画像のデザインに溶け込ませるための画像処理は自動化する。背景透過処理とか、余白のトリミング処理とか。
+
+### 背景透過とトリミングの自動化
+
+人力でのスクショ画像は、撮影時に背景透過するのは難しいし、図を囲む余白も揃っているとは限らない。
+そこで、OGP画像のデザインに溶け込ませて、画像内の他の要素との整列が保たれるように余白をトリミングする処理が必要になる。
+
+色彩関連ページでは、サイトの白背景の上に図版を置いているため、透過対象の色も白で固定する。
+（ちなみに、CGページなどThree.jsによるデモをOGP画像に載せたい場合は、描画先キャンバスの色に合わせて、OGP画像をダーク系デザインに切り替える。この場合は、OGP画像の背景色とキャンバスの色が揃っているので、背景に溶け込ませるための透過処理は不要。）
+
+白い部分を単純に透明に置き換える処理自体は、[sharp.js](https://sharp.pixelplumbing.com/)などでもできる。
+しかし、ImageMagickの方がいろいろと柔軟な処理ができるので、こちらを採用。たとえば、透過後に輪郭がザビザビにならないように、オプション引数でうまく制御できたりする。
+
+### 図版に応じた透過モード
+
+今回のOGP画像生成スクリプトでは、`background`と`all`という2種類の透過オプションを用意した。
+
+- `background`：完全に図の外側の白余白のみを透過する（`flood-fill`を適用）
+- `all`：線に囲まれた箇所など、図の内部にある白い部分もすべて透過する
+
+背景透過処理を行うかどうか、`all`と`background`のどちらのモードで透過するかについては、最初から人間が指示することもできるが、スキルに判断を任せることもできる。
+スキルに任せる場合、図版画像に白い部分が含まれるかどうか、`all`にするとどこまで消えてしまうか（意味のある白い部分が消されてしまわないか）を、AIが図版画像を読んで判断してくれる。
+
+私が使う分には最初から指定すればいい話だが、このような内部実装を知らなくても実行できる仕組みづくりが役立つ場面もあるかもしれない。
+
+ちなみに、それぞれのモードでスクリプトが叩くImageMagickコマンドを解説し始めたら長くなったので、詳しく知りたい方は次の記事で…
+
+- [ImageMagickによる白背景透過](/tech/imagemagick-transparent-white)
+
+## 自動化層：一括再生成の仕組み
+
+デザイン（SVGテンプレート）を調整した、ページ構成を見直したことでパンくずリストの親タイトルが変わった、という場合に備えて、一括再生成の仕組みも用意している。
+`npm run regenerate{:bash}`コマンドを実行するだけで、全画像を対話なしで再生成できる。
+
+この仕組みのために、`generate-ogp-image`スキル（指定されたページのOGP画像を生成するスキル）の実行時に行うAIの推論やAIとの対話で確定した判断は使い捨てにせず、再利用可能なJSONデータとして残すようにしている。
+
+- タイトルの改行位置
+- パンくずリストの構成
+- 埋め込まれる図版（背景透過・トリミング済みの画像）へのパス
+- 必要なテーマ上書き設定
+
+ただし、JSONに保存するのは、タイトルの改行や図版など、ページ固有の判断だけとしている。
+たとえば、`/color-theory/*`ページは`nested-fig`パターン、`/cg/**`ページはダークテーマのOGP画像といった、OGP画像のバリエーションやテーマ（ある範囲内の全体へ波及する規則）はページごとのJSONには保存せず、グローバルな設定ファイルから毎回導出するようにしている。
+
+この切り分けにより、仮に「やっぱり`/cg/**`をライトテーマに変えたい」となったときでも、関連するJSONを洗い出してすべて変更することなく、設定を1か所変更するだけで次回の一括再生成時にすべてのCG記事へ反映される。
+
+こうして過去の判断を失わずに作り直せることで、知能が必要なのは最初の1回だけになる。
+2回目以降は決定的な処理として何度でも同じ結果を再現できることで、生成のたびにAIの非決定性や人間による微調整の判断が揺らぐことなく、本当に変えたい部分だけを差し替えることができる。

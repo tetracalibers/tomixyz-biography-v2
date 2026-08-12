@@ -1,0 +1,172 @@
+---
+title: ImageMagickによる白背景透過
+date: "2026-08-12"
+description: 「消したい白」と「残したい白」の制御
+tags:
+  - imagemagick
+---
+
+import FigureBox from "$/components/image-wrapper/FigureBox.astro"
+import GridGallery from "$/components/placement/GridGallery.astro"
+
+import img_ColorSolidBefore from "../../assets/tech/imagemagick-transparent-white/before-transparent.png"
+import img_ColorWheelBefore from "../../assets/tech/imagemagick-transparent-white/before-transparent-2.png"
+import img_ColorSolidBackground from "../../assets/tech/imagemagick-transparent-white/after-background.png"
+import img_ColorWheelBackground from "../../assets/tech/imagemagick-transparent-white/after-background-2.png"
+import img_ColorSolidAll from "../../assets/tech/imagemagick-transparent-white/after-all.png"
+import img_ColorWheelAll from "../../assets/tech/imagemagick-transparent-white/after-all-2.png"
+
+[OGP画像生成にAIによる知能層を挟む](/tech/color-prism-ogp-generation)で紹介したOGP画像生成の仕組みの中では、OGP画像に埋め込む図版の背景透過処理を行っている。
+
+OGP画像に記事内の図版を埋め込むにあたり、人力で撮ったスクショ画像をそのまま貼ると、白い矩形が浮いてしまう。
+OGP画像のデザインに溶け込ませるには白背景の透過が必要で、さらに図を囲む余白の大きさが画像ごとに揃っていないため、画像内の他の要素との整列を保つには余白のトリミングも必要になる。
+
+このような背景透過とトリミング処理は、ImageMagickを使って行っている。
+
+## 2種類の透過モード
+
+図版によって「どこまでの白を消したいか」は異なるため、`background`と`all`という2種類の透過オプションを用意した。
+
+- `background`：完全に図の外側の白余白のみを透過する（`flood-fill`を適用）
+- `all`：線に囲まれた箇所など、図の内部にある白い部分もすべて透過する
+
+図の内部の白に意味がある場合（白抜き文字や、線で囲まれた白い面など）は`background`、そうでなければ`all`という使い分けになる。
+
+モードの違いを比較ために、次の2枚の図版を使う。（どちらも白背景の上に描かれた図版なので、この記事では透過されたかどうかが分かるように、暗い色を敷いた上に置いて表示する。）
+
+<GridGallery col={2}>
+  <FigureBox
+    src={img_ColorSolidBefore}
+    caption="色立体（元画像）"
+    responsive={{ maxHeight: "360px", bgColor: "#334155" }}
+  />
+  <FigureBox
+    src={img_ColorWheelBefore}
+    caption="色相環（元画像）"
+    responsive={{ maxHeight: "360px", bgColor: "#334155" }}
+  />
+</GridGallery>
+
+## backgroundモード
+
+`background`モードで叩くImageMagickコマンドはこんな感じ。
+PNG画像の外周につながっている白背景だけを透明化し、透明になった余白をトリミングするものになっている。
+
+```bash title="backgroundモード" showLineNumbers
+ magick input.png \
+    -bordercolor white -border 1x1 \
+    -alpha set -channel RGBA \
+    -fuzz 5% -fill none -floodfill +0+0 white \
+    -shave 1x1 \
+    -trim +repage \
+    output.png
+```
+
+処理の流れをまとめると、
+
+1. 白枠を追加
+2. 外周につながった白背景を透明化
+3. 追加した白枠を削除
+4. 透明な余白をトリミング
+
+まずは `-border 1x1{:bash}` で、画像の周囲に1ピクセルの白い枠を追加する。これにより、左上の `(0, 0)` が必ず白になり、後続の `-floodfill{:bash}` を画像外周から安定して開始できる。
+
+```bash showLineNumbers{2}
+-bordercolor white -border 1x1
+```
+
+次にアルファチャンネルを有効にし、透明度を含むRGBAを処理対象にする。
+
+```bash showLineNumbers{3}
+-alpha set -channel RGBA
+```
+
+続いて、次の部分が背景を透明化する処理。
+
+- `-fuzz 5%{:bash}` によって白に近い色も許容しながら、`(0, 0)` から連続している白い領域を `none{:bash}`（透明）で塗りつぶす
+- `-floodfill{:bash}` は画像内のすべての白を置き換えるのではなく、**指定した位置から連続している領域だけを処理する**アルゴリズムであり、背景から独立した白い文字や図形まで透明になってしまうことを避けられる
+
+`fuzz{:bash}`でどれくらい白に近い色を透過対象にするかを制御するオプション。白い部分が残る場合は値を小さくした方が効果的だが、小さくしすぎると白部分に接する箇所まで削れてしまい、輪郭がザビザビになってしまう。
+
+```bash showLineNumbers{4}
+-fuzz 5% -fill none -floodfill +0+0 white
+```
+
+後始末として、最初に追加した白枠を削除。
+
+```bash showLineNumbers{5}
+-shave 1x1
+```
+
+最後に、`-trim{:bash}` で透明になった余白を取り除く。`+repage{:bash}` はトリミング後に残る仮想キャンバスの位置情報をリセットするための指定。
+
+```bash showLineNumbers{6}
+-trim +repage
+```
+
+先ほどの2枚に`background`モードを適用すると、次のようになる。
+
+<GridGallery col={2}>
+  <FigureBox
+    src={img_ColorSolidBackground}
+    caption="色立体（backgroundモード）"
+    responsive={{ maxHeight: "360px", bgColor: "#334155" }}
+  />
+  <FigureBox
+    src={img_ColorWheelBackground}
+    caption="色相環（backgroundモード）"
+    responsive={{ maxHeight: "360px", bgColor: "#334155" }}
+  />
+</GridGallery>
+
+図の外側の白い余白だけが消え、内部の白は保たれている。
+色立体では円の内側の白い面と高明度を表す白い丸が、色相環では中心の白い穴・扇形を区切る白い線・白抜き文字が、そのまま残っていることが分かる。
+
+## allモード
+
+`all`モードでは、次のようなImageMagickコマンドを実行することになる。
+画像内の白い部分を透明化したうえで、透明になった余白をトリミングするもの。
+
+```bash showLineNumbers title="allモード"
+ magick input.png \
+    -alpha set \
+    -fuzz 2% -transparent white \
+    -trim +repage \
+    output.png
+```
+
+処理は次のように、`background`モードよりも簡潔。
+
+1. 白および白に近い色を透明化
+2. 透明な余白をトリミング
+
+`-floodfill{:bash}`を使わないことで、**背景とつながっているかどうかに関係なく、画像全体の白色が対象**になる。
+
+`all`モードのコマンドの中核となるのは、次の部分。
+
+```bash showLineNumbers{3}
+-fuzz 2% -transparent white
+```
+
+`-transparent white{:bash}` は、画像内の白色を透明に変換する。
+`-fuzz{:bash}`については、`all`モードでは白抜き文字など細かい部分まで透過対象になるため、`background`より小さめの`2%`に設定することで、削りすぎを防いでいる。
+
+同じ2枚に`all`モードを適用すると、次のようになる。
+
+<GridGallery col={2}>
+  <FigureBox
+    src={img_ColorSolidAll}
+    caption="色立体（allモード）"
+    responsive={{ maxHeight: "360px", bgColor: "#334155" }}
+  />
+  <FigureBox
+    src={img_ColorWheelAll}
+    caption="色相環（allモード）"
+    responsive={{ maxHeight: "360px", bgColor: "#334155" }}
+  />
+</GridGallery>
+
+色立体・色相環ともに、内側の白い部分が透過されていることがわかる。
+
+色相環の方では、扇形を区切る白い線が消えて背景色が透けた点線のようになり、白抜き文字に至っては読めなくなってしまっているが、OGP画像に小さく載せる分には許容範囲。
+このような削られ度合いは、`-fuzz{:bash}`を変えることである程度調整できる。

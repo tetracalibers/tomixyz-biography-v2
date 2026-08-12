@@ -2,6 +2,7 @@
 title: フロントエンドに特化したい
 date: "2022-09-27"
 description: 機械 対 人ではなく、人 対 人であるために
+pinned: true
 ---
 
 ## WAI-ARIAとの出会いの話
