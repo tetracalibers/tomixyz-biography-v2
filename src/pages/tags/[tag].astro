@@ -57,16 +57,13 @@ const linkLabel = new URL(tag.url).hostname.replace(/^www\./, "")
   a.official-link,
   a.official-link:visited {
     justify-self: center;
-    margin-block-start: 0.875rem;
     /* 外部リンクアイコンはglobal.cssの a[target="_blank"]::after が付ける */
     display: flex;
     align-items: center;
     gap: 0.25rem;
-    font-size: 0.8125rem;
-    /* PageHeaderのリンクに合わせて、light-dark()の中は変数ではなくリテラルで書く */
-    color: #64748b;
-    color: light-dark(#64748b, #94a3b8);
+    color: light-dark(var(--slate-500), var(--slate-400));
     text-decoration: none;
+    font-size: 1.1rem;
   }
   a.official-link .label {
     text-decoration: underline;
@@ -75,7 +72,6 @@ const linkLabel = new URL(tag.url).hostname.replace(/^www\./, "")
     text-underline-offset: 0.25rem;
   }
   a.official-link:hover {
-    color: #94a3b8;
-    color: light-dark(#94a3b8, #cbd5e1);
+    color: light-dark(var(--slate-400), var(--slate-300));
   }
 </style>
