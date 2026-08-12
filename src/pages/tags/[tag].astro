@@ -50,10 +50,12 @@ const linkLabel = new URL(tag.url).hostname.replace(/^www\./, "")
 <DefaultPageLayout content={{ title, subtitle }} meta={{ ...meta }}>
   <div class="tag-header" slot="header">
     <PageTitle title={tag.name} />
-    <p class="description">{tag.description}</p>
-    <a class="official-link" href={tag.url} target="_blank" rel="noopener noreferrer">
-      <span class="label">{linkLabel}</span>
-    </a>
+    <div class="description-group">
+      <p class="description">{tag.description}</p>
+      <a class="official-link" href={tag.url} target="_blank" rel="noopener noreferrer">
+        <span class="label">{linkLabel}</span>
+      </a>
+    </div>
   </div>
   <div class="content">
     <ArticlePreviewList entries={articles} />
@@ -69,6 +71,12 @@ const linkLabel = new URL(tag.url).hostname.replace(/^www\./, "")
     place-items: center;
     container-type: inline-size;
   }
+  /* 説明とリンクの間隔はこのgapで調整する */
+  .description-group {
+    display: grid;
+    place-items: center;
+    gap: 0.25rem;
+  }
   .description {
     margin: 0;
     line-height: 1.7;
@@ -83,7 +91,7 @@ const linkLabel = new URL(tag.url).hostname.replace(/^www\./, "")
     display: flex;
     align-items: center;
     gap: 0.25rem;
-    color: light-dark(var(--slate-500), var(--slate-400));
+    color: light-dark(var(--slate-500), var(--slate-300));
     text-decoration: none;
     font-size: 1.1rem;
   }
