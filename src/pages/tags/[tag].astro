@@ -4,6 +4,7 @@ import DefaultPageLayout from "$/layouts/default.astro"
 import { compareDateForSort } from "$/lib/sort"
 import type { GetStaticPaths } from "astro"
 import ArticlePreviewList from "$components/preview/tag/ArticlePreviewList.astro"
+import PageTitle from "$components/pages/index/PageTitle.astro"
 import { collectTagIds, getRefTagCollection, filterByTag } from "$/lib/tag"
 import { getCollection } from "astro:content"
 import { makeEntryMap, type TechNotComingSoon } from "$/lib/collection"
@@ -47,13 +48,34 @@ const linkLabel = new URL(tag.url).hostname.replace(/^www\./, "")
 ---
 
 <DefaultPageLayout content={{ title, subtitle }} meta={{ ...meta }}>
-  <a class="official-link" slot="after-subtitle" href={tag.url} target="_blank" rel="noopener noreferrer">
-    <span class="label">{linkLabel}</span>
-  </a>
-  <ArticlePreviewList entries={articles} />
+  <div class="tag-header" slot="header">
+    <PageTitle title={tag.name} />
+    <p class="description">{tag.description}</p>
+    <a class="official-link" href={tag.url} target="_blank" rel="noopener noreferrer">
+      <span class="label">{linkLabel}</span>
+    </a>
+  </div>
+  <div class="content">
+    <ArticlePreviewList entries={articles} />
+  </div>
 </DefaultPageLayout>
 
 <style>
+  /* タイトル・説明・リンクの間隔はこのgapで調整する */
+  .tag-header {
+    display: grid;
+    gap: 0.25rem;
+    text-align: center;
+    place-items: center;
+    container-type: inline-size;
+  }
+  .description {
+    margin: 0;
+    line-height: 1.7;
+    color: light-dark(var(--slate-600), var(--slate-200));
+    max-width: 80cqw;
+    word-break: auto-phrase;
+  }
   a.official-link,
   a.official-link:visited {
     justify-self: center;

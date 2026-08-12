@@ -13,23 +13,15 @@ const { title, style } = Astro.props
 
 <div class="PageHeader">
   <PageTitle title={title} small={style?.title_small} />
-  <div class="subtitle-group">
-    <p class="subtitle">
-      <slot />
-    </p>
-    <slot name="after-subtitle" />
-  </div>
+  <p class="subtitle">
+    <slot />
+  </p>
 </div>
 
 <style>
   .PageHeader {
     display: grid;
     text-align: center;
-  }
-  /* subtitleとafter-subtitleスロットの間隔はこのgapで調整する */
-  .subtitle-group {
-    display: grid;
-    gap: 0.25rem;
   }
   .subtitle {
     margin: 0;
