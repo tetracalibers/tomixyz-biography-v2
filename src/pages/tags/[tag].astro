@@ -4,7 +4,6 @@ import DefaultPageLayout from "$/layouts/default.astro"
 import { compareDateForSort } from "$/lib/sort"
 import type { GetStaticPaths } from "astro"
 import ArticlePreviewList from "$components/preview/tag/ArticlePreviewList.astro"
-import { Icon } from "astro-icon/components"
 import { collectTagIds, getRefTagCollection, filterByTag } from "$/lib/tag"
 import { getCollection } from "astro:content"
 import { makeEntryMap, type TechNotComingSoon } from "$/lib/collection"
@@ -50,29 +49,33 @@ const linkLabel = new URL(tag.url).hostname.replace(/^www\./, "")
 <DefaultPageLayout content={{ title, subtitle }} meta={{ ...meta }}>
   <a class="official-link" slot="after-subtitle" href={tag.url} target="_blank" rel="noopener noreferrer">
     <span class="label">{linkLabel}</span>
-    <Icon name="iconamoon:arrow-top-right-3-square-thin" size={14} stroke-width={1.5} aria-hidden="true" />
   </a>
   <ArticlePreviewList entries={articles} />
 </DefaultPageLayout>
 
 <style>
-  .official-link {
+  a.official-link,
+  a.official-link:visited {
     justify-self: center;
     margin-block-start: 0.875rem;
+    /* 外部リンクアイコンはglobal.cssの a[target="_blank"]::after が付ける */
     display: flex;
     align-items: center;
     gap: 0.25rem;
     font-size: 0.8125rem;
-    color: light-dark(var(--slate-500), var(--slate-400));
+    /* PageHeaderのリンクに合わせて、light-dark()の中は変数ではなくリテラルで書く */
+    color: #64748b;
+    color: light-dark(#64748b, #94a3b8);
     text-decoration: none;
   }
-  .official-link .label {
+  a.official-link .label {
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-decoration-style: dotted;
     text-underline-offset: 0.25rem;
   }
-  .official-link:hover {
-    color: light-dark(var(--slate-400), var(--slate-300));
+  a.official-link:hover {
+    color: #94a3b8;
+    color: light-dark(#94a3b8, #cbd5e1);
   }
 </style>
