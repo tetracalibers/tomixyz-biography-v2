@@ -11,10 +11,17 @@ tags:
 
 import FigureBox from "$/components/image-wrapper/FigureBox.astro"
 import VStack from "$/components/placement/VStack.astro"
+import GridGallery from "$/components/placement/GridGallery.astro"
 
 import img_ClaudeDesignPages from "../../assets/tech/generate-ogp-with-claude/claude-design-svg-template-step-1.png"
 import img_ClaudeDesignProjectFiles from "../../assets/tech/generate-ogp-with-claude/claude-design-svg-template-step-2.png"
 import img_ClaudeDesignOgpTemplates from "../../assets/tech/generate-ogp-with-claude/claude-design-svg-template-step-3.png"
+
+import img_OgpDefault from "../../assets/topics/color-prism/ogp/default.png"
+import img_OgpConcept from "../../assets/topics/color-prism/ogp/concept.png"
+import img_OgpColorUniversalDesign from "../../assets/topics/color-prism/ogp/color-universal-design.png"
+import img_OgpPccsColorSystem from "../../assets/topics/color-prism/ogp/pccs-color-system.png"
+import img_OgpCoordinateSystems from "../../assets/topics/color-prism/ogp/coordinate-systems.png"
 
 最近育てている[Color Prism](/projects/color-prism)というサイトに、やっとOGP画像生成の仕組みを実装した話。
 Claude Codeの恩恵を受けつつ、やや複雑な要件を叶えたかったので、少し特殊な事例になるかもしれない。
@@ -32,11 +39,17 @@ Claude Codeの恩恵を受けつつ、やや複雑な要件を叶えたかった
 
 Color Prismのコンテンツでは、SVGやThree.jsで実装した図版やデモを多数盛り込み、ビジュアライズした解説を心がけている。せっかく図版をたくさん自作して盛り込んでいるので、シェアの段階でその図版をチラ見せしたい。
 
+<GridGallery col={2}>
+  <FigureBox src={img_OgpDefault} caption="default（サイト名中心）" />
+  <FigureBox src={img_OgpConcept} caption="title-only（ページタイトル中心）" />
+  <FigureBox src={img_OgpColorUniversalDesign} caption="nested（パンくずリスト有り）" />
+  <FigureBox src={img_OgpPccsColorSystem} caption="nested-fig（SVGの図版埋め込み）" />
+  <FigureBox src={img_OgpCoordinateSystems} caption="nested-fig（three.jsのデモ画像埋め込み）" />
+</GridGallery>
+
 ## OGP画像のデザイン
 
-OGP画像のラフデザインは、Claude Designで作成した。
-
-- [Claude Designを始める](https://support.claude.com/ja/articles/14604416-claude-design%E3%82%92%E5%A7%8B%E3%82%81%E3%82%8B)
+OGP画像のラフデザインは、[Claude Design](https://support.claude.com/ja/articles/14604416-claude-design%E3%82%92%E5%A7%8B%E3%82%81%E3%82%8B)で作成した。
 
 ### Claude Designのデザインシステム
 
@@ -163,7 +176,7 @@ OGP画像の生成では、機械的に行える処理と、個別の判断を�
 ただし、JSONに保存するのは、タイトルの改行や図版など、ページ固有の判断だけとしている。
 たとえば、`/color-theory/*`ページは`nested-fig`パターン、`/cg/**`ページはダークテーマのOGP画像といった、OGP画像のバリエーションやテーマ（ある範囲内の全体へ波及する規則）はページごとのJSONには保存せず、グローバルな設定ファイルから毎回導出するようにしている。
 
-この切り分けにより、「やっぱり`/cg/**`をライトテーマに変えたい」となったときに、関連するJSONを洗い出してすべて変更することなく、規則を1か所変更するだけで次回の一括再生成時にすべてのCG記事へ反映される。
+この切り分けにより、仮に「やっぱり`/cg/**`をライトテーマに変えたい」となったときでも、関連するJSONを洗い出してすべて変更することなく、設定を1か所変更するだけで次回の一括再生成時にすべてのCG記事へ反映される。
 
 こうして過去の判断を失わずに作り直せることで、知能が必要なのは最初の1回だけになる。
-2回目以降は決定的な処理として何度でも同じ結果を再現できることで、AIの非決定性や人間による微調整の判断が揺らぐことなく、本当に変えたい部分だけを差し替えることができる。
+2回目以降は決定的な処理として何度でも同じ結果を再現できることで、生成のたびにAIの非決定性や人間による微調整の判断が揺らぐことなく、本当に変えたい部分だけを差し替えることができる。
