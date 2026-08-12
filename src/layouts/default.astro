@@ -37,6 +37,7 @@ const { content, meta, style } = Astro.props
           <slot name="subtitle">
             {content.subtitle}
           </slot>
+          <slot name="after-subtitle" slot="after-subtitle" />
         </PageHeader>
         <div class="slot-wrapper"><slot /></div>
       </div>
