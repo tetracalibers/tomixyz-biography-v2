@@ -145,91 +145,11 @@ OGP画像の生成では、機械的に行える処理と、個別の判断を�
 
 私が使う分には最初から指定すればいい話だが、このような内部実装を知らなくても実行できる仕組みづくりが役立つ場面もあるかもしれない。
 
-#### backgroundモード
+それぞれのモードでスクリプトが叩くImageMagickコマンドとその解説は、別記事に切り出した。
 
-`background`モードでスクリプトが叩くImageMagickコマンドはこんな感じ。
-PNG画像の外周につながっている白背景だけを透明化し、透明になった余白をトリミングするものになっている。
-
-```bash title="backgroundモード" showLineNumbers
- magick input.png \
-    -bordercolor white -border 1x1 \
-    -alpha set -channel RGBA \
-    -fuzz 5% -fill none -floodfill +0+0 white \
-    -shave 1x1 \
-    -trim +repage \
-    output.png
-```
-
-処理の流れをまとめると、
-
-1. 白枠を追加
-2. 外周につながった白背景を透明化
-3. 追加した白枠を削除
-4. 透明な余白をトリミング
-
-まずは `-border 1x1{:bash}` で、画像の周囲に1ピクセルの白い枠を追加する。これにより、左上の `(0, 0)` が必ず白になり、後続の `-floodfill{:bash}` を画像外周から安定して開始できる。
-
-```bash showLineNumbers{2}
--bordercolor white -border 1x1
-```
-
-次にアルファチャンネルを有効にし、透明度を含むRGBAを処理対象にする。
-
-```bash showLineNumbers{3}
--alpha set -channel RGBA
-```
-
-続いて、次の部分が背景を透明化する処理。
-
-- `-fuzz 5%{:bash}` によって白に近い色も許容しながら、`(0, 0)` から連続している白い領域を `none{:bash}`（透明）で塗りつぶす
-- `-floodfill{:bash}` は画像内のすべての白を置き換えるのではなく、**指定した位置から連続している領域だけを処理する**アルゴリズムであり、背景から独立した白い文字や図形まで透明になってしまうことを避けられる
-
-`fuzz{:bash}`でどれくらい白に近い色を透過対象にするかを制御するオプション。白い部分が残る場合は値を小さくした方が効果的だが、小さくしすぎると白部分に接する箇所まで削れてしまい、輪郭がザビザビになってしまう。
-
-```bash showLineNumbers{4}
--fuzz 5% -fill none -floodfill +0+0 white
-```
-
-後始末として、最初に追加した白枠を削除。
-
-```bash showLineNumbers{5}
--shave 1x1
-```
-
-最後に、`-trim{:bash}` で透明になった余白を取り除く。`+repage{:bash}` はトリミング後に残る仮想キャンバスの位置情報をリセットするための指定。
-
-```bash showLineNumbers{6}
--trim +repage
-```
-
-#### allモード
-
-`all`モードでは、次のようなImageMagickコマンドをスクリプトが実行することになる。
-画像内の白い部分を透明化したうえで、透明になった余白をトリミングするもの。
-
-```bash showLineNumbers title="allモード"
- magick input.png \
-    -alpha set \
-    -fuzz 2% -transparent white \
-    -trim +repage \
-    output.png
-```
-
-処理は次のように、`background`モードよりも簡潔。
-
-1. 白および白に近い色を透明化
-2. 透明な余白をトリミング
-
-`-floodfill{:bash}`を使わないことで、**背景とつながっているかどうかに関係なく、画像全体の白色が対象**になる。
-
-`all`モードのコマンドの中核となるのは、次の部分。
-
-```bash showLineNumbers{3}
--fuzz 2% -transparent white
-```
-
-`-transparent white{:bash}` は、画像内の白色を透明に変換する。
-`-fuzz{:bash}`については、`all`モードでは白抜き文字など細かい部分まで透過対象になるため、`background`より小さめの`2%`に設定することで、削りすぎを防いでいる。
+> [!NOTE]
+>
+> - [ImageMagickで図版の白背景を透過する](/tech/imagemagick-transparent-white)
 
 ## 自動化層：一括再生成の仕組み
 
