@@ -79,9 +79,11 @@ const linkLabel = new URL(tag.url).hostname.replace(/^www\./, "")
   }
   .description {
     margin: 0;
+    /* 375px以下で14px、768px以上で16px */
+    font-size: clamp(0.875rem, 0.756rem + 0.509vw, 1rem);
     line-height: 1.7;
     color: light-dark(var(--slate-600), var(--slate-200));
-    max-width: 80cqw;
+    max-width: min(clamp(80cqw, 74.4cqw + 3.34rem, 90cqw), 32em);
     word-break: auto-phrase;
   }
   a.official-link,
