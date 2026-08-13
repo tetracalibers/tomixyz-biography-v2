@@ -4,9 +4,8 @@ import DefaultPageLayout from "$/layouts/default.astro"
 import { compareDateForSort } from "$/lib/sort"
 import type { GetStaticPaths } from "astro"
 import ArticlePreviewList from "$components/preview/tag/ArticlePreviewList.astro"
-import { marked } from "marked"
+import PageTitle from "$components/pages/index/PageTitle.astro"
 import { collectTagIds, getRefTagCollection, filterByTag } from "$/lib/tag"
-import { setExternalLinkRenderer } from "$/lib/marked"
 import { getCollection } from "astro:content"
 import { makeEntryMap, type TechNotComingSoon } from "$/lib/collection"
 
@@ -38,19 +37,73 @@ interface Props {
 const { articles, tag } = Astro.props
 
 const title = tag.name
-const subtitle = `${tag.name}を扱った作品や記事`
+const subtitle = tag.description
 const meta = {
+  description: `${tag.name}を扱った作品や記事｜${tag.description}`,
   ogimage: `/og/default.png`
 }
 
-const renderer = new marked.Renderer()
-setExternalLinkRenderer(renderer)
-
-const subtitleMd = `[${tag.name}](${tag.url})を扱った作品や記事`
-const subtitleHtml = marked.parseInline(subtitleMd, { renderer })
+// リンク先はMDNやWikipediaなど様々なので、行き先が分かるようにホスト名をラベルにする
+const linkLabel = new URL(tag.url).hostname.replace(/^www\./, "")
 ---
 
 <DefaultPageLayout content={{ title, subtitle }} meta={{ ...meta }}>
-  <Fragment slot="subtitle" set:html={subtitleHtml} />
-  <ArticlePreviewList entries={articles} />
+  <div class="tag-header" slot="header">
+    <PageTitle title={tag.name} />
+    <div class="description-group">
+      <p class="description">{tag.description}</p>
+      <a class="official-link" href={tag.url} target="_blank" rel="noopener noreferrer">
+        <span class="label">{linkLabel}</span>
+      </a>
+    </div>
+  </div>
+  <div class="content">
+    <ArticlePreviewList entries={articles} />
+  </div>
 </DefaultPageLayout>
+
+<style>
+  /* タイトル・説明・リンクの間隔はこのgapで調整する */
+  .tag-header {
+    display: grid;
+    gap: 0.25rem;
+    text-align: center;
+    place-items: center;
+    container-type: inline-size;
+  }
+  /* 説明とリンクの間隔はこのgapで調整する */
+  .description-group {
+    display: grid;
+    place-items: center;
+    gap: 0.25rem;
+  }
+  .description {
+    margin: 0;
+    /* 375px以下で14px、768px以上で16px */
+    font-size: clamp(0.875rem, 0.756rem + 0.509vw, 1rem);
+    line-height: 1.7;
+    color: light-dark(var(--slate-600), var(--slate-200));
+    max-width: min(clamp(80cqw, 74.4cqw + 3.34rem, 90cqw), 32em);
+    word-break: auto-phrase;
+  }
+  a.official-link,
+  a.official-link:visited {
+    justify-self: center;
+    /* 外部リンクアイコンはglobal.cssの a[target="_blank"]::after が付ける */
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: light-dark(var(--slate-500), var(--slate-300));
+    text-decoration: none;
+    font-size: 1.1rem;
+  }
+  a.official-link .label {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-decoration-style: dotted;
+    text-underline-offset: 0.25rem;
+  }
+  a.official-link:hover {
+    color: light-dark(var(--slate-400), var(--slate-300));
+  }
+</style>

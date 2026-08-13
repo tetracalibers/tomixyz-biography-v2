@@ -33,11 +33,16 @@ const { content, meta, style } = Astro.props
   <Body>
     <MainLayout>
       <div class="MainLayout-inner" class:list={[{ "-title-small": style?.title_small }]}>
-        <PageHeader title={content.title} style={style}>
-          <slot name="subtitle">
-            {content.subtitle}
-          </slot>
-        </PageHeader>
+        {
+          /* headerスロットを渡したページは、ヘッダーのマークアップを自前で組み立てる */
+          Astro.slots.has("header") ? (
+            <slot name="header" />
+          ) : (
+            <PageHeader title={content.title} style={style}>
+              <slot name="subtitle">{content.subtitle}</slot>
+            </PageHeader>
+          )
+        }
         <div class="slot-wrapper"><slot /></div>
       </div>
     </MainLayout>
