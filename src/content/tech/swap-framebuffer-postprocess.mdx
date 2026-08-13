@@ -1,0 +1,215 @@
+---
+title: swap framebufferでポストプロセスを多段に繋ぐ
+date: "2026-08-13"
+description: 2枚のフレームバッファを交互に入れ替えるだけの土台
+tags:
+  - webgl
+  - typescript
+draft: true
+---
+
+[ImaglEditor](/projects/imagl-editor)という画像加工アプリのフィルタは、どれも1つのシェーダで完結しない。エッジを取る、ハッチングを作る、それらを合成する、といった処理を順番に繋いで1枚の絵にしている。
+
+この「順番に繋ぐ」部分を引き受けているのが、`SwapFramebufferRenderer{:ts}`という短いクラスだ。2枚のフレームバッファを交互に入れ替えているだけで、名前のとおりの働きしかしない。それでも、フィルタ側のコードが何段重ねても同じ形で書けるかどうかは、ここで決まっている。
+
+前に書いた[円錐のインスタンシングでボロノイ図を描く](/tech/voronoi-by-cone-instancing)も、この土台の上に乗っているフィルタの1つ。今回は、その下にある仕組みの方を書く。
+
+## 同じテクスチャを読みながら書くことはできない
+
+ここで言う==ポストプロセス==は、画面を覆う1枚の板ポリゴンにフラグメントシェーダを走らせて、入力テクスチャから出力テクスチャを作る処理のこと。加工を1段進めるたびに、この描画を1回行う。
+
+出力先はキャンバスではなく、==フレームバッファオブジェクト==（FBO）に紐づけたテクスチャになる。画面には出さず、次の段の入力として使うためだ。
+
+ここで最初にぶつかるのが、入力に使っているテクスチャを、そのまま出力先にはできないという制約だ。同じテクスチャを読みながら書くことになり、結果は保証されない。WebGLではフィードバックループとして扱われ、描画自体が失敗する。
+
+つまり、1段進めるには読む側と書く側で最低2枚のテクスチャが要る。=p=多段に繋ぐときの設計は、この2枚をどう回すかという話に尽きる。==
+
+{/* TODO: 図版 */}
+
+## パスの数だけフレームバッファを用意しない
+
+素直に思いつくのは、段ごとに専用のFBOを持たせる方法だ。1段目の出力はFBO1、2段目はFBO2、と割り当てていけば、入出力が重なることはない。
+
+これを避けたのは、段数が実行時に変わるからだった。ImaglEditorでは、ぼかしやコントラスト調整をUIのスイッチで足したり外したりできる。有効になっている後処理の数だけパスが増えるので、必要なFBOの枚数を作る時点では決められない。使うかどうか分からない分まで確保しておくのも無駄が多い。
+
+もう1つの案は、FBOを1枚だけ持ち、描き終わるたびにその結果を入力テクスチャへコピーして戻すやり方だ。段数が増えてもメモリは変わらない。ただし、パスを1つ進めるたびにテクスチャのコピーが1回挟まる。
+
+2枚を交互に入れ替える方法なら、コピーは要らないし、枚数も段数に左右されない。読む側と書く側の役割を毎回ひっくり返すだけで済む。
+
+## 1フレームの中で起きていること
+
+鉛筆デッサン風フィルタの描画ループが、この土台の使い方をひととおり含んでいる。
+
+```ts showLineNumbers title="src/routes/pencil/+page.svelte（描画ループの抜粋）"
+const sketch: SketchFn = ({ gl, canvas }) => {
+  // ...
+
+  return {
+    drawOnFrame() {
+      plane.bind()
+      stackRenderer.bind(programForOptions.glProgram, "uMainTex")
+
+      // 元画像をスタックへ流し込む
+      stackRenderer.beginPath()
+      plane.draw({ primitive: "TRIANGLES" })
+      stackRenderer.endPath()
+
+      // 加工前の状態を退避 → 加工 → 円の内側だけを合成
+      locallyMask.saveBase(programForOptions, stackRenderer)
+      mainFilter.apply(programForOptions, stackRenderer)
+      locallyMask.applyMask(programForOptions, stackRenderer)
+
+      // 有効になっている共通フィルタを順に適用
+      filterStack.activeAfterFilters.forEach((filter) => {
+        stackRenderer.beginPath()
+        uniforms && filter.applyUniforms(uniforms)
+        plane.draw({ primitive: "TRIANGLES" })
+        stackRenderer.endPath()
+      })
+
+      // 最後の結果をキャンバスへ
+      stackRenderer.switchToCanvas()
+      uniforms && uniforms.int("uFilterMode", 0)
+      plane.draw({ primitive: "TRIANGLES" })
+    }
+  }
+}
+```
+
+出てくるのは`beginPath(){:ts}`と`endPath(){:ts}`の対、それから`bind(){:ts}`と`switchToCanvas(){:ts}`だけ。どの段でも書き方は変わらず、フィルタが1つ増えても行が増えるだけになる。
+
+### カウンタ1つで書き込み先が決まる
+
+`beginPath(){:ts}`と`endPath(){:ts}`の中身は短い。
+
+```ts showLineNumbers title="src/lib/core/swap-fb.ts（抜粋）"
+export class SwapFramebufferRenderer {
+  private _textures: [WebGLTexture | null, WebGLTexture | null] = [null, null]
+  private _framebuffers: [WebGLFramebuffer | null, WebGLFramebuffer | null] = [null, null]
+
+  private _prevIdx = 0
+  private _count = 0
+
+  // ...
+
+  beginPath() {
+    const gl = this._gl
+    this._count++
+    const idx = this._count % 2
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this._framebuffers[idx])
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+
+    return {
+      inBuf: this._framebuffers[idx],
+      outBuf: this._framebuffers[(idx + 1) % 2]
+    }
+  }
+
+  endPath() {
+    const gl = this._gl
+    const idx = this._count % 2
+    this._prevIdx = idx
+    gl.bindTexture(gl.TEXTURE_2D, this._textures[idx])
+  }
+}
+```
+
+書き込み先を決めているのは`this._count % 2{:ts}`だけだ。`beginPath(){:ts}`を呼ぶたびにカウンタが1つ進むので、書き込み先は0番と1番を行き来する。呼び出す側は、自分が何段目にいるかを知らなくていい。
+
+`endPath(){:ts}`は、いま書き終えた番号を`_prevIdx{:ts}`に控える。次の段が「直前の結果」を読みたくなったときに参照するのはこの値になる。
+
+### 元画像と直前の結果を読み分ける
+
+読み込み側の入口は2つある。
+
+```ts showLineNumbers title="src/lib/core/swap-fb.ts（抜粋）"
+bind(program: WebGLProgram | null, name: string) {
+  if (!program) throw new Error("program is null")
+  const gl = this._gl
+  gl.useProgram(program)
+  const location = gl.getUniformLocation(program, name)
+
+  gl.activeTexture(gl.TEXTURE0 + 0)
+  gl.bindTexture(gl.TEXTURE_2D, this._originalTexture)
+  gl.uniform1i(location, 0)
+
+  this._count = 0
+}
+
+bindPrev(program: WebGLProgram | null, name: string) {
+  if (!program) throw new Error("program is null")
+  const gl = this._gl
+  gl.useProgram(program)
+  const location = gl.getUniformLocation(program, name)
+
+  gl.activeTexture(gl.TEXTURE0 + this._prevIdx + 1)
+  gl.bindTexture(gl.TEXTURE_2D, this._textures[this._prevIdx])
+  gl.uniform1i(location, this._prevIdx + 1)
+}
+```
+
+`bind(){:ts}`が渡すのは、加工前の元画像。フレームの先頭で呼ばれ、ついでにカウンタを0へ戻すので、毎フレーム同じ順序でスワップが回る。
+
+`bindPrev(){:ts}`が渡すのは、直前の段が書き終えたテクスチャ。エッジ抽出のように元画像を必要とする処理は`bind(){:ts}`を、前段の結果を受け取る処理は`bindPrev(){:ts}`を呼べばいい。フィルタが意識するのはこの2択だけで、いま何番のFBOに書いているかは出てこない。
+
+## 段数が実行時に変わっても2枚で足りる
+
+ぼかしとコントラスト調整は、どのフィルタからも同じように使いたい後処理として、`FilterStack{:ts}`にまとめてある。有効になっているものだけがMapに残り、描画ループはそれを順に回す。
+
+```ts title="src/routes/pencil/+page.svelte（抜粋）"
+filterStack.activeAfterFilters.forEach((filter) => {
+  stackRenderer.beginPath()
+  uniforms && filter.applyUniforms(uniforms)
+  plane.draw({ primitive: "TRIANGLES" })
+  stackRenderer.endPath()
+})
+```
+
+ここで回る回数は、UIのスイッチ次第で0回にも3回にもなる。ぼかしは横方向と縦方向を別のパスに分けているので、スイッチ1つで2段増える。
+
+段ごとに専用のFBOを割り当てる設計だと、この`forEach{:ts}`のために枚数を先に数えなければならない。カウンタで交互に切り替える形にしておくと、何回回っても消費するのは2枚のままになる。
+
+なお、各フィルタが内部で使うオフスクリーンは別で持っている。鉛筆デッサン風なら、エッジ抽出の結果を受け取る`UseMRT{:ts}`と、2パス目の出力を受ける`UseFramebuffer{:ts}`がフィルタ自身のものだ。フィルタの内側は段数が固定なので専用のFBOを持たせ、外側の可変長のところだけスワップに任せている。
+
+## 書き戻しを省くと次の段まで巻き込む
+
+多段に繋ぐ土台があると、途中に割り込む処理も書きやすくなる。円の内側だけにフィルタを効かせる`LocallyFilterMask{:ts}`は、加工前の状態を別のFBOへ退避しておき、加工後にその2枚を円形のマスクで合成する。
+
+合成そのものは1パスで終わるが、コードにはもう1パスある。
+
+```ts showLineNumbers title="src/lib/filters/locally/locally.ts（抜粋）"
+// 保存しておいた描画結果の上に、加工画像を局所的に合成
+stack.beginPath()
+compositeProgram.activate()
+before.useTexture(compositeProgram, { name: "uOriginalTex" })
+stack.bindPrev(compositeProgram.glProgram, "uEffectedTex")
+this._compositeUniforms.fvector2("uCenter", this._uCenter)
+this._compositeUniforms.float("uRadius", this._uRadius)
+screen.draw({ primitive: "TRIANGLES" })
+stack.endPath()
+
+// 結果を保存して、次へ引き継ぐ
+// この処理を省くと、次のフィルタも局所的に適用されてしまう
+stack.beginPath()
+outProgram.activate()
+stack.bindPrev(outProgram.glProgram, "uMainTex")
+screen.draw({ primitive: "TRIANGLES" })
+stack.endPath()
+```
+
+後半は、合成した結果をもう一度スワップへ書き戻しているだけのパスだ。コメントに残っているとおり、これを省くと後続のぼかしやコントラストまで円の内側だけに効いてしまう。
+
+自分で書いておきながら、いまコードだけを読み返しても、なぜ1パス挟まないと後続へ正しく渡らないのかを説明しきれない。合成パスで別のプログラムへ切り替えていることと関係していそうだが、確かめずに書くのはやめておく。
+
+{/* TODO: 要確認 */}
+
+## 暗黙の前提に寄りかかっている
+
+この土台でいちばん危ういのは、テクスチャユニットの割り当てを人間が決めているところだと思う。`bind(){:ts}`は0番、`bindPrev(){:ts}`は`_prevIdx + 1{:ts}`なので1番か2番を使う。フィルタが自前で持つオフスクリーンは、生成時に`texUnitStart{:ts}`で開始番号を渡す形になっていて、鉛筆デッサン風なら`UseMRT{:ts}`に1、`UseFramebuffer{:ts}`に3、マスク用の退避先に5、と手で振り分けてある。
+
+番号が重なった瞬間に、別のフィルタが期待しているテクスチャを踏む。フィルタを組み合わせたり、パスを1つ足したりするたびに、空いている番号を目視で探すことになる。使用中の番号を管理する層を挟むべきだった。
+
+`endPath(){:ts}`が`gl.bindTexture(){:ts}`を呼ぶだけで、`gl.activeTexture(){:ts}`を呼んでいないのも、いま見ると心もとない。どのユニットへ結び付くかは、その直前に誰が`activeTexture(){:ts}`を呼んだかで決まる。フレームの最後にキャンバスへ描く処理は、この暗黙の結び付きの上で成り立っている。
+
+それから、パラメータが何も変わっていなくても、毎フレーム全パスを描き直している。スライダーを動かした瞬間だけ組み立て直せば済むはずで、静止画を扱うアプリとしては素朴すぎる。加工の段数が増えるほど効いてくるところなので、フィルタを足していくなら先に直したい。
