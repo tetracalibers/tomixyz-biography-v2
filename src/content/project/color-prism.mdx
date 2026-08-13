@@ -16,128 +16,178 @@ tags:
   - claude-design
 description: 色彩からCG・画像処理までつながるビジュアル学習サイト
 pinned: true
-editing: true
 ---
 
-文章を読むだけでは理解しづらい色や光の現象を、図解・クイズ・シミュレータ・3Dデモを通して体験できる学習サイトを制作しました。
+import FigureBox from "$/components/image-wrapper/FigureBox.astro"
+import VStack from "$/components/placement/VStack.astro"
 
-**「見て・触って学ぶ」** をコンセプトに、[色彩検定](https://www.aft.or.jp/)や[CG-ARTS検定](https://www.cgarts.or.jp/kentei/)の学習で登場する知識の暗記学習を、Webならではの体験に置き換えることを目指しています。
+import img_ThreejsCdDemo from "../../assets/topics/color-prism/threejs-cd-demo.png"
+import img_DominantAndToneOnTonePage from "../../assets/topics/color-prism/dominant-and-tone-on-tone-page.png"
+import img_ColorMixingBasicsPage from "../../assets/topics/color-prism/color-mixing-basics-page.png"
+import img_ColorTheoryPage from "../../assets/topics/color-prism/color-theory-page.png"
+import img_LampTypesPageAnki from "../../assets/topics/color-prism/lamp-types-page-anki.png"
+import img_JisColorMapAllPage from "../../assets/topics/color-prism/jis-color-map-all-page.png"
+import img_JisColorMapBluePage from "../../assets/topics/color-prism/jis-color-map-blue-page.png"
+import img_JisColorMinimapBlue from "../../assets/topics/color-prism/jis-color-minimap-blue.png"
+import img_LightnessMatchGame from "../../assets/topics/color-prism/lightness-match-game.png"
+import img_ApproximatePageFull from "../../assets/topics/color-prism/approximate-page-full.png"
+import img_AnalyzePageFull from "../../assets/topics/color-prism/analyze-page-full.png"
+import img_PatternsModernPageBaseColor from "../../assets/topics/color-prism/patterns-modern-page-base-color.png"
+import img_PatternsModernPagePreview from "../../assets/topics/color-prism/patterns-modern-page-preview.png"
+import img_CgTransformationPage from "../../assets/topics/color-prism/cg-transformation-perspective-and-parallel-projection-page.png"
 
-## 色を「体験」する機会が少ない
+文章を読むだけでは理解しづらい色や光の現象を、図解・クイズ・シミュレータ・3Dデモを通して体験できる学習サイトを制作しています。
 
-色彩について学んでいると、文章だけでは理解しづらい場面が何度もあります。
-[自身の学習](/blog/2026-color-study)でも、「どうすれば、色を体験として視覚的に理解できるか」に悩み、このサイトを制作するに至りました。
+「見て・触って学ぶ」をコンセプトに、[色彩検定](https://www.aft.or.jp/)や[CG-ARTS検定](https://www.cgarts.or.jp/kentei/)で求められる知識の学習を、Webならではの体験に置き換えることを目指しています。
+
+## 色を体験する機会が少ない
+
+色彩について学んでいると、文章だけでは理解しづらい場面が多々あります。
+[自身の学習](/blog/2026-color-study)でも、「どうすれば丸暗記ではなく視覚的に理解できるか」に悩み、このサイトを制作するに至りました。
 
 そこで、特に力を入れているのは、インタラクティブな図解やデモです。
-紙面ではイメージしづらいテーマを中心に、現時点で200点以上のデモ・図解コンポーネントを制作しています。
+紙面ではイメージしづらいトピックを中心に、現時点で200点以上のSVG図解・Three.jsデモを制作しています。
+
+<VStack>
+  <FigureBox src={img_ThreejsCdDemo} maxWidth="600px" />
+  <FigureBox src={img_DominantAndToneOnTonePage} />
+  <FigureBox src={img_ColorMixingBasicsPage} />
+</VStack>
 
 ## 「知りたいこと」から辿れるコンテンツ構造
 
-資格試験のカリキュラムに沿って知識を整理するだけでは、苦手分野を学び直そうにも、「どの級のテキストのどのあたりに書いてあったか」が辿りづらくなります。たとえば、2級の特定の単元は、3級の特定の単元の発展であることも多いからです。
+たとえば、2級の特定の単元は、3級の特定の単元の発展であることも多くあり、分野ごとの基礎から発展への流れが途切れてしまいます。関連分野を復習しながら進めるには、自ら全体像と分野の切り分けを掴んでおく必要があると感じていました。
 
-そこで、級ごとではなく、単元ごとに整理し、興味に沿って級を超えて深く学んだり、色彩検定を目的としない人でも楽しめる構成にしました。
+そこで、このサイトでは、色彩検定の全カリキュラムを分野ごとに整理し、興味に沿って級を超えて深く学んだり、色彩検定の学習を目的としない人でも楽しめる構成にしました。
 
-> TODO：「色の理論」トップページの画像
+- [「色の理論」ページ](https://color-prism.net/color-theory/)
 
-**テーマを軸に記事を構成**し、級はタグとして表示しています。試験勉強に使う場合は、自分に必要な級の範囲だけを拾い読みできます。
-資格試験のための教材でもありながら、試験が終わったあとにも使える「色のリファレンス」を目指した設計です。
+<FigureBox src={img_ColorTheoryPage} />
 
-## 色を「見る・見分ける・使う」ための体験
+テーマごとに学びの流れを構成しながらも、タグとして該当級を表示しているため、試験勉強に使う場合は、自分に必要な級の範囲だけを拾い読みできます。
 
-Color Prismには、記事を読む以外にも、色彩を体験するための機能があります。
+試験が終わった後や、試験を目指さない場合にも使える、色のリファレンスを目指した設計です。
 
-### 光と色について体系的に学ぶ
+## 色を使えることを目指す体験
 
-「色の理論」では、光・色・視覚について体系化。
-同時対比、干渉、回折、色立体など、紙面ではイメージしづらいテーマには、SVGやThree.jsによるインタラクティブな図解を独自に実装しています。
+Color Prismでは、文章を読んで学習するだけでなく、体験しながら理解を深められる機能を備えています。
 
-> TODO：図解の例
+### 知識の定着を支える穴埋め問題集
 
-また、ヘッダーから**暗記モード**に切り替えると、重要語や色名が伏せられ、読んでいた解説ページがそのまま穴埋め問題集になります。
+ヘッダーから「暗記モード」に切り替えると、重要語や色名が伏せられ、読んでいる解説ページがそのまま穴埋め問題集になります。
 
-> TODO：暗記モードの画像
+<FigureBox src={img_LampTypesPageAnki} caption="暗記モード" />
 
 ### 似た色を比較して覚える
 
-色彩検定では、多くの慣用色名が問われます。慣用色の一覧は、持ち歩いてどこでも学習できると便利です。
+色彩検定では、多くの慣用色名が問われます。慣用色名の一覧は、持ち歩いてどこでも復習できると便利です。
 
-しかし、名前と色を1色ずつ暗記するのではなく、
+- [「すべての慣用色名一覧」ページ](https://color-prism.net/jis-color-map/all/)
+
+<FigureBox src={img_JisColorMapAllPage} />
+
+そして、名前と色を1色ずつ暗記するだけでなく、
 
 - こちらの方が明るい
-- こちらの方が赤みに近い
+- こちらの方が黄みに近い
 
-という相対的な違いから覚えられるように、「慣用色名マップ」という独自のコンテンツを盛り込みました。
-一覧で覚えるのではなく、色相と明度の位置関係に配置。同じ赤系でも「どちらが明るいか」「どちらが黄みに近いか」を比較しながら覚えられるようにしました。
+という相対的な色の違いで捉えられるように、色相と明度の位置関係を表すグリッド上に色を配置した「慣用色名マップ」という独自のコンテンツを盛り込みました。
 
-> TODO：慣用色名マップの画像
+- [「青系の慣用色名マップ」ページ](https://color-prism.net/jis-color-map/blue/)
 
-さらに、紛らわしい色ごとに、色相・明度・彩度の違いを図示し、**何を見比べればいいのか**まで示しています。
+<FigureBox src={img_JisColorMapBluePage} />
 
-> TODO：ミニマップの画像
+さらに、特に区別しづらい色はグループとして切り出し、色相・明度・彩度の違いを図示することで、どの属性に大きな違いがあるか？という比較の着眼点まで示しています。
+
+<FigureBox src={img_JisColorMinimapBlue} maxWidth="700px" />
 
 ### 「分かったつもり」をクイズで確かめる
 
-色に見極める目を鍛錬するために、明度比較、清色・濁色、トーン当ての3種類のクイズを用意しています。
+色を見極める目を鍛錬するために、明度比較、清色・濁色、トーン当ての3種類のクイズを用意しています。
 
-たとえば明度の比較クイズでは、単に正解を当てるだけではなく、何度もカードをめくり、難しければヒントとしてグレースケール化した色を見て、色相や彩度に惑わされながらも「明るさだけを見極める」感覚を鍛えていきます。
+たとえば、[「明度を見分ける」クイズ](/games/lightness-match/)では、単に正解を当てるだけではなく、何度もカードをめくり、難しければヒントとしてグレースケール化した色を見て、色相や彩度の印象を取り除いて「明るさだけを見極める」感覚を鍛えていきます。
 
-> TODO：明度比較クイズの画像
+<FigureBox src={img_LightnessMatchGame} />
 
 ### Webの色を色彩理論の言葉へ変換する
 
 Web制作者向けに、学んだ知識を実際の制作につなげるためのツールも作りました。
 
-**「色の近似」**では、HEXカラーを入力すると、近いPCCS記号と慣用色名を表示します。
-Web制作で普段使っている `#4A90E2` のような色を、「PCCSではどの色相・トーンにあたるか」「慣用色の中では何に近いか」など、Webの色表現を別の語彙で捉え直すことができます。
+[「色の近似」ツール](https://color-prism.net/approximate/)では、HEXカラーを入力すると、近いPCCS記号と慣用色名を表示します。
+Webで使われる `#4A90E2` のような色の表現を、「PCCSではどの色相・トーンにあたるか」「慣用色の中では何に近いか」など、色彩学で使われる語彙で捉え直すことができます。
 
-> TODO：色の近似ページの画像
+<FigureBox src={img_ApproximatePageFull} maxWidth="450px" />
 
-PCCSでの色表記を理解すると、狙ったイメージの配色をつくる指針がわかるようになります。
-「配色の分析」では、入力した配色をPCCSのルールから分析します。2〜6色の配色を色相環とトーン図へプロットし、ドミナントカラー、カマイユ、トライアドなど、**色彩検定で学ぶ言葉を使って配色の特徴を説明**します。
-ドミナントカラー、トーンオントーン、カマイユ、トライアドなど、教科書では個別に覚える配色技法を、実際の色へ当てはめながら理解できます。
+そして、PCCSでの色表記を理解すると、狙ったイメージの配色をつくる指針がわかるようになります。
 
-> TODO：配色分析ページの画像
+[「配色の分析」ツール](/analyze/)では、入力した配色をPCCSのルールから分析します。2〜6色の配色を色相環とトーン図へプロットし、ドミナントカラー、カマイユ、トライアドなど、色彩検定で学ぶ言葉を使って配色の特徴を説明します。
 
-「配色シミュレータ」では、エレガント、クラシック、モダンなど10テーマから色を選び、完成した配色を幾何パターンへリアルタイムに反映。
-そして**「配色シミュレータ」**では、エレガント、クラシック、モダンなど10種類のイメージをもとに、ベース・アソート・アクセントの色を選択。
-完成した配色は幾何パターンへリアルタイムに反映されるため、「色を選ぶ」だけでなく「面積を持ったデザインになったとき、どう見えるか」まで試せます。
+<FigureBox src={img_AnalyzePageFull} maxWidth="600px" />
 
-> TODO：配色シミュレータの画像
+### 色の組み合わせ方による印象の違いを実験
 
-### 色彩から、CG・画像処理へ
+[「配色シミュレータ」ページ](https://color-prism.net/patterns/)では、エレガント、クラシック、モダンなど10テーマから色を選び、ベースカラー・アソートカラー・アクセントカラーを組み合わせて、自由に配色を作ってみることができます。
 
-Color Prism のもう一つのテーマが、色彩からCG・画像処理への橋渡しです。
-光や色の理論のその先として、CG・画像処理を学ぶ記事も執筆しています。
+<FigureBox src={img_PatternsModernPageBaseColor} />
 
-きっかけは、CGを学び始めたときに、教科書に出てくる光の計算式をうまく理解できなかったことでした。
-CGの式だけを見るのではなく、その前に光や色そのものを理解していたら、もっと自然に学べたのではないか。
-その経験から、色彩の基礎を学んだ先に、CG-ARTS検定の範囲をベースにした記事を配置しました。
+完成した配色は、SVGで生成されるランダム幾何パターンへとリアルタイムに反映。気に入ったものは画像として保存することもできます。
 
-CGの記事では、**画面上で動いているデモのコードも掲載**しています。
-Three.jsによるデモを操作しながら学ぶことができ、そのThree.jsデモの実装コードも掲載。
-CGの知識をWeb制作へ持ち帰って、カスタマイズできるところまで学習体験に含めています。
+<FigureBox src={img_PatternsModernPagePreview} />
 
-## 「色を扱うサイト」だからこその実装
+### 色や光の基本から、CGや画像処理の世界へ
 
-Color Prism は、SvelteKitを中心に構築しています。
+Color Prism のもう一つのテーマが、色や光の学びを、CG・画像処理の理論へと橋渡しすることです。
+これは、色や光について「知る」ところから、色や光を計算して「生み出す」ことへのステップアップといえます。
 
-記事は `.svx`（mdsvex）で管理し、独自のremarkプラグインによって、暗記モードで対象になる強調箇所なども、簡潔な記法で執筆のハードルを下げるようにしています。
-コンテンツの装飾要素はimport不要なディレクティブで、デモコンポーネントはimportしてコンポーネントとして使う、という切り分けにより、AIにも「importがない記事 = 図版やデモがないページ」という解釈をしてもらえるようになり、スキル内でのコード検索のコストを削減することに繋がっています。
+そもそも、色や光について学ぼうと思ったきっかけは、CGの教科書に出てくる光の計算式や、シェーダーで使われる色変換をうまく理解できなかったことでした。
+数式の意味を探る前に、光や色の基本を理解していたら、もっとスムーズに学べたのではないか。
+その経験から、色の基礎を学んだ先として、CG-ARTS検定の範囲をベースにした記事を配置しました。
 
-> TODO：ページのコード例
+CGの記事では、Three.jsによるデモを操作しながら学ぶことができ、そのThree.jsデモの実装コードも掲載しています。
+CGの知識をWeb制作へ持ち帰って、自分でカスタマイズできるところまでを学習体験に含めています。
 
-図解は原則としてインラインSVGのSvelteコンポーネントとして実装し、3D表現にはThree.js / Threlteを使用しています。
+<FigureBox src={img_CgTransformationPage} />
 
-色そのものが教材になるため、ライト／ダークテーマを切り替えても教材の意味が変わらないことや、色変換の計算と画面上の見え方が食い違わないことも重視しています。
+## コンテンツの管理
 
-たとえば明度クイズのグレースケール化ヒント機能では、単純なCSSの `grayscale()`フィルタは使っていません。
-ゲームの正解判定に使っているマンセルValueからグレーを計算し、**「正解判定」と「ユーザーが見るヒント」が同じ基準になるようにする**。
-小さな実装判断でも、「学習者に間違った理解を与えないか」から逆算しています。
+Color Prism の記事は[mdsvex](https://mdsvex.pngwn.io/)で管理しており、Markdownをベースとしながら、図版などはSvelteコンポーネントとして埋め込む形にしています。
+
+また、[独自のremarkプラグイン](/tech/mdsvex-directive)によって、コンテンツ自体の装飾要素（暗記モード対象とする強調表示など）は、`import{:js}`不要なディレクティブとして書けるようにしています。
+
+文書構成や文章自体に関わるコンポーネントは`import{:js}`不要とし、デモコンポーネントだけを`import{:js}`して使う、という切り分けにより、AIにも「`import{:js}`がない記事 = 図版やデモがないページ」という解釈をしてもらえるようになり、図版の有無による分岐時のコード検索のコストを削減することにも繋がっています。
+
+```md
+<script>
+  import SVGWrapper from '$lib/demo/SVGWrapper.svelte'
+  import CIE1931RGBColorMatchingGraph from '$lib/demo/color/xyz-color-system/CIE1931RGBColorMatchingGraph.svelte'
+  import CIE1931XYZColorMatchingGraph from '$lib/demo/color/xyz-color-system/CIE1931XYZColorMatchingGraph.svelte'
+  import ConeLuminousEfficiencyGraph from '$lib/demo/color/xyz-color-system/ConeLuminousEfficiencyGraph.svelte'
+</script>
+
+実際の色光を基準としている[RGB表色系](/color-theory/rgb-color-system/)は、マイナスの混色量を使わなければ表せない色があり、当時の計算機では扱いづらいものでした。
+そこで、混色量が負の数にならずに済むように、数学的に変換してつくられた表色系が:Anki[XYZ表色系]です。
+
+## :WithGradeTag[RGB表色系の等色関数]{grades="1"}
+
+さまざまな波長の単色光を再現しようとする[等色実験](/color-theory/color-matching-and-grassmanns-law/)を繰り返し、それぞれの単色光と等色する $$[R], [G], [B]$$ の:Anki[混色比]（どれくらいずつ混ぜるか）を求めていくことを考えます。
+
+再現したい単色光の波長 $$\lambda$$ によって、$$[R], [G], [B]$$ の混色比は変わるため、$$[R], [G], [B]$$ それぞれを混ぜる量は、単色光の波長 $$\lambda$$ の関数として表すことができます。
+
+- $$[R]$$ を混ぜる量：$$\overline{r}(\lambda)$$
+- $$[G]$$ を混ぜる量：$$\overline{g}(\lambda)$$
+- $$[B]$$ を混ぜる量：$$\overline{b}(\lambda)$$
+
+これらの関数をRGB表色系の:Anki[等色関数]といい、関数の値は[色の三色性](/color-theory/color-matching-and-grassmanns-law/)で学んだ:Anki[三刺激値]を表しています。次のようにグラフ化すると、再現したい色（波長）ごとの三刺激値（混ぜる量）がわかります。
+
+<SVGWrapper maxW={500}>
+  <CIE1931RGBColorMatchingGraph />
+</SVGWrapper>
+```
 
 ## Claude Codeによる自動化
 
-プロダクトだけでなく、それを作り続ける開発環境の改善も行っています。
+サイトを作り続けるための仕組みづくりも積極的に行っています。
 スムーズな制作を支えるために作成したClaude Codeのスキルについては、次の記事で詳しく紹介しています。
 
-- TODO：文章生成の仕組み記事へのリンク
-- TODO：OGP画像生成の仕組み記事へのリンク
+- [AIに文章を書く思考回路を模倣させる](/tech/ai-mimic-writing-thought-process)
+- [OGP画像生成にAIによる知能層を挟む](/tech/color-prism-ogp-generation)
