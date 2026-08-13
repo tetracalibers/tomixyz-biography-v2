@@ -1,5 +1,6 @@
 ---
 import PublishDate from "./PublishDate.astro"
+import TagList from "$components/article-header/TagList.astro"
 import { SITE } from "$/config"
 import { getEntry } from "astro:content"
 import { Icon } from "astro-icon/components"
@@ -37,6 +38,7 @@ const series = tech.series ? await getEntry("series", tech.series.id) : null
         <p class="desc">
           {tech.description}
         </p>
+        {tech.tags.length > 0 && <TagList tags={tech.tags} />}
       </div>
     </div>
   </div>
@@ -58,7 +60,7 @@ const series = tech.series ? await getEntry("series", tech.series.id) : null
   .inner {
     display: grid;
     justify-items: start;
-    align-items: center;
+    align-items: start;
     column-gap: 0.75rem;
     width: 100%;
   }
@@ -168,6 +170,19 @@ const series = tech.series ? await getEntry("series", tech.series.id) : null
     word-break: auto-phrase;
     color: light-dark(var(--slate-800), white);
   }
+  .content :global(.TagList) {
+    row-gap: 0.5rem;
+    margin-block-start: 0.25rem;
+  }
+  /* TagListは768px未満で中央寄せだが、.contentのテキストは500px以上で左揃えになるので合わせる */
+  @media (min-width: 500px) {
+    .content :global(.TagList) {
+      justify-content: start;
+    }
+  }
+  .content :global(.Tag) {
+    font-size: 0.9rem;
+  }
 
   /* .contentがz-index: 2のため、ピンアイコンがその下に隠れないようにする */
   .pin-container :global(.pin-icon) {
@@ -175,7 +190,6 @@ const series = tech.series ? await getEntry("series", tech.series.id) : null
   }
 
   .-pinned:not(:has(+ .-pinned)) {
-    margin-block-end: 1rem;
     padding-block-end: 2rem;
   }
 

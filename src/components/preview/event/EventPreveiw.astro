@@ -2,6 +2,7 @@
 import type { CollectionEntry } from "astro:content"
 import { Image } from "astro:assets"
 import PublishDate from "./PublishDate.astro"
+import TagList from "$components/article-header/TagList.astro"
 import { SITE } from "$/config"
 import { Icon } from "astro-icon/components"
 
@@ -27,6 +28,7 @@ const pageUrl = SITE.base + "/events/" + id
         <p class="desc">
           {event.description}
         </p>
+        {event.tags.length > 0 && <TagList tags={event.tags} />}
       </div>
     </div>
   </div>
@@ -95,6 +97,15 @@ const pageUrl = SITE.base + "/events/" + id
     line-height: 1.5rem;
     hyphens: auto;
     color: light-dark(var(--slate-800), white);
+  }
+  /* TagListは既定で中央寄せだが、プレビューのテキストは常に左揃えなので合わせる */
+  .content :global(.TagList) {
+    justify-content: start;
+    row-gap: 0.5rem;
+    margin-block-start: 0.25rem;
+  }
+  .content :global(.Tag) {
+    font-size: 0.9rem;
   }
   .EventPreview-thumb {
     flex-basis: calc((var(--breakpoint) - 100%) * 999);
