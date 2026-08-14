@@ -119,6 +119,10 @@ mysql:
   name: MySQL
   description: 世界的に広く使われているオープンソースのリレーショナルデータベース
   url: https://www.mysql.com/jp/
+playwright:
+  name: Playwright
+  description: 複数のブラウザを自動操作してテストを実行するフレームワーク
+  url: https://playwright.dev/
 postgresql:
   name: PostgreSQL
   description: 拡張性と標準準拠を重視したオープンソースのリレーショナルデータベース
@@ -241,6 +245,10 @@ view-transition-api:
   name: View Transition API
   description: ページやDOMの状態変化にアニメーション付きの遷移を与えるブラウザAPI
   url: https://developer.mozilla.org/ja/docs/Web/API/View_Transition_API
+vitest:
+  name: Vitest
+  description: Viteの設定をそのまま使えるJavaScriptのテストフレームワーク
+  url: https://vitest.dev/
 vscode:
   name: VS Code
   description: Microsoftが開発する、拡張性の高いコードエディタ
