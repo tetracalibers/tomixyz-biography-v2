@@ -1,3 +1,7 @@
 /recipes      /tech        301
 /recipes/*    /tech/:splat 301
 /like         /passion     301
+
+/tech/ai-mimic-writing-thought-process  /tech/color-prism-ai/ai-mimic-writing-thought-process  301
+/tech/color-prism-ogp-generation        /tech/color-prism-ai/color-prism-ogp-generation        301
+/tech/imagemagick-transparent-white     /tech/color-prism-ai/imagemagick-transparent-white     301
