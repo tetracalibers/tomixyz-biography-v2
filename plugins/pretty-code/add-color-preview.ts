@@ -23,11 +23,24 @@ const isHexLength = (str: string) => {
   return [3, 4, 6, 8].includes(str.length)
 }
 
+// 単独の # だけからなるトークンかどうか（末尾に空白があれば次のトークンとは繋がっていない）
+const isLoneHashToken = (node: ElementContent | undefined) => {
+  const token = tokenValueWithRaw(node)
+  if (token === null) return false
+  if (token.value !== "#") return false
+  return !/\s$/.test(token.raw)
+}
+
 const walkValidateHTMLColorHex = (tokens: ElementContent[], i: number) => {
-  const next = tokenValue(tokens[i + 1])
+  // #version のように # の後ろに文字が続くトークンは、次のトークンと連結しても色コードにはならない
+  if (!isLoneHashToken(tokens[i])) return null
+
+  const next = tokenValueWithRaw(tokens[i + 1])
   if (next === null) return null
-  if (!isHexLength(next)) return null
-  const color = "#" + next
+  // 先頭に空白があれば # とは繋がっていない
+  if (/^\s/.test(next.raw)) return null
+  if (!isHexLength(next.value)) return null
+  const color = "#" + next.value
   if (!validateHTMLColorHex(color)) return null
   return color
 }
