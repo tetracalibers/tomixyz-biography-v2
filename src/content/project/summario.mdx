@@ -12,12 +12,211 @@ tags:
   - drizzle
   - postgresql
 description: 知識整理の思考フローを支えるプロトタイプ
+editing: true
 ---
 
-1つの概念をさまざまな視点で眺め、他の概念と関連付けながら、知識として多面的に理解・整理するハードルを下げるために構想したアプリケーションです。
+import FigureBox from "$/components/image-wrapper/FigureBox.astro"
+
+import img_AllViewCards from "../../assets/tech/summario-dev/all-view-cards.png"
+import img_FolderStructureMapPage from "../../assets/tech/summario-dev/folder-structure-map-page.png"
+
+1つの概念をさまざまな視点で眺め、他の概念と関連付けながら、知識として多面的に理解・整理するハードルを下げるために構想したアプリケーションです。ローカルで[Supabase](https://supabase.com/)のコンテナを起動して動かす、自分専用の試作として制作しています。
+
+学んだことをノートにまとめようとすると、いつの間にか文章の構成や言い回しを考えることに時間を使ってしまいます。理解することと、それを伝わる形で表現することはレベルの異なる作業で、最初から一度にやろうとすると負荷が高いと感じていました。言語化の前段階、つまり知識の断片を観点ごとに切り分けて並べるところだけでも完結できるアプリが欲しくて、自分で作ることにしました。
 
 新たな知識を「インプットしながらアウトプットする」という意味で、summarize（要約する）とI/O（インプット/アウトプット）を掛け合わせた、Summarioという名前にしています。
 
-コンセプトや機能については、次の記事で詳しく紹介しています。
+コンセプトと、採用しているライブラリについては、次の記事で詳しく紹介しています。
 
 - [知識整理の思考フローを支えるアプリを作る](/tech/summario-dev/concept)
+- [知識整理アプリの技術構成](/tech/summario-dev/technologies)
+
+## 観点ごとのセクションで書く
+
+Summarioでは、1つのテーマ（用語や概念）につき1枚のノートを作ります。そのノートは、==セクション==という単位で観点ごとに区切って書いていきます。全体の流れを組み立てられなくても、観点ごとの説明が揃っていれば理解としては十分だと考えているからです。
+
+### 視点カードをドラッグして書き始める
+
+サイドバーの「Blocks」タブには、「ひと言で表すなら？」「何を解決するために登場した？」「落とし穴となりそうなところは？」といった問いかけが書かれた==視点カード==が16枚並んでいます。
+
+<FigureBox src={img_AllViewCards} caption="現時点で用意されている視点カード" />
+
+カードをエディタへドラッグ&ドロップすると、その観点を見出しに持つ空のセクションが、落とした位置に挿入されます。
+
+<video muted playsinline controls preload="none" poster="/poster/summario-dev/drag-view-card_poster.png">
+  <source src="/movie/summario-dev/drag-view-card.webm" type="video/webm" />
+</video>
+
+ドロップ位置の解釈は、書きかけの本文を壊さないことを優先しました。ブロックとブロックの間に落とせばその位置へ、トップレベルの空段落の上に落とせばその段落と置き換わります。リストや引用の中、テキストの途中に落とした場合は、何も起こりません。
+
+穴埋め式のテンプレートにしなかったのは、用意された構成に書きたいことを当てはめる思考を持ち込みたくなかったからです。欲しかったのは決まった型ではなく、情報をどの角度から眺めるかという方向性だけでした。
+
+### セクション単位で入れ替える
+
+視点カードを使わず、普通のMarkdownエディタとして書き始めることもできます。書いた後から任意の選択範囲をセクションにまとめたり、まとめたセクションをほどいたりする操作は、ツールバーのボタン1つで切り替わります。
+
+<video muted playsinline controls preload="none" poster="/poster/summario-dev/drag-section-block_poster.png">
+  <source src="/movie/summario-dev/drag-section-block.webm" type="video/webm" />
+</video>
+
+セクションにまとめておくと、見出しと本文をセットにしたまま並び替えられます。一般的なブロックエディタでは見出しと段落が別々のブロックになることが多く、章ごと入れ替える操作が欲しかったのです。
+
+セクションは意味のあるまとまりである必要はなく、並び替えのために一時的に括るだけの使い方もできます。
+
+## タイトルから始まる文書構造
+
+ノートの編集には[Tiptap](https://tiptap.dev/)を使っていますが、何でも自由に書けるテキストエリアにはせず、文書の骨格をスキーマとして固定しています。
+
+```ts title="ドキュメントのスキーマ定義"
+const CustomDocument = Document.extend({
+  content: "title aliases (section|block)*"
+})
+```
+
+先頭には必ずタイトルが1つ、その次に別名の入力欄が来て、それ以降にセクションや通常のブロックが並ぶ、という構造です。Tiptapの土台である[ProseMirror](https://prosemirror.net/)では、スキーマに反する構造のコンテンツはそもそも作れないため、タイトルを消してしまったノートや、タイトルが2つあるノートは発生しません。
+
+- [ProseMirrorの文書構造を知る](/tech/summario-dev/tiptap-document)
+
+本文で使える見出しも`h2{:html}`から`h4{:html}`に限定しました。`h1{:html}`はタイトル専用です。1テーマ1ノートという前提を、書ける構造の側から支えています。
+
+タイトルの下にある別名の入力欄は、Tiptapのカスタムノードとして本文の中に埋め込んだ[Mantine](https://mantine.dev/)のタグ入力UIです。1つのテーマに複数の呼び名があることは珍しくないため、タイトルとは別に登録できるようにしています。
+
+## 関連を先に登録してから書く
+
+ノートの右側には、そのテーマと関連する他のテーマを登録する欄と、登録した関係をネットワークグラフとして描く==関連グラフ==があります。
+
+<video muted playsinline controls preload="none" poster="/poster/summario-dev/related-graph-and-miniview_poster.png">
+  <source src="/movie/summario-dev/related-graph-and-miniview.webm" type="video/webm" />
+</video>
+
+[Obsidian](https://obsidian.md/)のグラフ機能は本文中の内部リンクから関係を組み立てますが、Summarioでは関連を明示的に登録する形にしました。本文を書くより先に関係だけを捉えておきたい場面が、自分の中にあったからです。データベース上では、AとBの関連とBとAの関連を同じものとして扱い、片側だけを保存しています。
+
+関連付けたいテーマは同じフォルダの中にあることが多いので、登録欄の候補は今いるフォルダのテーマから先に並ぶようにしました。
+
+```ts title="関連テーマの候補を「フォルダの近さ」で並べ替えるクエリ（抜粋）"
+const query = sql`
+  SELECT id, title
+  FROM ${terms}
+  WHERE id <> ${excludeTermId}
+  ORDER BY
+    CASE
+      WHEN ${currentFolderId}::int IS NULL AND folder_id IS NULL THEN 0
+      WHEN ${currentFolderId}::int IS NOT NULL AND folder_id = ${currentFolderId} THEN 0
+      ELSE 1
+    END,
+    folder_id;
+`
+```
+
+グラフのノードをクリックすると、その下の==ミニビュー==にノートの本文が表示されます。関連するテーマと見比べながら書き進めるための機能で、中央のノードをクリックすれば、今開いているノートを最後に保存した時点の状態を見ることもできます。
+
+ミニビューに出すHTMLは、エディタと同じExtension構成を渡して`@tiptap/static-renderer{:ts}`でサーバー側から生成しています。読むためだけにもう一つエディタを立ち上げる必要がなく、本文の見た目もエディタと揃います。
+
+## 見えている階層だけを見せるエクスプローラ
+
+複数のテーマを束ねるフォルダ機能があり、サイドバーの「Folders」タブから辿れます。ただし、一般的なツリービューのように全階層を展開して見せることはしていません。今いるフォルダの直下にあるものだけを並べ、フォルダ名をクリックするとその中身に切り替わる、フラットなリストです。
+
+<video muted playsinline controls preload="none" poster="/poster/summario-dev/folder-exprorer_poster.png">
+  <source src="/movie/summario-dev/folder-exprorer.webm" type="video/webm" />
+</video>
+
+全ディレクトリが目に入ると気が散ってしまうという、個人的な特性への対処です。本文を書いている途中に他のフォルダが見えると、そちらの整理を始めてしまうので、常にローカルな情報しか見せないことで集中する範囲を絞っています。新規ノートと新規フォルダの作成も、今見えているフォルダの直下に限定しました。
+
+<video
+  muted
+  playsinline
+  controls
+  preload="none"
+  poster="/poster/summario-dev/folder-exprorer-new_poster.png"
+  style="max-height:360px;"
+>
+  <source src="/movie/summario-dev/folder-exprorer-new.webm" type="video/webm" />
+</video>
+
+フォルダの階層は隣接リストモデルでテーブルに持たせています。エディタの上に出るパンくずは、`WITH RECURSIVE{:sql}`でルートまで遡って組み立てたものです。
+
+### まとめて選んで別のフォルダへ移す
+
+直下しか見えないエクスプローラでは、離れた場所にあるフォルダへドラッグして移す操作ができません。そこで、フォルダのメニューから移動モードに入り、チェックボックスで対象を選んでから、移動先まで潜って「Move Here」を押す方式にしました。
+
+{/* TODO: 図版 */}
+
+ノートとフォルダをまとめて移せるようにしたので、一部だけ失敗する可能性があります。移動処理はノートとフォルダで結果を分けて返し、成功したものは選択から外れ、失敗したものだけが選択に残るようにしています。
+
+## 保存するのは差分だけ
+
+1回の保存で、本文・別名・関連テーマという性質の違うデータを同時に更新することになります。毎回すべてを送って洗い替えると、変わっていないものまで書き換えてしまうため、保存するのは差分だけにしました。
+
+差分は[Jotai](https://jotai.org/)の派生Atomとして導出しています。サーバーから受け取った状態と、画面上で編集されている状態の差集合を取るだけの小さなAtomを用意し、そこから「追加する分」と「削除する分」を組み立てます。
+
+```ts showLineNumbers title="差分を導出する派生Atom"
+export const deriveDiffAtom = <T extends string>(
+  debugLabel: string,
+  getLeft: (get: Getter) => Iterable<T>,
+  getRight: (get: Getter) => Iterable<T>
+) => {
+  const atom$ = atom<T[]>((get) => {
+    const left = new Set(getLeft(get))
+    const right = new Set(getRight(get))
+    return [...left].filter((name) => !right.has(name))
+  })
+  atom$.debugLabel = debugLabel
+  return atom$
+}
+```
+
+保存ボタンが押せるのは、本文・別名・関連テーマのいずれかに差分があり、かつタイトルが空でないときだけです。本文が編集されていなければ、本文の欄には`null{:ts}`を送ります。
+
+サーバー側では、差分のある項目だけを`Promise.allSettled(){:ts}`で並行に実行します。全体を1つのトランザクションにまとめず、失敗した項目だけをトーストで知らせる形にしました。「別名の追加に失敗しました」のように、どのデータのどの操作が失敗したかが分かります。
+
+=p=保存中にエディタを編集してしまった場合への対処も入れています。== 保存を始めた時点の文書をスナップショットとして持っておき、レスポンスが返ってきた時点の文書と比較します。一致していれば未編集の状態に戻し、変わっていれば「保存中に編集されました。もう一度保存してください。」と伝えます。
+
+## 依存の向きをルールとして書く
+
+プロトタイプとはいえ、機能を足すたびにどこへ何を書くか迷うのは避けたくて、ディレクトリの役割と依存の向きを先に決めました。
+
+- `app/units{:bash}`：1つのオブジェクトで完結するロジック
+- `app/usecases{:bash}`：複数のオブジェクトにまたがり、データの書き換えを伴う機能
+- `app/queries{:bash}`：複数のオブジェクトにまたがる読み取り
+
+読み取りと書き込みで通る経路も分けました。書き込みは`repository{:bash}`から`service{:bash}`、`feature{:bash}`へ、読み取りは`readstore{:bash}`から`reader{:bash}`へと順に通ります。UIの状態も同じ考え方で、Atomの定義・派生・更新をファイルごとに分け、コンポーネントからは`ui.hooks{:bash}`だけを触ります。
+
+こうした取り決めは、決めた本人でも時間が経てば忘れます。そこで[dependency-cruiser](https://github.com/sverweij/dependency-cruiser)を導入し、守りたい依存の向きを10本のルールとして書き下しました。
+
+```js title="データベースに触れてよいファイルを限定するルール"
+{
+  name: "db-access-only-from-repository-or-readstore",
+  severity: "error",
+  from: {
+    pathNot:
+      "^(?:app/units/[^/]+/repository\\.server\\.ts|app/queries/[^/]+/readstore\\.server\\.ts)$"
+  },
+  to: { path: "^app/db(/|$)" }
+}
+```
+
+`npm run deps-check{:bash}`で違反を検出でき、`npm run deps-graph{:bash}`では依存関係を可視化したグラフをSVGとして出力できます。設計意図をドキュメントとして書き残すより、壊れたときに気づける形にしておく方が、一人で長く続ける上では確実だと感じています。
+
+{/* TODO: 図版 */}
+
+## エディタの挙動はブラウザで確かめる
+
+Tiptapに追加した独自の機能は、キャレットの位置や文書内の位置計算に踏み込むものが多くあります。ドロップされた座標がどのノードの内側にあたるのか、削除した後にキャレットをどこへ戻すのか、といった判断は、実際に描画された文書の上でしか確かめられません。
+
+そこで[Vitest](https://vitest.dev/)の`projects{:ts}`機能を使い、Node上で動かすテストと、ブラウザ上で動かすテストを分けました。ブラウザ側は[Playwright](https://playwright.dev/)でChromiumを起動し、本物のエディタをマウントしてから操作を検証します。
+
+現時点では26件のテストがあり、次のような分岐を固定しています。
+
+- 視点カードのドロップ位置による挙動の違い（ブロックの間、トップレベルの空段落、リストや引用の中）
+- 削除操作の対象（タイトル行は内容のクリアのみ、リストは項目ごと、セクションは子が1つなら丸ごと）
+- セクションのラップとアンラップ
+
+## フォルダ構造をマインドマップとして編集する
+
+ここまでのフォルダ機能は手元を辿るためのものですが、全体の中でどこに属するかを見ながら、構造そのものを編集したい場面もあります。そのための==構造マップ==を、[React Flow](https://reactflow.dev/)と[dagre](https://github.com/dagrejs/dagre)による自動整列で作っています。
+
+<FigureBox src={img_FolderStructureMapPage} caption="構造マップのプロトタイプ" />
+
+フォルダとノートがノードになり、フォルダの親子関係とフォルダ内のノートがエッジとして描かれます。名前を入力してからマップへドラッグすると新しいノードが増え、ノード同士を線で結ぶと親子関係になります。本文のあるノートは、マップ上では名前の変更も削除もできません。全体を眺めている最中の操作で本文を失いたくないからです。
+
+現時点では、この画面での操作はブラウザの中で完結していて、結果をデータベースへ書き戻すところまでは実装できていません。マップ上の構造とフォルダ構造を双方向に同期させ、全体像を描いてから詳細を埋める流れと、詳細をまとめてから繋げる流れの両方を1つのアプリで完結させることが、このプロトタイプで確かめたい最後のところです。
