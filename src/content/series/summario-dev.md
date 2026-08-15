@@ -5,9 +5,9 @@ articles:
   - summario-dev/technologies
   - summario-dev/tiptap-document
   - summario-dev/data-model-and-editor
-  - summario-dev/data-fetch-state
-  - summario-dev/jotai
-  - summario-dev/tiptap-scheme
+  #- summario-dev/data-fetch-state
+  #- summario-dev/jotai
+  #- summario-dev/tiptap-scheme
   #- summario-dev/tiptap-section
   #- summario-dev/tiptap-add-block-by-dnd
 ---
