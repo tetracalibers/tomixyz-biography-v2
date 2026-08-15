@@ -1,7 +1,7 @@
 import type { ReferenceDataEntry } from "astro:content"
 import { getCollection } from "astro:content"
 import { isNotDraft } from "$/lib/collection"
-import type { COMING_SOON_KEY } from "$/config"
+import type { COMING_SOON_KEY, SkillCategory } from "$/config"
 
 type RefTagEntryWithComingSoon = { data: { tags: ReferenceDataEntry<"tag">[]; date: Date | typeof COMING_SOON_KEY } }
 type RefTagEntry = { data: { tags: ReferenceDataEntry<"tag">[]; date: Date } }
@@ -16,10 +16,11 @@ export const getRefTagCollection = async (): Promise<RefTagEntry[]> => {
   return [...projects, ...events, ...techs, ...writings].flat()
 }
 
-export const getSkillTag = async (): Promise<string[]> => {
+/* skillタグのみを対象に、タグid -> 所属カテゴリの対応を返す。
+   キーの有無がそのままskillタグかどうかの判定になる */
+export const getSkillTagCategoryMap = async (): Promise<Map<string, SkillCategory>> => {
   const tags = await getCollection("tag")
-  const skillTagIds = tags.filter((tag) => tag.data.skill).map((tag) => tag.id)
-  return skillTagIds
+  return new Map(tags.filter((tag) => tag.data.skill).map((tag) => [tag.id, tag.data.category]))
 }
 
 export const collectTagIds = (targets: RefTagEntryWithComingSoon[]) => {

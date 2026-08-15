@@ -27,6 +27,22 @@ export const CATEGORY_META = {
   }
 }
 
+/* トップページのSkill Tagをまとめる単位。
+   「その技術を何に使うか」で寄せているため、glsl/wgslは言語ではなくgraphics、sqlはdataに属する */
+export const SKILL_CATEGORY_META = {
+  language: { label: "Languages" },
+  "web-platform": { label: "Web Platform" },
+  "ui-framework": { label: "UI Frameworks" },
+  graphics: { label: "Graphics & Visuals" },
+  data: { label: "Data" },
+  authoring: { label: "Content Authoring" },
+  tooling: { label: "Tooling" }
+}
+
+export const SKILL_CATEGORY_KEYS = Object.keys(SKILL_CATEGORY_META) as [SkillCategory, ...SkillCategory[]]
+
+export type SkillCategory = keyof typeof SKILL_CATEGORY_META
+
 export const NAV_ITEMS: NavItems = {
   about: {
     path: "/",

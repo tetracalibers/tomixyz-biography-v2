@@ -1,36 +1,102 @@
 ---
 import TagLink from "$components/tag/TagLink.astro"
-import { collectTagIdsWithCount, getRefTagCollection, getSkillTag } from "$/lib/tag"
+import { collectTagIdsWithCount, getRefTagCollection, getSkillTagCategoryMap } from "$/lib/tag"
+import { SKILL_CATEGORY_META } from "$/config"
 
 const targets = await getRefTagCollection()
-const skills = new Set(await getSkillTag())
+const categoryOf = await getSkillTagCategoryMap()
 
 const tags = collectTagIdsWithCount(targets)
-  .filter((tag) => skills.has(tag.id))
+  .filter((tag) => categoryOf.has(tag.id))
   .sort((a, b) => b.count - a.count || a.id.localeCompare(b.id))
+
+/* 件数降順に並べたtagsをそのまま流し込むので、各カテゴリ内の並び順もその順序を引き継ぐ */
+const tagsByCategory = Map.groupBy(tags, (tag) => categoryOf.get(tag.id)!)
+
+/* カテゴリの表示順は、そのカテゴリに属するタグの件数の合計が多い順 */
+const categories = [...tagsByCategory.entries()]
+  .map(([category, tags]) => ({ category, tags, total: tags.reduce((sum, tag) => sum + tag.count, 0) }))
+  .sort((a, b) => b.total - a.total)
 ---
 
-<ul class="TagsList">
+<div class="TagsList">
   {
-    tags.map((tag) => (
-      <li>
-        <TagLink tagId={tag.id} count={tag.count} withIcon />
-      </li>
+    categories.map(({ category, tags }) => (
+      <section class="category">
+        <h3 class="label">{SKILL_CATEGORY_META[category].label}</h3>
+        <ul class="tags">
+          {tags.map((tag) => (
+            <li>
+              <TagLink tagId={tag.id} count={tag.count} withIcon />
+            </li>
+          ))}
+        </ul>
+      </section>
     ))
   }
-</ul>
+</div>
 
 <style>
-  /* 件数順に読むリストではなく「守備範囲の広さ」を見せる塊として扱うため、
-     中央寄せにしたうえで、親セクションのpadding-inlineを打ち消して見出しより広い帯にする */
   .TagsList {
-    display: flex;
+    display: grid;
+    gap: 2rem;
+  }
+
+  .category {
+    display: grid;
+    justify-items: flex-start;
+    gap: 1rem;
+  }
+
+  /* 帯の塊を区切るラベルであって読ませる見出しではないため、proseのh3より控えめに寄せる */
+  .label {
+    margin: 0;
+    text-align: center;
+    font-size: 1.075rem;
+    font-weight: 400;
+    color: light-dark(var(--slate-500), var(--slate-300));
+    font-family: "Ubuntu Mono";
+  }
+
+  .tags {
+    /* auto-fillの列数はgapとあわせてこの下限から決まるため、calcで参照できるよう変数にしておく */
+    --tags-gap: clamp(0.5rem, 0.356rem + 0.616vw, 0.75rem);
+
+    /* 列幅の下限を180pxと「gapを除いた半分の幅」の小さいほうにすることで、
+       狭い画面でも1列に落ちず、最低2カラムを保つ */
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(180px, (100% - var(--tags-gap)) / 2), min-content));
+    /* .categoryのjustify-itemsで内容幅に縮むと、auto-fillの列数が決まらないため幅を明示する */
+    width: 100%;
     list-style-type: none;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: clamp(0.5rem, 0.356rem + 0.616vw, 0.75rem);
+    gap: var(--tags-gap);
     margin-block: 0;
-    margin-inline: calc(var(--section-padding-inline, 0px) * -1);
     padding: 0;
+  }
+
+  /* 帯の幅をセルいっぱいに伸ばして、行と列のそろった塊として見せる */
+  .tags li {
+    display: grid;
+  }
+
+  .tags :global(.Tag) {
+    border-radius: 0;
+    display: flex;
+    /* 320px:12px -> 375px:14px -> 1024px:16px の2区間。
+       min()は、傾きの急な前半の式が375pxを境に後半の式を追い越すことを利用した切り替え */
+    font-size: clamp(0.75rem, min(0.023rem + 3.636vw, 0.803rem + 0.308vw), 1rem);
+    line-height: 1;
+    gap: 0.5rem;
+    align-items: center;
+    padding-block: 6px;
+    padding-inline: 12px;
+    justify-content: flex-start;
+  }
+  .tags :global(.Tag .count) {
+    margin-inline-start: auto;
+  }
+  .tags :global(.Tag .logo) {
+    max-width: 1.25em;
+    width: 100%;
   }
 </style>

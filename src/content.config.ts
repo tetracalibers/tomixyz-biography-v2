@@ -1,6 +1,6 @@
 import { defineCollection, reference, z } from "astro:content"
 import { file, glob } from "astro/loaders"
-import { COMING_SOON_KEY } from "./config"
+import { COMING_SOON_KEY, SKILL_CATEGORY_KEYS } from "./config"
 
 const passion = defineCollection({
   loader: glob({ pattern: "**/*.mdx", base: "./src/content/passion" }),
@@ -148,7 +148,8 @@ const tag = defineCollection({
       name: z.string(),
       description: z.string(),
       url: z.string().url(),
-      skill: z.boolean().default(true)
+      skill: z.boolean().default(true),
+      category: z.enum(SKILL_CATEGORY_KEYS)
     })
 })
 
