@@ -171,7 +171,25 @@ toggleSectionBlock: () =>
 
 セクションを解除する際、一旦、子コンテンツ全体を選択し直しています。セクションの中で選択されているのは普通1行だけなので、そのまま`toggleWrap(){:ts}`を呼ぶと、その1行だけが外へ出てしまいます。セクションの内側にあたる範囲を選び直してから外し、最後にキャレットを元の位置へ戻しています。
 
-> TODO：上の文章を説明する具体的なコード
+```ts showLineNumbers {3-4,10,12} title="セクションを解除する"
+const contentRangeOfNode = (pos: number, node: PMNode) => {
+  // 内部コンテンツだけを選択（自身の先頭+1 〜 自身の末尾-1）
+  const from = pos + 1
+  const to = pos + node.nodeSize - 1
+  return { from, to }
+}
+
+const unwrapActiveSectionBlock = (chain: () => ChainedCommands, active: { pos: number; node: PMNode }) => {
+  const { from, to } = contentRangeOfNode(active.pos, active.node)
+  return chain()
+    .setTextSelection({ from, to })
+    .toggleWrap(SECTION_BLOCK)
+    .setTextSelection(from) // キャレットを元の位置に戻す
+    .run()
+}
+```
+
+`nodeSize{:ts}`には、そのProseMirrorノードを開いて閉じるぶんの位置も含まれます。前後を1ずつ削った範囲が中身にあたるので、そこを選択してから`toggleWrap(){:ts}`を呼びます。
 
 セクションは意味のあるまとまりである必要はなく、並び替えのために一時的に括るだけの使い方もできます。
 
@@ -366,7 +384,32 @@ const html = renderToHTMLString({
 
 フォルダの階層は==隣接リストモデル==でテーブルに持たせています。
 
-> TODO：隣接リストモデルとは何かの簡単な説明と、具体的なコード
+隣接リストモデルは、階層を表す行が自分の親のidだけを持つ形です。木の形を1枚のテーブルで表す方法として最も素直で、フォルダを別の場所へ移す操作も`parent_id{:sql}`を書き換えるだけで済みます。
+
+```ts showLineNumbers {5,12,14} title="フォルダのテーブル定義"
+export const folders = pgTable(
+  "folders",
+  {
+    id: serial("id").primaryKey(),
+    name: varchar("name", { length: 255 }).notNull(),
+    parentId: integer("parent_id"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull()
+  },
+  (t) => [
+    // 同階層（親が同じ）での重名禁止
+    unique("uniq_folders_parent_name").on(t.parentId, t.name),
+    // ツリー系のCTE探索を速くする補助（parent_id 用）
+    index("idx_folders_parent").on(t.parentId)
+  ]
+)
+```
+
+ルート直下のフォルダは、親がいないので`parent_id{:sql}`が`NULL{:sql}`になります。この`NULL{:sql}`の扱いが、後述のクエリで一手間になります。
+
+同じ階層に同じ名前のフォルダが並ぶと、どちらに入れたのか分からなくなるので、ファイルシステムと同じ感覚で使えるよう`(parent_id, name){:sql}`に一意制約を張りました。
+
+代わりに、階層をまたいだ問い合わせは1回のクエリで完結しません。「このフォルダの上をルートまで辿る」といった操作は、親を1段ずつ遡る必要があります。
 
 ### NULLを含む階層を辿るSQL
 
@@ -397,7 +440,7 @@ const query = sql`
 
 一覧には「このフォルダの中にいくつ入っているか」を出したいので、相関サブクエリで直下のノート数とフォルダ数を数え、CTEの外で足しています。中身が空かどうかは、そのフォルダを削除してよいかの判断にも使います。
 
-> TODO：CTEとは何か？
+CTE（Common Table Expression）は、`WITH{:sql}`句でクエリの中だけに通用する名前を付けた、一時的な結果のまとまりです。ここでは、件数を数える処理を`folders_with_counts{:sql}`という名前で切り出しておき、外側では足し算と並べ替えだけを行っています。1つの`SELECT{:sql}`に詰め込むより、何をしているクエリなのかが追いやすくなります。
 
 エディタの上に出るパンくずは、逆に葉から根へ遡ります。隣接リストモデルでは1行が親しか知らないので、ここは再帰CTEの出番です。
 
@@ -462,7 +505,21 @@ export const folderKeys = {
 
 直下しか見えないエクスプローラでは、離れた場所にあるフォルダへドラッグして移す操作ができません。そこで、フォルダのメニューから移動モードに入り、チェックボックスで対象を選んでから、移動先まで潜って「Move Here」を押す方式にしました。
 
-> TODO: 画像
+> TODO: 画像（移動モードの画面）
+
+移動モードかどうかは、専用のフラグではなく「移動先が決まっているか」で判定しています。メニューから選んだフォルダを`destFolder${:ts}`に入れることでモードに入り、キャンセルすればまとめてリセットされます。
+
+```ts showLineNumbers {4,7-8} title="移動モードの状態"
+import { atomWithReset } from "jotai/utils"
+
+type DestFolder = { id: number | null; name: string }
+export const destFolder$ = atomWithReset<DestFolder | null>(null)
+
+export const filesToMove$ = atomWithReset<Map<number, string>>(new Map<number, string>())
+export const foldersToMove$ = atomWithReset<Map<number, string>>(new Map<number, string>())
+```
+
+選択中のノートとフォルダを`Map{:ts}`で持っているのは、idと名前を両方使うためです。APIにはidを渡しますが、完了を伝えるトーストには「どれを移したか」を名前で出したいので、選んだ時点の名前も一緒に覚えておきます。
 
 ノートとフォルダをまとめて移せるようにしたので、一部だけ失敗する可能性があります。移動処理はノートとフォルダで結果を分けて返し、成功したものは選択から外れ、失敗したものだけが選択に残るようにしています。
 
@@ -643,9 +700,15 @@ export const getTermWithMeta = async (id: number) => {
 
 `from{:js}`に`pathNot{:js}`を書くと、「ここに挙げたファイル以外から`app/db{:bash}`へ依存したらエラー」という意味になります。
 
-`npm run deps-check{:bash}`で違反を検出でき、`npm run deps-graph{:bash}`では依存関係を可視化したグラフをSVGとして出力できます。設計意図をドキュメントとして書き残すより、壊れたときに気づける形にしておく方が、一人で長く続ける上では確実だと感じています。
+同じ書き方で、層をまたぐ呼び出しを禁じるルールを並べています。
 
-{/* TODO: 図版 */}
+- `repository{:bash}`を呼べるのは`service{:bash}`だけ
+- `readstore{:bash}`を呼べるのは`reader{:bash}`だけ
+- `service{:bash}`と`feature{:bash}`はUIやルーティングを参照しない
+- `usecases{:bash}`配下、`queries{:bash}`配下のディレクトリ同士は依存しない
+- APIのファイルは`reader{:bash}`と`feature{:bash}`だけを経由する
+
+`npm run deps-check{:bash}`で違反を検出でき、`npm run deps-graph{:bash}`では依存関係を可視化したグラフをSVGとして出力できます。設計意図をドキュメントとして書き残すより、壊れたときに気づける形にしておく方が、一人で長く続ける上では確実だと感じています。
 
 ## エディタの挙動はブラウザで確かめる
 
