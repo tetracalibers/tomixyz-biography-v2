@@ -220,6 +220,11 @@ pre[data-language="glsl"]::before {
   content: "GLSL";
 }
 
+/** CSVは長くなるので基本的に折り返す */
+pre[data-language="csv"] {
+  white-space: normal;
+}
+
 /** error */
 
 pre > code .highlighted.error {
