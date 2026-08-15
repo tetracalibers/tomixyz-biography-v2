@@ -5,13 +5,252 @@ image: ../../assets/projects/learn-browsers-work/github-opengraph.png
 github: https://github.com/tetracalibers/learn-browsers-work
 tags:
   - rust
-description: "Challenge to build a toy browser in Rust"
+description: RustでHTMLパーサーとGPUレンダリングを追う
+pinned: true
 ---
 
-Rustでレンダリングエンジンを実装することで、ブラウザのレンダリングの仕組みを学ぶ試み。
+HTMLとCSSが画面に表示されるまでの道のりを、仕様書を読みながらRustで書き起こしています。
 
-2024年元旦に勉強を始めたばかりのRustで何かを作ってみたい、せっかくならフロントエンジニアとしてのスキルも向上させられる題材にしたい、ということでブラウザの再現実装を始めた。
+2024年の元旦に勉強を始めたばかりのRustで何かを作ってみたい、せっかくならフロントエンドエンジニアとしての理解も深められる題材にしたい。そう考えて選んだのが、ブラウザの再現実装でした。
 
-- [ブラウザを作りたい - tomixyz-biography](/blog/2024-make-browser)
+始めた当時の動機と方針は、次のブログに書いています。
 
-現在、HTML ParserとCSS Parserを実装中。
+- [ブラウザを作りたい](/blog/2024-make-browser)
+
+現時点では、HTMLの構文解析、CSSの構文解析、スタイルの計算、レイアウトツリーの構築までを実装しています。
+
+## 仕様のステートマシンをそのままコードにする
+
+HTMLの構文解析は、文字列をトークンに変える==Tokenizer==と、トークンをDOMツリーに組み上げる==TreeBuilder==の2段構えになっています。
+そして、[HTML Living Standard](https://html.spec.whatwg.org/multipage/parsing.html)は、この両方を巨大なステートマシンとして定義しています。
+
+対応するタグを絞った簡易的なパーサーを書く選択肢もありました。
+しかし私の目的は仕組みを追いかけることなので、仕様に書かれた状態遷移を、そのまま`enum{:rust}`に落とす方針にしました。
+現在、Tokenizerは47の状態を、TreeBuilderは18の挿入モードを持っています。
+
+```rs title="Tokenizerの状態（抜粋）"
+pub enum State {
+  Data,
+
+  RCDATA,
+  RCDATALessThanSign,
+  RCDATAEndTagOpen,
+  RCDATAEndTagName,
+
+  RAWTEXT,
+  RAWTEXTLessThanSign,
+  RAWTEXTEndTagOpen,
+  RAWTEXTEndTagName,
+
+  TagName,
+  TagOpen,
+  EndTagOpen,
+  SelfClosingStartTag,
+
+  // ...
+}
+```
+
+仕様通りに書き進めたことで、最も面白いと感じたのは壊れたHTMLの扱いでした。
+
+たとえば、閉じタグのない`<p>{:html}`を並べたHTMLを解析させると、2つの`p`要素が兄弟として並びます。
+
+```bash
+cargo run -- fast_html '<p>paragraph1<p>paragraph2'
+```
+
+```text title="出力されたDOMツリー"
+|-Document
+    |-Element { tag_name: "html" }
+        |-Element { tag_name: "head" }
+        |-Element { tag_name: "body" }
+            |-Element { tag_name: "p" }
+                |-Text("paragraph1")
+            |-Element { tag_name: "p" }
+                |-Text("paragraph2")
+```
+
+書いていないはずの`html`・`head`・`body`が補われ、開いたままの`p`が閉じられています。
+=p=HTMLがエラーを出さないのは、パーサーが曖昧に振る舞っているからではなく、壊れた入力をどう解釈するかまで仕様に書かれているから==でした。
+
+この補完の結果は、解析後のDOMツリーをJSONに変換して期待値と比較するテストで固定しています。
+入れ子になったリスト、閉じタグの抜けた段落、`head`のないドキュメントなど、「こう書かれたらこうなる」という仕様の判断を、テストとして残していく形にしました。
+
+## HTMLパーサーを書き直す
+
+HTMLパーサーは、`html`と`fast_html`の2つのクレートとして、実装が2世代あります。
+
+最初に書いた`html`クレートは、入力を`char{:rust}`のイテレータとして1文字ずつ読み進める作りでした。
+仕様に頻出する「読んだ文字を差し戻して、別の状態でもう一度処理する」という指示（reconsume）は、直前の文字とフラグを保持することで再現しています。
+
+```rs title="Before：charのイテレータを1文字ずつ読む"
+fn consume_next(&mut self) -> Char {
+  let ch = if self.reconsume_char {
+    self.reconsume_char = false;
+    Some(self.current_character)
+  } else {
+    self.input.next()
+  };
+
+  // ...
+}
+```
+
+仕様の記述には忠実ですが、どんな入力でも1文字ずつしか進めません。
+たとえばテキストが延々と続く区間でも、1文字ごとに状態機械を1周させることになります。
+
+書き直した`fast_html`クレートでは、入力を`&[u8]{:rust}`として受け取り、現在位置をインデックスとして持つストリームを経由して読むようにしました。
+reconsumeは、インデックスを進めないだけで表現できます。
+
+```rs title="After：バイト列の上をインデックスで進む"
+fn process_data_state(&mut self) -> Option<Token> {
+  let bytes = self.read_to_oneof(&[b'<', b'&', b'\0']);
+
+  if !bytes.is_empty() {
+    return Some(self.emit_text(bytes));
+  }
+
+  // ...
+}
+```
+
+区切りになる文字まで一気に読み飛ばし、その区間をスライスとして切り出せるようになりました。
+あわせて、1つの巨大な`match{:rust}`だった状態の分岐を状態ごとの関数に分け、名前付き文字参照の変換表も追加しています。
+
+書き直した実装がどのくらいの速さなのかを知りたかったので、[criterion](https://bheisler.github.io/criterion.rs/book/)を使って、既存のHTMLパーサーである[html5ever](https://github.com/servo/html5ever)・[lol-html](https://github.com/cloudflare/lol-html)・[tl](https://github.com/y21/tl)と同じ入力を解析させて比較できるベンチマークも用意しました。
+
+2つの実装はどちらも残してあり、コマンドの引数で切り替えて挙動を比べられるようにしています。
+
+## CSSは仕様の生成規則をそのまま関数にする
+
+CSSの構文解析は、当初は自作のパーサーコンビネータで書こうとしていました。
+基本的な組み合わせ関数を書いてみたところで、CSSの構文を書き下すには手持ちの部品が足りないと気づき、[nom](https://github.com/rust-bakery/nom)へ移行しています。
+
+こちらも実装は2世代に分かれていて、`css`クレートにセレクタのパーサーと詳細度の計算を、`re_css`クレートにトークンと構文の解析を置いています。
+
+`re_css`では、[CSS Syntax Module Level 3](https://www.w3.org/TR/css-syntax-3/)が定義する生成規則の名前を、そのまま関数名にしました。
+
+```rs title="生成規則をそのまま関数にした部分（抜粋）"
+// 宣言は許容され，［ at-規則, 有修飾規則 ］は無効
+fn declaration_list(input: &str) -> IResult<&str, Vec<Declaration>> {
+  many0(trimed(terminated(declaration, tag(";"))))(input)
+}
+
+// 有修飾規則は許容され，［ 宣言, at-規則 ］は無効
+fn qualified_rule_list(input: &str) -> IResult<&str, Vec<BlockContent>> {
+  many0(qualified_rule_as_content)(input)
+}
+
+// at-規則は許容され，［ 宣言, 有修飾規則 ］は無効
+fn at_rule_list(input: &str) -> IResult<&str, Vec<BlockContent>> {
+  many0(at_rule_as_content)(input)
+}
+```
+
+仕様の該当箇所と実装を一対一で対応させておくと、どこまで実装したのかを自分で追いかけられます。
+実際、スタイルルールの中に書いたat-ルールや、カンマ区切りの値がまだ解析できないことも、この対応関係をたどって把握できました。
+
+## カスケードを「値の4段階」として実装する
+
+[CSS Cascading and Inheritance Level 5](https://www.w3.org/TR/css-cascade-5/)は、要素のプロパティに値が決まるまでを段階に分けて定義しています。
+このうち、宣言値・カスケード値・指定値・計算値の4段階を、そのまま関数の分かれ目にしました。
+
+```rs title="スタイル計算の入口"
+pub fn compute_styles(node: NodePtr, rules: &[ContextualRule]) -> Properties {
+  let mut styles = collect_cascaded_values(&node, rules);
+
+  set_specified_values(&node, &mut styles);
+  set_computed_values(&node, &mut styles);
+
+  styles
+}
+```
+
+セレクタが一致した宣言を集めると、1つのプロパティに複数の値が候補として並びます。
+ここから勝者を選ぶのがカスケードです。
+
+この勝敗は、その宣言がどこに書かれたものか、どの起源から来たものか、`!important{:css}`が付いているか、といった条件がセレクタの詳細度よりも先に効きます。
+そこで、宣言に起源・記述場所・詳細度を持たせた構造体を作り、比較の順序を`Ord{:rust}`の実装として書きました。
+
+```rs title="宣言どうしを比較する順序"
+impl Ord for PropertyDeclaration {
+  fn cmp(&self, other: &Self) -> Ordering {
+    // location > origin > specificity の順に比較
+    match cmp_location(self, other) {
+      Ordering::Equal => match cmp_cascade_origin(self, other) {
+        Ordering::Equal => self.specificity.cmp(&other.specificity),
+        other => other,
+      },
+      other => other,
+    }
+  }
+}
+```
+
+このようにすると、候補をソートして最後の1つを取るだけでカスケード値が決まります。
+
+カスケードで値が決まらなかったプロパティには、継承値か初期値を割り当てます。
+`inherit{:css}`・`initial{:css}`・`unset{:css}`といったキーワードの処理もこの段階です。
+最後の計算値では、`em{:css}`や`rem{:css}`、パーセンテージを、親要素とルート要素の`font-size{:css}`から絶対的なpxへ変換します。
+
+対応しているプロパティは、現時点では`display{:css}`、4方向の`margin{:css}`、`font-size{:css}`の6つだけです。
+ショートハンドの`margin{:css}`は、カスケードに載せる前に4つのプロパティへ展開しています。
+
+## DOMツリーと一対一にならないレイアウトツリー
+
+スタイルが決まったら、次はボックスの木を組み立てます。
+
+このレイアウトツリーは、DOMツリーの写しではありません。
+`display: none{:css}`の要素は現れませんし、逆に、DOMには存在しないボックスが現れることもあります。
+
+たとえば、次のようなHTMLを考えます。
+
+```html
+<div>
+  テキスト
+  <p>段落</p>
+</div>
+```
+
+`div`の子は、インラインのテキストとブロックの`p`が混ざった状態です。
+このとき、ブロックボックスの並びの中に裸のテキストを置くことはできないので、テキストの側を無名のブロックボックス（==匿名ボックス==）で包みます。
+
+そのため、レイアウトツリーの構築では、ボックスを作った後に「このボックスの親はどれか」を探す処理が必要です。
+インラインのボックスとブロックのボックスで、親の探し方も、匿名ボックスを差し込む位置も変わります。
+
+```rs title="ブロックボックスの親を探す処理"
+fn get_parent_for_block(&self) -> Option<LayoutBoxPtr> {
+  let parent = self.parent_stack.iter().rfind(|parent_box| {
+    parent_box.is_block() && parent_box.can_have_children()
+  });
+
+  if let Some(parent) = parent {
+    if !parent.has_no_child() && parent.children_are_inline() {
+      let anonymous =
+        TreeNode::new(LayoutBox::new_anonymous(BoxType::BlockBox));
+
+      parent.transfer_children_to(anonymous.clone());
+      parent.append_child(anonymous);
+    }
+
+    return Some(parent.clone());
+  }
+
+  None
+}
+```
+
+CSSを書く側からは、この匿名ボックスは見えません。
+それでも、ブロックの中に直接テキストを書いたときに何が起きているかは、この処理を書いて初めて腑に落ちました。
+
+## レンダラーへの展望
+
+ボックスの位置と大きさが決まれば、あとはそれらをレンダリングする工程が残ります。
+
+今は、[winit](https://github.com/rust-windowing/winit)でウィンドウを開くところまでを実装し、[wgpu](https://wgpu.rs/)で矩形を描くためのパイプラインと、描画対象をまとめて置くテクスチャアトラスの設計を進めているところです。
+GPUでテキストをレンダリングするSDFという仕組みを調べ、実装してみたりしています。
+
+- [SDFテキストレンダリングの深淵を覗く](/tech/sdf-text-rendering)
+- [LT「RENDERING ENGINEへの道のり」](/events/pxgrid-devcamp-2024-10)
+
+ここまで来ると、作っているものがブラウザというよりGUIフレームワークに近づいてきて、ブラウザという目的を忘れて脱線しつつもありますが…

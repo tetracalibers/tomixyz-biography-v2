@@ -7,27 +7,267 @@ github: https://github.com/tetracalibers/imagl-editor
 tags:
   - webgl
   - glsl
-  - svelte
   - sveltekit
 description: "WebGLとGLSLによる画像加工アプリ"
 pinned: true
+editing: true
 ---
 
-WebGLとGLSLによる画像加工アプリ。
+import FigureBox from "$/components/image-wrapper/FigureBox.astro"
 
-元々、画像処理を勉強しており、特にNPR（Non-photorealistic rendering、簡単にいえば絵画風加工）のアルゴリズムを研究していた。
-WebGLとGLSLで試作を重ねるうちに、簡単に操作できる画像加工アプリとして形にしたいと思うようになった。
+import img_TopPage from "../../assets/topics/imagl-editor/top-page.png"
+import img_CatPencilGray from "../../assets/topics/imagl-editor/cat-pencil-gray.png"
+import img_CatColorPencilDeep from "../../assets/topics/imagl-editor/cat-color-pencil-deep.png"
+import img_CatColorPencilPale from "../../assets/topics/imagl-editor/cat-color-pencil-pale.png"
+import img_StainedGlass from "../../assets/topics/imagl-editor/stained-glass.png"
+import img_StainedGlassLight from "../../assets/topics/imagl-editor/staind-glass-light.png"
+import img_Mosaic from "../../assets/topics/imagl-editor/mosaic.png"
+import img_VoronoiMosaic from "../../assets/topics/imagl-editor/voronoi-mosaic.png"
+import img_EditorRadiusMove from "../../assets/topics/imagl-editor/editor-radius-move.png"
 
-アプリはSvelteKitで実装し、次の4つの画像加工機能を搭載している。
+画像処理を勉強していた頃、特に興味を持っていたのが==NPR==（Non-Photorealistic Rendering、簡単にいえば絵画風加工）のアルゴリズムであり、WebGLとGLSLで試作を重ねていました。
 
-- デッサン風加工
-- 色鉛筆画風加工
-- ステンドグラス風加工
-- モザイク処理
+- [最近のNPR](/blog/2023-06-13-npr)
 
-それぞれの画像加工フィルタは、すべてGLSLでフルスクラッチ実装。
-GLSLをWeb上で動作させるためのコードは、自作のWebGLラッパーライブラリをベースに実装している。
+絵画風加工は、しきい値やノイズの強さを少し変えるだけで、仕上がりの印象が大きく変わります。
+コードを書き換えて再読み込みするのではなく、スライダーを動かしながら好みの表現を探せるようにしたい。
+そう考えて、試作したフィルタを、画像を選ぶだけで試せるアプリとして形にしました。
 
-機能や実装の詳細を解説したスライドは、下記リンクより閲覧できる。
+画像に適用する加工フィルタは、すべてGLSLでフルスクラッチ実装しています。
+WebGLのプログラムやジオメトリを扱う部分は自作のラッパーライブラリ[SketchGL](/projects/sketchgl)に任せ、複数のシェーダを繋いでいく仕組みだけをこのアプリ側に持たせました。
 
-- [GLSLで画像加工 ひたすらピクセルをいじりたい](https://tetracalibers.github.io/devcamp-2023-10-LT/with-note/)
+このアプリは[2023年秋の開発合宿](/events/pxgrid-devcamp-2023-10)で制作・発表したもので、機能や実装の詳細を解説したスライドは、下記リンクより閲覧できます。
+
+- [GLSLで画像加工 ひたすらピクセルをいじりたい](https://tetracalibers.github.io/devcamp-2023-10-LT/)
+
+## 4系統7種類の絵画風フィルタ
+
+トップページには、モザイク・鉛筆・色鉛筆・ステンドグラスの4系統が並び、系統ごとに1〜2種類のバリエーションを選べます。
+
+- [ImaglEditorのトップページ](https://tetracalibers.github.io/imagl-editor/)
+
+<FigureBox src={img_TopPage} />
+
+### 鉛筆デッサン風
+
+- [鉛筆デッサン風の画像加工エディタ](https://tetracalibers.github.io/imagl-editor/pencil)
+
+<FigureBox src={img_CatPencilGray} maxWidth="550px" />
+
+輪郭の抽出には==Prewittフィルタ==を使っています。
+HSVに変換した明度に対して縦横それぞれのカーネルを畳み込み、その勾配の大きさをエッジとして取り出す方法です。
+
+そのエッジに、ハッチング（線の重なり）を掛け合わせることで鉛筆の濃淡を作ります。
+ハッチングは、ハッシュ関数で散らした座標から斜め4方向の色を拾い、右上がりの差分と左上がりの差分を掛け合わせて求めました。
+乱数に頼っている分、同じ画像でも一律ではない線のばらつきが出ます。
+
+「線の薄さ」スライダーは、ハッチングの元になる画像にかけるガンマ補正の値を変えるもので、階調の潰し方によって線の濃さが変わります。
+
+### 色鉛筆風（pale / deep）
+
+- [色鉛筆画風の画像加工エディタ（deep）](https://tetracalibers.github.io/imagl-editor/color-pencil)
+
+<FigureBox src={img_CatColorPencilDeep} maxWidth="550px" />
+
+- [色鉛筆画風の画像加工エディタ（pale）](https://tetracalibers.github.io/imagl-editor/pale-color-pencil)
+
+<FigureBox src={img_CatColorPencilPale} maxWidth="550px" />
+
+どちらもデッサン風と同じハッチングを土台にしつつ、色を戻すために==パステル化==の処理を挟んでいます。
+HSVに変換して彩度を95%以下、明度を85〜95%の範囲に押し込め、オーバーレイ合成で紙に乗った色鉛筆の淡さに寄せました。
+
+さらに、色のムラを作るためにスプレー処理を重ねています。
+ハッシュノイズでずらした位置の色を混ぜることで、塗りが均一になりすぎないようにしたものです。
+
+deepの方には、紙の質感を足す処理を追加しました。
+「紙の明るさ」で指定した明るさをランダムな比率で混ぜることで、塗り残しのような白い粒を作っています。
+パステル化の強さも、輪郭付近（「線の薄さ」）と面の内側（「色の薄さ」）で別々に調整できます。
+
+paleはそれらを省き、淡いまま残す構成です。
+
+### ステンドグラス風（normal / light）
+
+- [ステンドグラス風の画像加工エディタ（normal）](https://tetracalibers.github.io/imagl-editor/stained-glass)
+
+<FigureBox src={img_StainedGlass} maxWidth="650px" />
+
+- [ステンドグラス風の画像加工エディタ（light）](https://tetracalibers.github.io/imagl-editor/stained-glass-light)
+
+<FigureBox src={img_StainedGlassLight} maxWidth="650px" />
+
+画像を==ボロノイ領域==に分割し、それぞれの領域を1枚のガラス片として塗り分けています。
+
+1パス目では、ハッシュ関数による胞体ノイズから2枚のテクスチャを作ります。
+1枚は領域を識別するための色を書き出したもの、もう1枚は母点の位置の色でその領域を塗りつぶしたものです。
+
+2パス目では、領域識別用のテクスチャに==Robertsフィルタ==をかけます。
+領域の内側は同じ色で塗られているので、そこに差が出るのは領域の境目だけ。
+つまり、エッジ抽出の結果がそのままガラスの継ぎ目になります。
+継ぎ目を暗く落とし、ぼかしたテクスチャを加算してガラス越しの光を作りました。
+
+normalの方は、さらに3パス目で135度方向のエンボスをかけ、ガラスの厚みを表現しています。
+lightの方はエンボスを持たず、継ぎ目をグレーの線として描いて乗算で色を重ねるため、全体が明るく仕上がります。
+
+「モザイクの細かさ」で母点の数を、「モザイクの境界線」で継ぎ目の表示を切り替えられます。
+
+### モザイク（格子 / ボロノイ）
+
+- [モザイク処理エディタ](https://tetracalibers.github.io/imagl-editor/mosaic)
+
+<FigureBox src={img_Mosaic} maxWidth="550px" />
+
+- [ボロノイモザイク処理エディタ](https://tetracalibers.github.io/imagl-editor/voronoi-mosaic)
+
+<FigureBox src={img_VoronoiMosaic} maxWidth="550px" />
+
+格子状のモザイクは、シェーダで四角形を描いているわけではありません。
+小さいサイズのフレームバッファに描き込み、それを引き伸ばして表示しているだけです。
+テクスチャの拡大フィルタを`NEAREST{:js}`にしてあるので、拡大時の補間がそのままモザイクの四角形になります。
+
+ボロノイモザイクでは、少し変わった作り方をしました。
+ランダムに配置した2000個の母点それぞれに、頂点を手前に向けた円錐をインスタンシングで描画します。
+円錐同士が重なる部分は深度テストによって手前が残るので、各ピクセルは最も近い母点の色で塗られることになります。
+母点からの距離を総当たりで比較するループを書かなくても、1回のドローコールでボロノイ図が得られる方法です。
+円錐の色には母点の座標を入れてあるので、次のパスでその座標の色を元画像から拾えば、領域ごとに1色のモザイクになります。
+
+このボロノイモザイクの仕組みについては、次の記事で詳しく解説しています。
+
+- [円錐のインスタンシングでボロノイ図を描く](/tech/voronoi-by-cone-instancing)
+
+## フィルタは多段のパスで構成
+
+ここまで紹介したフィルタは、どれも1つのシェーダでは完結しないものです。
+エッジを取る、ハッチングを作る、合成する、といった処理をオフスクリーンのフレームバッファに書き出しながら繋いでいきます。
+その繋ぎ方をまとめたのが[src/lib/core](https://github.com/tetracalibers/imagl-editor/tree/main/src/lib/core)で、フィルタ側のコードはその上に乗る形になっています。
+
+### 加工結果を次のフィルタの入力に渡す
+
+`SwapFramebufferRenderer{:ts}`は、2つのフレームバッファを交互に入れ替えながら描画するクラスです。
+`beginPath(){:ts}`で書き込み先を切り替え、`endPath(){:ts}`で書き込んだテクスチャを「直前の結果」として覚えておきます。
+
+フィルタ側は「直前の結果」と「元画像」のどちらを読むかを選ぶだけでよく、何段重ねてもコードの構造は変わりません。
+
+```ts showLineNumbers title="src/routes/pencil/+page.svelte（描画ループの抜粋）"
+const sketch: SketchFn = ({ gl, canvas }) => {
+  // ...
+
+  return {
+    drawOnFrame() {
+      plane.bind()
+      stackRenderer.bind(programForOptions.glProgram, "uMainTex")
+
+      // 元画像をスタックに流し込む
+      stackRenderer.beginPath()
+      plane.draw({ primitive: "TRIANGLES" })
+      stackRenderer.endPath()
+
+      // 加工前の状態を退避 → 加工 → 円の内側だけを合成
+      locallyMask.saveBase(programForOptions, stackRenderer)
+      mainFilter.apply(programForOptions, stackRenderer)
+      locallyMask.applyMask(programForOptions, stackRenderer)
+
+      // 有効になっている共通フィルタを順に適用
+      filterStack.activeAfterFilters.forEach((filter) => {
+        stackRenderer.beginPath()
+        uniforms && filter.applyUniforms(uniforms)
+        plane.draw({ primitive: "TRIANGLES" })
+        stackRenderer.endPath()
+      })
+
+      // 最後の結果をキャンバスへ
+      stackRenderer.switchToCanvas()
+      uniforms && uniforms.int("uFilterMode", 0)
+      plane.draw({ primitive: "TRIANGLES" })
+    }
+  }
+}
+```
+
+### 1パスで2枚のテクスチャに書き出す
+
+鉛筆デッサン風フィルタでは、「輝度を調整した画像」と「エッジを抽出した画像」の2枚が必要になります。
+これを別々のパスで作ると、同じ元画像を2回読み直すことになってしまいます。
+
+そこで、MRT（Multiple Render Targets）を使い、1回の描画で2枚のテクスチャへ同時に書き出しました。
+フラグメントシェーダ側は、出力変数を`layout (location = ...){:glsl}`で分けるだけです。
+
+```glsl title="src/lib/filters/pencil/1.frag（抜粋）"
+layout (location = 0) out vec4 fragColor1;
+layout (location = 1) out vec4 fragColor2;
+
+void main() {
+  // ...
+
+  // 輝度調整
+  vec3 outColor1 = pow(inputColor, vec3(uPencilGamma));
+
+  // エッジ抽出
+  vec3 outColor2 = applyKernelXY(uOriginalTex, texelSize, texCoord, kernelX, kernelY);
+  outColor2 = vec3(toMonochrome(outColor2));
+
+  fragColor1 = vec4(outColor1, 1.0);
+  fragColor2 = vec4(outColor2, 1.0);
+}
+```
+
+### 共通の後処理はコマンドとして積む
+
+ぼかしとコントラスト調整は、どのフィルタでも同じように使いたい処理です。
+これらをフィルタごとのシェーダに書き足していくと、同じコードがフィルタの数だけ増えてしまいます。
+
+そこで、後処理は1つのシェーダにまとめ、`uFilterMode{:glsl}`の値で処理を切り替える形にしました。
+ぼかしは横方向と縦方向を別々のパスに分けているため、番号も別々に割り当てています。
+
+```glsl title="src/routes/pencil/options.frag（抜粋）"
+vec3 finalColor = uFilterMode == 1
+  ? xGaussSmooth(uMainTex, uv, texelSize, 9.0, uBlurSigma)
+  : uFilterMode == 2
+    ? yGaussSmooth(uMainTex, uv, texelSize, 9.0, uBlurSigma)
+    : smpColor.rgb;
+```
+
+JavaScript側では、`FilterStack{:ts}`が有効になっているコマンドだけを保持し、描画ループがそれを順に適用します。
+UIのスイッチは`filterStack.active("blurX"){:ts}`を呼ぶだけでよく、パスを1つ増やす処理は`FilterStack{:ts}`が引き受けます。
+
+## 円の内側だけに加工をかける
+
+画像全体を一度に加工すると、どこがどう変わったのかが分かりにくくなります。
+そこで、円の内側だけにフィルタを効かせ、その円をドラッグで動かせるようにしました。
+元の写真と加工結果を、同じ画面の中で見比べられます。
+
+円の形は、距離関数（SDF）で作っています。
+中心からの距離から半径を引いた値を`smoothstep(){:glsl}`に通すことで、境界がなめらかに馴染むマスクが得られます。
+
+```glsl title="src/lib/filters/locally/composite.frag（抜粋）"
+// 円 f(x, y) = length(xy, center) - radius の距離関数
+float circleSdf(vec2 xy, vec2 center, float radius) {
+  vec2 fromCenter = xy - center;
+  return pow(dot(fromCenter, fromCenter), 0.5) - radius;
+}
+
+// colorで円を塗りつぶし、それ以外の領域は透明に
+float circle(vec2 xy, vec2 center, float radius, float spread) {
+  float sdf = circleSdf(xy, center, radius);
+  float shape = smoothstep(radius - radius * spread, radius + radius * spread, sdf);
+
+  return shape;
+}
+```
+
+このマスクを挟むために、フィルタを適用する直前の状態を別のフレームバッファへ退避しておき、加工後にその2枚を合成しています。
+合成した結果は、もう一度スワップのスタックへ書き戻します。
+これを省くと、後続のぼかしやコントラストまで円の内側だけに効いてしまいます。
+
+## 元画像と見比べながら調整できるUI
+
+サイドバーには、元画像のプレビューと、フィルタごとのスライダー・スイッチを並べました。
+加工結果はキャンバスへリアルタイムに反映されるので、値を動かしながら好みの表現を探せます。
+
+また、たとえばモザイク加工などは、画像の一部にのみ適用したい場合もあります。
+そんなニーズを叶えるのが、「半径」スライダーです。
+ここで「移動モード」をONにすると、カーソル位置が円の中心となり、ドラッグ操作でフィルタの適用範囲を移動させることができます。
+
+<FigureBox src={img_EditorRadiusMove} caption="移動モード" />
+
+画像は「SELECT IMAGE」から差し替えられ、読み込んだ画像のアスペクト比に合わせてキャンバスのサイズを取り直し、画面からはみ出さないように収めました。
+「DOWNLOAD」を押すと、その時点のキャンバスの内容をPNG画像として保存できます。

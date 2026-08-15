@@ -1,0 +1,225 @@
+---
+title: 円錐のインスタンシングでボロノイ図を描く
+date: "2026-08-13"
+description: 深度テストに最近傍判定を肩代わりさせる
+tags:
+  - webgl
+  - glsl
+  - typescript
+draft: true
+---
+
+[ImaglEditor](/projects/imagl-editor)という画像加工アプリに、写真をボロノイ領域ごとに塗り分ける「ボロノイモザイク」というフィルタを実装した。
+
+このアプリには、ボロノイ図を使うフィルタがもう1つある。画像をガラス片のように分割するステンドグラス風フィルタで、そちらはフラグメントシェーダの中でボロノイ図を計算している。同じボロノイ図を使いながら、ボロノイモザイクの方はまったく違う作り方をした。母点の数だけ円錐を並べて、真上から見下ろすというやり方だ。
+
+距離を比較するコードは1行も書いていない。どの母点が最も近いかという判定は、GPUの深度テストが肩代わりしている。
+
+::DemoLink[ボロノイモザイク（ImaglEditor）]{url="https://tetracalibers.github.io/imagl-editor/voronoi-mosaic"}
+
+## シェーダでボロノイ図を描く定番のやり方
+
+==ボロノイ図==は、平面に散らばった==母点==に対して、「どの母点が最も近いか」で平面を分割した図のこと。1つの母点が受け持つ範囲が、1つの領域になる。
+
+フラグメントシェーダでボロノイ図を描くとき、定番になるのは==胞体ノイズ==（cellular noise）を使う方法だ。ImaglEditorのステンドグラス風フィルタは、こちらで実装している。
+
+```glsl showLineNumbers title="src/lib/filters/stained-glass/1.frag（抜粋）"
+// 第一近傍距離による胞体ノイズ
+vec2 voronoi2(vec2 p) {
+  // 最も近い格子点
+  vec2 i = floor(p);
+  // タイル内のどのあたりにいるか
+  vec2 f = fract(p);
+
+  // 最も近いものまでの距離
+  float distMin = 1.0;
+  // 最も近い格子点
+  vec2 iMin;
+
+  for (int y = -1; y <= 1; y++) {
+    for (int x = -1; x <= 1; x++) {
+      vec2 offset = vec2(float(x), float(y));
+      // 隣接するタイル内のランダムな点
+      vec2 neighbor = hash22(i + offset);
+      // 隣接するタイル内のランダムな点までの距離
+      float dist = distance(neighbor + offset, f);
+      // distMinより近ければ更新
+      if (distMin > dist) {
+        iMin = neighbor;
+        distMin = dist;
+      }
+    }
+  }
+
+  return iMin;
+}
+```
+
+UV座標を格子状のタイルに区切り、タイルの座標をハッシュ関数に通して、そのタイルの中に母点を1個だけ置く。母点がタイルごとに1個と決まっているおかげで、自分のいるタイルと周囲8タイル、合わせて9個だけを調べれば最も近い母点が確定する。二重ループが`-1{:glsl}`から`1{:glsl}`までで済んでいるのはそのためだ。
+
+母点の座標はハッシュ関数から毎回計算するので、母点の配列をJavaScript側に持つ必要もない。フラグメントシェーダ1つで完結する、軽くて扱いやすい方法だと思う。
+
+## 母点を格子から解き放つと総当たりになる
+
+この方法は、母点がタイルに1個ずつという制約とセットになっている。母点の数はタイルの分割数で決まり、母点同士の間隔もタイルの大きさに縛られる。密なところと疎なところを作り分けることはできず、モザイクの粒の並びには格子の規則性が残る。
+
+任意の位置に、好きな数だけ母点を置きたくなると話が変わる。9個だけ調べれば済むという前提が崩れるので、素直に書けば全母点との距離を比較することになる。母点が2000個あれば、フラグメント1つあたり2000回の距離計算が走る。
+
+母点の座標をどうやってシェーダへ渡すかという問題も出てくる。uniform配列には上限があるし、テクスチャに詰め込むなら、そのテクスチャを2000回サンプリングすることになる。どちらにしても、母点を増やすほど1ピクセルあたりの仕事が増えていく。
+
+## 深度テストに最近傍判定を肩代わりさせる
+
+距離を比較する代わりに、母点1つにつき円錐を1つ置くことを考えてみる。
+
+円錐は、頂点を手前に向けて置く。母点の位置が円錐の頂点で、そこから離れるほど奥へ下がっていく形だ。こうすると、円錐の表面のある1点の深度は、その点と母点との距離に比例することになる。
+
+その円錐を母点の数だけ重ねて、真上から見下ろす。あるピクセルで最も手前に来るのは、そのピクセルに最も近い母点の円錐だ。=p=最近傍がどれかという判定が、深度テストの結果とそのまま一致する。==
+
+{/* TODO: 図版 */}
+
+深度テストは、GPUがラスタライズの過程で行う処理で、シェーダに書く必要がない。距離を比較するループはコードのどこにも現れず、代わりに「円錐をどう並べて描くか」という描画の問題になる。
+
+## 円錐をインスタンシングで2000個描く
+
+母点の数だけ円錐を描くことになるので、ドローコールを2000回発行するわけにはいかない。同じ形を位置だけ変えて大量に描くのは、==インスタンシング==が得意とするところだ。
+
+### 64角錐の頂点をつくる
+
+円錐の頂点データは、`TRIANGLE_FAN{:ts}`で描くことを前提に組み立てている。
+
+```ts showLineNumbers title="src/lib/filters/voronoi-mosaic/command.ts（円錐の頂点を作る）"
+const generateConeVertex = ({ width, height, resolution }: { width: number; height: number; resolution: number }) => {
+  const w = width
+  const h = height
+  const a = new Vector2(w, h).normalize()
+
+  const cone = [0, 0, -0.95]
+
+  for (let i = 0; i < resolution; i++) {
+    const v = (i / (resolution - 1)) * Math.PI * 2
+    cone.push(Math.cos(v) * a.y * 2.0)
+    cone.push(Math.sin(v) * a.x * 2.0)
+    cone.push(1.0)
+  }
+
+  return cone
+}
+```
+
+配列の先頭にある`[0, 0, -0.95]{:ts}`が円錐の頂点で、z座標が最も手前に来る。続く`resolution{:ts}`個が底面の円周上の点で、z座標はすべて`1.0{:ts}`。`TRIANGLE_FAN{:ts}`は先頭の頂点を軸にして扇状に三角形を張っていくので、この並びがそのまま円錐になる。
+
+`resolution{:ts}`には64を渡している。円錐と呼んでいるが実体は64角錐で、母点からの距離は多角形で近似される。角度`v{:ts}`が`i / (resolution - 1){:ts}`で0から2πまで動くため、最後の点が最初の点と重なり、扇が閉じる。
+
+底面の半径に掛けている`a{:ts}`は、キャンバスの幅と高さを正規化したベクトル。NDCは縦横とも-1から1の範囲なので、そのまま円を描くと画面の縦横比に応じて楕円へ伸びてしまう。x方向に`a.y{:ts}`、y方向に`a.x{:ts}`を掛けることで、この伸びを打ち消している。
+
+### 母点ごとに位置をずらす
+
+母点は`Math.random(){:ts}`で0から1の範囲に散らす。
+
+```ts title="src/lib/filters/voronoi-mosaic/command.ts（母点をランダムに配置）"
+const generatePoints = (count: number) => {
+  const points = []
+
+  for (let i = 0; i < count; i++) {
+    points.push(Math.random(), Math.random())
+  }
+
+  return points
+}
+```
+
+そして、円錐の頂点データと母点の座標を、それぞれ別の属性として登録する。
+
+```ts showLineNumbers title="src/lib/filters/voronoi-mosaic/command.ts（インスタンス属性の登録）"
+cone.registAttrib("vertice", {
+  location: 0,
+  components: 3,
+  buffer: new Float32Array(coneVertex),
+  divisor: 0
+})
+cone.registAttrib("offset", {
+  location: 1,
+  components: 2,
+  buffer: new Float32Array(sitePoints),
+  divisor: 1
+})
+cone.setup()
+```
+
+`divisor{:ts}`は、その属性を何インスタンスごとに進めるかの指定。円錐の頂点データは`0{:ts}`なので全インスタンスで共有され、母点の座標は`1{:ts}`なのでインスタンスごとに1組ずつ読まれる。同じ形の円錐を、2000か所へ置き直しながら描くことになる。
+
+頂点シェーダは短い。
+
+```glsl title="src/lib/filters/voronoi-mosaic/voronoi.vert"
+#version 300 es
+
+layout (location = 0) in vec3 aVertexPosition;
+layout (location = 1) in vec2 aPoint;
+
+out vec4 vColor;
+
+void main() {
+  vec2 offset = aPoint * 2.0 - 1.0;
+  gl_Position = vec4(aVertexPosition.xy + offset, aVertexPosition.z, 1.0);
+  vColor = vec4(aPoint, 1.0, 1.0);
+}
+```
+
+母点の座標は0から1の範囲なので、`* 2.0 - 1.0{:glsl}`でNDCへ移してから円錐の頂点座標に足す。`gl_Position{:glsl}`のwは`1.0{:glsl}`のままなので透視除算は効かず、頂点データに書いたz座標がそのまま深度になる。
+
+あとは深度テストを有効にしておけば、最近傍の判定はGPUに任せられる。
+
+```ts title="src/routes/voronoi-mosaic/+page.svelte（抜粋）"
+gl.enable(gl.DEPTH_TEST)
+```
+
+## 領域の色は母点の座標を経由して決める
+
+円錐を描くときのフラグメントシェーダは、渡された色をそのまま出すだけ。
+
+```glsl title="src/lib/filters/voronoi-mosaic/voronoi.frag"
+#version 300 es
+
+precision highp float;
+
+in vec4 vColor;
+out vec4 fragColor;
+
+void main() {
+  fragColor = vColor;
+}
+```
+
+ここで効いてくるのが、頂点シェーダが`vColor{:glsl}`へ入れているものだ。`vec4(aPoint, 1.0, 1.0){:glsl}`、つまりRとGのチャンネルに母点のxとyがそのまま入っている。
+
+深度テストを通り抜けたあとのテクスチャは、「そのピクセルがどの母点に属するか」を母点の座標という形で記録したものになる。あとは、その座標の色を元画像から拾えば、領域ごとに1色のモザイクができあがる。
+
+```glsl title="src/lib/filters/voronoi-mosaic/index.frag（抜粋）"
+vec3 original = texture(uOriginalTex, uv).rgb;
+vec2 center = texture(uVoronoiTex, uv).xy;
+vec3 voronoi = texture(uOriginalTex, center).rgb;
+
+fragColor = vec4(mix(original, voronoi, uMixRatio), 1.0);
+```
+
+円錐を描くフラグメントシェーダの中で、元画像を直接読んでしまう手もあった。`aPoint{:glsl}`はインスタンスの中では一定なので、そこで元画像をサンプリングすれば領域の色が確定し、パスを1つ減らせる。
+
+そうすると、円錐を描くパスが元画像に依存することになる。座標だけを書き出す形にしておけば、このパスの成果物は「どのピクセルがどの母点に属するか」という情報そのものになり、色の決め方は後段に委ねられる。元画像を読む以外の使い方を足したくなったときに、円錐のパスへ手を入れずに済む。
+
+最後の`uMixRatio{:glsl}`は、モザイクを元画像へどれくらい効かせるかの比率で、UIの「モザイクの強さ」スライダーがこの値を動かしている。
+
+{/* TODO: 図版 */}
+
+## この方法で手放したもの
+
+母点の数2000も、円錐の解像度64も、コードに直接書いた定数のままになっている。胞体ノイズを使ったステンドグラス風フィルタの方には「モザイクの細かさ」というスライダーがあり、母点の数をその場で変えられるのに、円錐版にはそれがない。円錐版で同じことをするには、母点の配列を作り直して頂点バッファを更新する処理が要る。GPUに投げる仕事の形が「並べて描く」になったぶん、パラメータの変更がCPU側の再構築に化けてしまった。
+
+母点を`Math.random(){:ts}`で配置しているのも、扱いにくいところだ。ページを開き直すたびに模様が変わるし、ウィンドウをリサイズすると円錐の頂点を作り直す処理が走るので、そこでも模様が変わってしまう。気に入った加工結果を後から再現する、という使い方には向かない。乱数の種を固定できるようにしておくべきだった。
+
+母点の座標を8ビットのカラーテクスチャ経由で次のパスへ渡している点も、そのうち効いてくると思う。座標が256段階へ量子化されるので、近い位置にある母点同士が同じ値へ丸められると、隣り合う領域が同じ色で塗られて1つに見える。母点をさらに増やしたいなら、浮動小数点テクスチャへの書き出しを検討することになる。
+
+領域の境界が厳密な垂直二等分線にならないのも、この方法の性質そのものだ。64角錐で近似している以上、境界線は円の交わりではなく多角形の交わりになる。母点が2000個あるうちは1つの領域が小さいので気づきにくいが、粗いモザイクにするほど近似のずれが見えてくるはず。
+
+もう1つ、円錐を描くフレームバッファを明示的にクリアしていない。母点の配置が変わらない限り毎フレーム同じ絵になるので表示上は成立しているものの、初期状態の深度バッファに依存した書き方であることに変わりはない。
+
+{/* TODO: 要確認 */}

@@ -7,21 +7,22 @@ tags:
   - claude-design
   - svg
   - imagemagick
+series: color-prism-ai
 ---
 
 import FigureBox from "$/components/image-wrapper/FigureBox.astro"
 import VStack from "$/components/placement/VStack.astro"
 import GridGallery from "$/components/placement/GridGallery.astro"
 
-import img_ClaudeDesignPages from "../../assets/tech/generate-ogp-with-claude/claude-design-svg-template-step-1.png"
-import img_ClaudeDesignProjectFiles from "../../assets/tech/generate-ogp-with-claude/claude-design-svg-template-step-2.png"
-import img_ClaudeDesignOgpTemplates from "../../assets/tech/generate-ogp-with-claude/claude-design-svg-template-step-3.png"
+import img_ClaudeDesignPages from "../../../assets/tech/generate-ogp-with-claude/claude-design-svg-template-step-1.png"
+import img_ClaudeDesignProjectFiles from "../../../assets/tech/generate-ogp-with-claude/claude-design-svg-template-step-2.png"
+import img_ClaudeDesignOgpTemplates from "../../../assets/tech/generate-ogp-with-claude/claude-design-svg-template-step-3.png"
 
-import img_OgpDefault from "../../assets/topics/color-prism/ogp/default.png"
-import img_OgpConcept from "../../assets/topics/color-prism/ogp/concept.png"
-import img_OgpColorUniversalDesign from "../../assets/topics/color-prism/ogp/color-universal-design.png"
-import img_OgpPccsColorSystem from "../../assets/topics/color-prism/ogp/pccs-color-system.png"
-import img_OgpCoordinateSystems from "../../assets/topics/color-prism/ogp/coordinate-systems.png"
+import img_OgpDefault from "../../../assets/topics/color-prism/ogp/default.png"
+import img_OgpConcept from "../../../assets/topics/color-prism/ogp/concept.png"
+import img_OgpColorUniversalDesign from "../../../assets/topics/color-prism/ogp/color-universal-design.png"
+import img_OgpPccsColorSystem from "../../../assets/topics/color-prism/ogp/pccs-color-system.png"
+import img_OgpCoordinateSystems from "../../../assets/topics/color-prism/ogp/coordinate-systems.png"
 
 最近育てている[Color Prism](/projects/color-prism)というサイトに、やっとOGP画像生成の仕組みを実装した話。
 Claude Codeの恩恵を受けつつ、やや複雑な要件を叶えたかったので、少し特殊な事例になるかもしれない。
@@ -159,7 +160,7 @@ OGP画像の生成では、機械的に行える処理と、個別の判断を�
 
 ちなみに、それぞれのモードでスクリプトが叩くImageMagickコマンドを解説し始めたら長くなったので、詳しく知りたい方は次の記事で…
 
-- [ImageMagickによる白背景透過](/tech/imagemagick-transparent-white)
+- [ImageMagickによる白背景透過](/tech/color-prism-ai/imagemagick-transparent-white)
 
 ## 自動化層：一括再生成の仕組み
 
