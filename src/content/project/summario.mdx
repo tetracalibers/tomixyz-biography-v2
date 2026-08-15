@@ -43,6 +43,8 @@ Summarioでは、1つのテーマ（用語や概念）につき1つのノート�
 
 <FigureBox src={img_AllViewCards} caption="現時点で用意されている視点カード" />
 
+穴埋め式のテンプレートにしなかったのは、用意された構成に書きたいことを当てはめる思考を持ち込みたくなかった、という理由があります。自分なら情報をどの角度から眺めるか？という方向性を、視点カードでサポートしつつ、自ら考えられるようにしたかったのです。
+
 カードをエディタへドラッグ&ドロップすると、その観点を見出しに持つ空のセクションが、落とした位置に挿入されます。
 
 <video muted playsinline controls preload="none" poster="/poster/summario-dev/drag-view-card_poster.png">
@@ -51,17 +53,9 @@ Summarioでは、1つのテーマ（用語や概念）につき1つのノート�
 
 書きかけの本文を壊さないことを優先し、ドロップ位置は細かく制御を行っています。ブロックとブロックの間に落とせばその位置へ、トップレベルの空段落の上に落とせばその段落と置き換わります。リストや引用の中、テキストの途中に落とした場合は、何も起こりません。
 
-この制御は、ProseMirrorのプラグインとして`drop{:ts}`イベントを横取りする形で実装しています。Tiptapにはもともとブロックをドラッグして動かす仕組みがあるため、視点カードのドロップだけを見分けて、それ以外は本来の処理へ戻す必要がありました。
+この制御は、ProseMirrorのプラグインとして`drop{:ts}`イベントを横取りする形で実装しています。Tiptapにはもともとブロックをドラッグして動かす仕組みがあるため、視点カードのドロップだけを見分けて、それ以外は本来の処理へ戻すよう実装しています。
 
-そこで、カード側は独自のMIMEタイプでラベルを載せ、エディタ側はそれが取り出せたときだけ自前の処理に入ります。
-
-```tsx title="カードをドラッグするときに載せる情報"
-onDragStart={(e) => {
-  e.dataTransfer.setData(BLOCK_TITLE_MIME, block.label_ja)
-}}
-```
-
-```ts showLineNumbers {3,10,13,19} title="ドロップ位置を判定して挿入する"
+```ts showLineNumbers {6-7,10-11} title="ドロップ位置を判定して挿入する"
 drop: (view, event) => {
   // ドラッグ元のブロックタイトルがなければTipTapのデフォルトの挙動に任せる
   const title = getBlockTitle(event)
@@ -74,7 +68,7 @@ drop: (view, event) => {
   const { pos, inside } = droppedPos
   const isInsideNode = inside > 0
 
-  // --- ノードの「間」にドロップされた場合：その場所へ挿入
+  // ノードの「間」にドロップされた場合：その場所へ挿入
   if (!isInsideNode) {
     insertSectionAt(editor, pos, title)
     return true // TipTap のデフォルトのドロップ処理を停止
@@ -91,7 +85,27 @@ drop: (view, event) => {
 }
 ```
 
-判定の材料になっているのは、`posAtCoords(){:ts}`が返す`inside{:ts}`です。ドロップ座標がどのノードの内側にあたるかを示す値で、どのノードの内側でもなければ`-1{:ts}`になります。ノードの外側ならその位置へそのまま挿入し、何かの内側だった場合は、それがトップレベルの段落かどうかを`resolve(pos).depth{:ts}`で確かめます。
+座標から文書内の位置を求めている`getDroppedPos(){:ts}`は、ProseMirrorの`posAtCoords(){:ts}`を呼ぶだけの関数です。
+
+```ts title="ドロップ座標から文書内の位置を求める"
+const getDroppedPos = (view: EditorView, e: DragEvent) => {
+  const coords = { left: e.clientX, top: e.clientY }
+  return view.posAtCoords(coords)
+}
+```
+
+ドロップ位置判定の材料になっているのは、この`posAtCoords(){:ts}`が返す`inside{:ts}`です。これはドロップ座標がどのProseMirrorノードの内側にあたるかを示す値で、どのノードの内側でもなければ`-1{:ts}`になります。
+
+```ts showLineNumbers{6} title="ドロップ位置を判定して挿入する（再掲）"
+// ドロップ座標から近傍のposを取得（できなければデフォルトへ）
+const droppedPos = getDroppedPos(view, event)
+if (!droppedPos) return false
+
+const { pos, inside } = droppedPos
+const isInsideNode = inside > 0
+```
+
+ノードの外側ならその位置へそのまま挿入し、何かの内側だった場合は、それがトップレベルの段落かどうかを`resolve(pos).depth{:ts}`で確かめます。
 
 ```ts title="トップレベルの段落かどうかを確かめる"
 const isTopLevelParagraphAt = (view: EditorView, pos: number) => {
@@ -107,13 +121,11 @@ const isTopLevelParagraphAt = (view: EditorView, pos: number) => {
 }
 ```
 
-書きかけの段落やリストの項目を巻き込んでセクションに変えてしまうくらいなら、何も起きない方がましだと考え、判断のつかない位置では`false{:ts}`を返しています。
-
-穴埋め式のテンプレートにしなかったのは、用意された構成に書きたいことを当てはめる思考を持ち込みたくなかった、という理由があります。自分なら情報をどの角度から眺めるか？という方向性を、視点カードでサポートしつつ、自ら考えられるようにしたかったのです。
+書きかけの段落やリストの項目を巻き込んでセクションに変えてしまわないように、判断のつかない位置では`false{:ts}`を返しています。
 
 ### セクション単位で入れ替える
 
-視点カードを使わず、普通のMarkdownエディタとして書き始めることもできます。書いた後から任意の選択範囲をセクションにまとめたり、まとめたセクションをほどいたりする操作は、ツールバーのボタン1つで切り替わります。
+視点カードを使わず、普通のMarkdownエディタとして書き始めることもできます。書いた後から任意の選択範囲をセクション化したり、セクションを解除する操作は、ツールバーのボタン1つで切り替わります。
 
 <video muted playsinline controls preload="none" poster="/poster/summario-dev/drag-section-block_poster.png">
   <source src="/movie/summario-dev/drag-section-block.webm" type="video/webm" />
@@ -121,7 +133,7 @@ const isTopLevelParagraphAt = (view: EditorView, pos: number) => {
 
 セクションにまとめておくと、見出しと本文をセットにしたまま並び替えられます。一般的なブロックエディタでは見出しと段落が別々のブロックになることが多く、章ごと入れ替える操作が欲しかったのです。
 
-これを実現しているのは、中に複数のブロックを持てる`draggable{:ts}`なノードです。並び替えの単位をノードとして1つ用意するだけで、中身が何行あってもまとめて動くようになります。
+これを実現しているのは、中に複数のブロックを持てる`draggable{:ts}`なTiptapノードです。並び替えの単位となるTiptapノードを1つ用意するだけで、中身が何行あってもまとめて動くようになります。
 
 ```ts title="セクションのノード定義（抜粋）"
 export const SectionBlockNode = Node.create({
@@ -133,11 +145,10 @@ export const SectionBlockNode = Node.create({
 })
 ```
 
-ツールバーのボタンは、1つのコマンドで「まとめる」と「ほどく」を兼ねています。今カーソルがあるのがセクションの中か外かで、やることが変わります。
+ツールバーのボタンは、1つのTiptapコマンドで「セクションにまとめる」と「セクションを解除する」を兼ねています。今カーソルがあるのがセクションの中か外かで、どちらの動作を行うべきかを判定します。
 
-```ts showLineNumbers {12,17} title="まとめると、ほどくを1つのコマンドで兼ねる"
-toggleSectionBlock:
-  () =>
+```ts showLineNumbers {12,17} title="セクション化かセクション解除を行うコマンド"
+toggleSectionBlock: () =>
   ({ chain }) => {
     const editor = this.editor
 
@@ -158,13 +169,15 @@ toggleSectionBlock:
   }
 ```
 
-ほどくときに、いったん子コンテンツ全体を選択し直しているのが要点です。セクションの中で選択されているのは普通1行だけなので、そのまま`toggleWrap(){:ts}`を呼ぶと、その1行だけが外へ出てしまいます。セクションの内側にあたる範囲を選び直してから外し、最後にキャレットを元の位置へ戻しています。
+セクションを解除する際、一旦、子コンテンツ全体を選択し直しています。セクションの中で選択されているのは普通1行だけなので、そのまま`toggleWrap(){:ts}`を呼ぶと、その1行だけが外へ出てしまいます。セクションの内側にあたる範囲を選び直してから外し、最後にキャレットを元の位置へ戻しています。
+
+> TODO：上の文章を説明する具体的なコード
 
 セクションは意味のあるまとまりである必要はなく、並び替えのために一時的に括るだけの使い方もできます。
 
 ## タイトルから始まる文書構造
 
-ノートの編集には[Tiptap](https://tiptap.dev/)を使っていますが、何でも自由に書けるテキストエリアにはせず、文書の骨格をスキーマとして固定しています。
+ノートの編集には[Tiptap](https://tiptap.dev/)を使っていますが、何でも自由に書けるテキストエリアにはせず、文書の骨格を[ProseMirror](https://prosemirror.net/)のスキーマとして固定しています。
 
 ```ts title="ドキュメントのスキーマ定義"
 const CustomDocument = Document.extend({
@@ -172,11 +185,11 @@ const CustomDocument = Document.extend({
 })
 ```
 
-先頭には必ずタイトルが1つ、その次に別名の入力欄が来て、それ以降にセクションや通常のブロックが並ぶ、という構造です。Tiptapの土台である[ProseMirror](https://prosemirror.net/)では、スキーマに反する構造のコンテンツはそもそも作れないため、タイトルを消してしまったノートや、タイトルが2つあるノートは発生しません。
+先頭には必ずタイトルが1つ、その次に別名の入力欄が来て、それ以降にセクションや通常のブロックが並ぶ、という構造です。Tiptapが土台にしているProseMirrorでは、ProseMirrorスキーマに反する構造のコンテンツはそもそも作れないため、タイトルを消してしまったノートや、タイトルが2つあるノートは発生しません。
 
 - [ProseMirrorの文書構造を知る](/tech/summario-dev/tiptap-document)
 
-ここで書いている`title{:ts}`や`aliases{:ts}`は、カスタムノード側で`group{:ts}`として宣言した名前を指しています。タイトルを`group: "block"{:ts}`にしてしまうと、スキーマの`(section|block)*{:ts}`にも当てはまってしまい、文書のどこにでもタイトルを置けることになってしまいます。
+ここで書いている`title{:ts}`や`aliases{:ts}`は、Tiptapのカスタムノード側で`group{:ts}`として宣言した名前を指しています。タイトルを`group: "block"{:ts}`にしてしまうと、ProseMirrorスキーマの`(section|block)*{:ts}`にも当てはまってしまい、文書のどこにでもタイトルを置けることになってしまいます。
 
 ```ts showLineNumbers {4} title="タイトルのノード定義"
 export const TitleBlockNode = Node.create({
@@ -197,34 +210,6 @@ export const TitleBlockNode = Node.create({
 本文で使える見出しも`h2{:html}`から`h4{:html}`に限定しました。`h1{:html}`はタイトル専用です。1テーマ1ノートという前提を、書ける構造の側から支えています。
 
 タイトルの下にある別名の入力欄は、Tiptapのカスタムノードとして本文の中に埋め込んだ[Mantine](https://mantine.dev/)のタグ入力UIです。1つのテーマに複数の呼び名があることは珍しくないため、タイトルとは別に登録できるようにしています。
-
-### 本文はJSONのまま保存する
-
-エディタが持っている構造は、変換をかけずにそのままデータベースへ入れています。ノートのテーブルは次のような定義です。
-
-```ts showLineNumbers {6} title="ノートのテーブル定義"
-export const terms = pgTable(
-  "terms",
-  {
-    id: serial("id").primaryKey(),
-    title: varchar("title", { length: 255 }).notNull(),
-    content: jsonb("content").notNull(),
-    folderId: integer("folder_id").references(() => folders.id, { onDelete: "set null" }),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true })
-      .defaultNow()
-      .$onUpdateFn(() => new Date())
-      .notNull()
-  },
-  (t) => [index("idx_terms_title").on(t.title), index("idx_terms_folder").on(t.folderId)]
-)
-```
-
-本文は`jsonb{:sql}`に、ProseMirrorのJSONをそのまま入れています。Markdownの文字列へ変換してから保存する手もありましたが、セクションのような独自のノードはMarkdownには存在しないため、変換のたびに構造が落ちていく可能性を抱えることになります。スキーマで文書の形を決めた以上、その形のまま保存するのが素直だと考えました。
-
-フォルダへの参照は`onDelete: "set null"{:ts}`です。フォルダを消したときに、中のノートまで消えてほしくはありません。親を失ったノートは、フォルダに属さないノートとして残ります。
-
-別名は別のテーブルに持たせ、1つのノートの中で同じ別名が重複しないよう`(term_id, title){:sql}`を一意にしています。
 
 ## 関連を先に登録してから書く
 
@@ -338,13 +323,13 @@ visNodesRef.current = new DataSet(
 )
 ```
 
-中央のノードは、今開いているノート自身です。そのラベルには、保存済みのタイトルではなく、エディタで編集中のタイトルを優先して出しています。タイトルを打ち替えた瞬間にグラフのラベルも変わるので、保存前でも「今どのノートを見ているか」が食い違いません。タイトルの変化を検知する仕組みを軽く保ちたかったのは、この反映を打鍵のたびに走らせるためでもあります。
+中央に置いたvis-networkのノードは、今開いているノート自身です。そのラベルには、保存済みのタイトルではなく、エディタで編集中のタイトルを優先して出しています。タイトルを打ち替えた瞬間にグラフのラベルも変わるので、保存前でも「今どのノートを見ているか」が食い違いません。タイトルの変化を検知する仕組みを軽く保ちたかったのは、この反映を打鍵のたびに走らせるためでもあります。
 
 ### ミニビューはサーバー側で組み立てる
 
 グラフのノードをクリックすると、その下の==ミニビュー==にノートの本文が表示されます。関連するテーマと見比べながら書き進めるための機能で、中央のノードをクリックすれば、今開いているノートを最後に保存した時点の状態を見ることもできます。
 
-読むためだけにもう一つエディタを立ち上げるのは重いので、`@tiptap/static-renderer{:ts}`にエディタと同じExtension構成を渡し、サーバー側でHTMLを組み立てています。
+読むためだけにもう一つエディタを立ち上げるのは重いので、`@tiptap/static-renderer{:ts}`にエディタと同じTiptap Extensionの構成を渡し、サーバー側でHTMLを組み立てています。
 
 ```ts title="サーバー側でノートをHTMLへ変換する"
 const term = await getTerm(Number(params.termId))
@@ -356,7 +341,7 @@ const html = renderToHTMLString({
 })
 ```
 
-渡すJSONはタイトルと本文だけを組み直したもので、編集用の別名入力欄は外しています。同じExtensionから生成しているので、本文の見た目はエディタとそのまま揃います。
+渡すJSONはタイトルと本文だけを組み直したもので、編集用の別名入力欄は外しています。同じTiptap Extensionから生成しているので、本文の見た目はエディタとそのまま揃います。
 
 ## 見えている階層だけを見せるエクスプローラ
 
@@ -379,16 +364,9 @@ const html = renderToHTMLString({
   <source src="/movie/summario-dev/folder-exprorer-new.webm" type="video/webm" />
 </video>
 
-フォルダの階層は隣接リストモデルでテーブルに持たせています。同じ階層に同じ名前のフォルダが並ぶと、どちらに入れたのか分からなくなるので、ファイルシステムと同じ感覚で使えるよう`(parent_id, name){:sql}`に一意制約を張りました。
+フォルダの階層は==隣接リストモデル==でテーブルに持たせています。
 
-```ts title="フォルダのテーブル定義（制約のみ抜粋）"
-;(t) => [
-  // 同階層（親が同じ）での重名禁止
-  unique("uniq_folders_parent_name").on(t.parentId, t.name),
-  // ツリー系のCTE探索を速くする補助（parent_id 用）
-  index("idx_folders_parent").on(t.parentId)
-]
-```
+> TODO：隣接リストモデルとは何かの簡単な説明と、具体的なコード
 
 ### NULLを含む階層を辿るSQL
 
@@ -418,6 +396,8 @@ const query = sql`
 ```
 
 一覧には「このフォルダの中にいくつ入っているか」を出したいので、相関サブクエリで直下のノート数とフォルダ数を数え、CTEの外で足しています。中身が空かどうかは、そのフォルダを削除してよいかの判断にも使います。
+
+> TODO：CTEとは何か？
 
 エディタの上に出るパンくずは、逆に葉から根へ遡ります。隣接リストモデルでは1行が親しか知らないので、ここは再帰CTEの出番です。
 
@@ -449,29 +429,10 @@ ORDER BY depth DESC; -- ルート(最大depth) → … → 葉(最小depth)
 
 エクスプローラは、フォルダ名をクリックするたびに表示を切り替えます。最初の表示までサーバーの往復を待たせたくはありませんが、その後の移動のたびにページ全体を読み込み直すのも過剰です。
 
-そこで、[React Router](https://reactrouter.com/) v7のFramework Modeを使い、最初の一画面ぶんはページの`loader{:ts}`で用意し、それ以降は[TanStack Query](https://tanstack.com/query/latest)がAPIを叩く形にしました。APIはReact RouterのResource Routesとして、`loader{:ts}`だけをexportするファイルで書いています。
+そこで、[React Router](https://reactrouter.com/) v7のFramework Modeを使い、最初の一画面分はページの`loader{:ts}`で用意し、それ以降は[TanStack Query](https://tanstack.com/query/latest)がAPIを叩く形にしました。APIはReact RouterのResource Routesとして、`loader{:ts}`だけをexportするファイルで書いています。
 
-```ts showLineNumbers {4} title="フォルダの中身を返すResource Route"
-export async function loader({ params }: Route.ActionArgs) {
-  const { folderId } = params
-
-  const id = folderId === "root" ? null : Number(folderId)
-  if (id !== null && isNaN(id)) {
-    throw new Response("Invalid folder ID", { status: 400 })
-  }
-
-  const current = await getFolder(id)
-  const children = await getFolderChildren(id)
-
-  return { current, ...children }
-}
-```
-
-ルート直下は`parent_id{:sql}`が`NULL{:sql}`なので、URLの上では`root{:bash}`という文字列で表し、ここで`null{:ts}`へ変換しています。SQL側で`IS NOT DISTINCT FROM{:sql}`にしておいたおかげで、この変換から先は分岐なしで同じクエリに乗ります。
-
-クライアント側は、今見ているフォルダのidをAtomとして持ち、それをそのままクエリのキーにします。
-
-```ts showLineNumbers {5,7} title="表示中のフォルダをキーにしてデータを取る"
+```ts showLineNumbers {6,8} title="表示中のフォルダをキーにしてデータを取得する"
+// TanStack Queryによるデータ取得
 const { data, isPending, isError } = useQuery({
   queryKey: folderKeys.children(`${folderId}`),
   queryFn: () => fetch(`/api/folders/${folderId}/children`).then((res) => res.json()),
@@ -484,7 +445,7 @@ const { data, isPending, isError } = useQuery({
 
 `placeholderData{:ts}`に`loader{:ts}`が返した初期データを渡しているので、最初の描画ではAPIを待ちません。一度見たフォルダはキャッシュに残り、`staleTime: Infinity{:ts}`にしてあるため、行ったり来たりしても再取得は起きません。編集中に勝手に内容が入れ替わってほしくないので、ウィンドウのフォーカスによる再取得も切っています。
 
-キーは1箇所にまとめ、階層構造を持たせています。
+TanStack Queryによるデータ取得で使うキーは1箇所にまとめ、階層構造を持たせています。
 
 ```ts title="クエリキーの定義"
 export const folderKeys = {
@@ -495,13 +456,13 @@ export const folderKeys = {
 }
 ```
 
-階層にしておくと、無効化する範囲を後から選べます。フォルダの移動が成功したときは`folderKeys.details(){:ts}`でフォルダ関連をまとめて作り直し、あわせて開いているノートのパスのキーも無効化して、パンくずの表示を追随させています。
+たとえば、フォルダの移動が成功したときは`folderKeys.details(){:ts}`でフォルダ関連をまとめて作り直し、あわせて開いているノートのパスのキーも無効化して、パンくずの表示を追随させています。
 
 ### まとめて選んで別のフォルダへ移す
 
 直下しか見えないエクスプローラでは、離れた場所にあるフォルダへドラッグして移す操作ができません。そこで、フォルダのメニューから移動モードに入り、チェックボックスで対象を選んでから、移動先まで潜って「Move Here」を押す方式にしました。
 
-{/* TODO: 図版 */}
+> TODO: 画像
 
 ノートとフォルダをまとめて移せるようにしたので、一部だけ失敗する可能性があります。移動処理はノートとフォルダで結果を分けて返し、成功したものは選択から外れ、失敗したものだけが選択に残るようにしています。
 
@@ -549,7 +510,7 @@ export const toRemoveRelatedTermLabels$ = deriveDiffAtom(
 
 ### 部分的な失敗を許す
 
-差分を送ると、サーバー側では最大5つの更新（本文、別名の追加と削除、関連の追加と削除）が並びます。これを1つのトランザクションにまとめて、どれか1つ失敗したら全部なかったことにする、という作り方はしませんでした。個人用のノートアプリで、本文は保存できたのに別名の削除だけ失敗したとき、本文まで巻き戻る方が困るからです。
+差分を送ると、サーバー側では最大5つの更新（本文、別名の追加と削除、関連の追加と削除）が並びます。これを1つのデータベーストランザクションにまとめて、どれか1つ失敗したら全部なかったことにする、という作り方はしませんでした。個人用のノートアプリで、本文は保存できたのに別名の削除だけ失敗したとき、本文まで巻き戻る方が困るからです。
 
 そこで、実行すべき更新を配列にまとめ、`Promise.allSettled(){:ts}`で並行に走らせています。
 
@@ -590,9 +551,9 @@ export type SaveRejected = DistributivePick<SavingTask, "key" | "targets"> & { r
 
 ### 保存中の編集を落とさない
 
-=p=保存は非同期なので、通信が返るまでの間にも本文は編集できます。== 返ってきたときに一律で未編集の状態へ戻してしまうと、その間の編集が保存されないまま、保存済みという表示になってしまいます。
+=保存は非同期なので、通信が返るまでの間にも本文は編集できます。返ってきたときに一律で未編集の状態へ戻してしまうと、その間の編集が保存されないまま、保存済みという表示になってしまいます。
 
-そこで、dirty（未保存の変更があるか）を管理するExtensionを自作しました。基準となる文書を持ち、トランザクションのたびに現在の文書と比較します。ProseMirrorのノードは不変なので、参照を持っておくだけで比較できます。
+そこで、dirty（未保存の変更があるか）を管理するTiptap Extensionを自作しました。基準となる文書を持ち、ProseMirrorのトランザクションが起きるたびに現在の文書と比較します。ProseMirrorノードは不変なので、参照を持っておくだけで比較できます。
 
 ```ts title="保存の前後で使うコマンド"
 markClean: () => ReturnType // 今のドキュメントを基準（未編集）にする
@@ -618,7 +579,7 @@ apply(tr, _v, _oldState, newState) {
 }
 ```
 
-ProseMirrorのトランザクションは、変更が旧文書のどの範囲にあたるかを`StepMap{:ts}`として持っています。それを使って先頭ノードの範囲と重なるかどうかだけを判定し、重なったときだけ先頭の子ノードを読みます。文書の何行目を編集していても、判定にかかる手間は変わりません。
+ProseMirrorのトランザクションは、変更が旧文書のどの範囲にあたるかを`StepMap{:ts}`として持っています。それを使って先頭のProseMirrorノードの範囲と重なるかどうかだけを判定し、重なったときだけ先頭の子ノードを読みます。文書の何行目を編集していても、判定にかかる手間は変わりません。
 
 ## 依存の向きをルールとして書く
 
@@ -630,12 +591,12 @@ ProseMirrorのトランザクションは、変更が旧文書のどの範囲に
 
 読み取りと書き込みで通る経路も分けました。書き込みは`repository{:bash}`から`service{:bash}`、`feature{:bash}`へ、読み取りは`readstore{:bash}`から`reader{:bash}`へと順に通ります。
 
-UIの状態も同じ考え方で、Atomの役割ごとにファイルを分けています。
+UIの状態も同じ考え方で、JotaiのAtomを役割ごとにファイルへ分けています。
 
 - `ui.atoms.ts{:bash}`：状態そのもの
 - `ui.selectors.ts{:bash}`：状態から算出される値（派生Atom）
 - `ui.actions.ts{:bash}`：状態に変更を加える操作（書き込み専用Atom）
-- `ui.hooks.ts{:bash}`：コンポーネントへ公開するカスタムフック
+- `ui.hooks.ts{:bash}`：コンポーネントへ公開するReactのカスタムフック
 
 差分の導出や、保存ボタンを押せるかどうかの判定を`ui.selectors.ts{:bash}`へ寄せているのは、コンポーネントに計算を持たせないためです。コンポーネントから見えるのはフックが返す値だけなので、判定の中身を変えても呼び出し側は書き換わりません。この境界もルールとして書いてあります。
 
@@ -688,7 +649,7 @@ export const getTermWithMeta = async (id: number) => {
 
 ## エディタの挙動はブラウザで確かめる
 
-Tiptapに追加した独自の機能は、キャレットの位置や文書内の位置計算に踏み込むものが多くあります。ドロップされた座標がどのノードの内側にあたるのか、削除した後にキャレットをどこへ戻すのか、といった判断は、実際に描画された文書の上でしか確かめられません。
+Tiptapに追加した独自の機能は、キャレットの位置や文書内の位置計算に踏み込むものが多くあります。ドロップされた座標がどのProseMirrorノードの内側にあたるのか、削除した後にキャレットをどこへ戻すのか、といった判断は、実際に描画された文書の上でしか確かめられません。
 
 そこで[Vitest](https://vitest.dev/)の`projects{:ts}`機能を使い、Node上で動かすテストと、ブラウザ上で動かすテストを分けました。
 
@@ -731,7 +692,7 @@ projects: [
 
 <FigureBox src={img_FolderStructureMapPage} caption="構造マップのプロトタイプ" />
 
-フォルダとノートがノードになり、フォルダの親子関係とフォルダ内のノートがエッジとして描かれます。名前を入力してからマップへドラッグすると新しいノードが増え、ノード同士を線で結ぶと親子関係になります。本文のあるノートは、マップ上では名前の変更も削除もできません。全体を眺めている最中の操作で本文を失いたくないからです。
+フォルダとノートがReact Flowのノードになり、フォルダの親子関係とフォルダ内のノートがエッジとして描かれます。名前を入力してからマップへドラッグすると新しいノードが増え、ノード同士を線で結ぶと親子関係になります。本文のあるノートは、マップ上では名前の変更も削除もできません。全体を眺めている最中の操作で本文を失いたくないからです。
 
 その判断はサーバー側で済ませていて、ノードを組み立てる時点で削除可否を決めています。
 
@@ -750,7 +711,7 @@ const termNodes = terms.map((term) => {
 
 ノードのidは、`term-{:bash}`と`folder-{:bash}`のプレフィックスで種類を区別しています。React Flowが扱うidは文字列である一方、ノートとフォルダのidはそれぞれ別の連番なので、そのまま混ぜると衝突するためです。ノートのノードから編集ページへ移動するときは、このプレフィックスを外して数値のidに戻します。
 
-親子関係の制約は、ハンドルの接続数として表しました。
+親子関係の制約は、React Flowのハンドルの接続数として表しました。
 
 ```tsx showLineNumbers {7} title="1つのノートが2つの親にぶら下がらないようにする"
 const MAX_CONNECTIONS = 1
