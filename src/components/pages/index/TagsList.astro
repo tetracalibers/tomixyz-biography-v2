@@ -1,36 +1,72 @@
 ---
 import TagLink from "$components/tag/TagLink.astro"
-import { collectTagIdsWithCount, getRefTagCollection, getSkillTag } from "$/lib/tag"
+import { collectTagIdsWithCount, getRefTagCollection, getSkillTagCategoryMap } from "$/lib/tag"
+import { SKILL_CATEGORY_META } from "$/config"
 
 const targets = await getRefTagCollection()
-const skills = new Set(await getSkillTag())
+const categoryOf = await getSkillTagCategoryMap()
 
 const tags = collectTagIdsWithCount(targets)
-  .filter((tag) => skills.has(tag.id))
+  .filter((tag) => categoryOf.has(tag.id))
   .sort((a, b) => b.count - a.count || a.id.localeCompare(b.id))
+
+/* 件数降順に並べたtagsをそのまま流し込むので、各カテゴリ内の並び順もその順序を引き継ぐ */
+const tagsByCategory = Map.groupBy(tags, (tag) => categoryOf.get(tag.id)!)
+
+/* カテゴリの表示順は、そのカテゴリに属するタグの件数の合計が多い順 */
+const categories = [...tagsByCategory.entries()]
+  .map(([category, tags]) => ({ category, tags, total: tags.reduce((sum, tag) => sum + tag.count, 0) }))
+  .sort((a, b) => b.total - a.total)
 ---
 
-<ul class="TagsList">
+<div class="TagsList">
   {
-    tags.map((tag) => (
-      <li>
-        <TagLink tagId={tag.id} count={tag.count} withIcon />
-      </li>
+    categories.map(({ category, tags }) => (
+      <section class="category">
+        <h3 class="label">{SKILL_CATEGORY_META[category].label}</h3>
+        <ul class="tags">
+          {tags.map((tag) => (
+            <li>
+              <TagLink tagId={tag.id} count={tag.count} withIcon />
+            </li>
+          ))}
+        </ul>
+      </section>
     ))
   }
-</ul>
+</div>
 
 <style>
   /* 件数順に読むリストではなく「守備範囲の広さ」を見せる塊として扱うため、
      中央寄せにしたうえで、親セクションのpadding-inlineを打ち消して見出しより広い帯にする */
   .TagsList {
+    display: grid;
+    gap: 2rem;
+    margin-inline: calc(var(--section-padding-inline, 0px) * -1);
+  }
+
+  .category {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  /* 帯の塊を区切るラベルであって読ませる見出しではないため、proseのh3より控えめに寄せる */
+  .label {
+    margin: 0;
+    text-align: center;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: light-dark(var(--slate-500), var(--slate-300));
+  }
+
+  .tags {
     display: flex;
     list-style-type: none;
     flex-wrap: wrap;
     justify-content: center;
     gap: clamp(0.5rem, 0.356rem + 0.616vw, 0.75rem);
     margin-block: 0;
-    margin-inline: calc(var(--section-padding-inline, 0px) * -1);
     padding: 0;
   }
 </style>
