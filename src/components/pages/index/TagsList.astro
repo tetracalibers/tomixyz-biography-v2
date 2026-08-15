@@ -82,9 +82,9 @@ const categories = [...tagsByCategory.entries()]
   .tags :global(.Tag) {
     border-radius: 0;
     display: flex;
-    /* 320px:12px -> 375px:13px -> 1024px:16px の2区間。
+    /* 320px:12px -> 375px:14px -> 1024px:16px の2区間。
        min()は、傾きの急な前半の式が375pxを境に後半の式を追い越すことを利用した切り替え */
-    font-size: clamp(0.75rem, min(0.386rem + 1.818vw, 0.704rem + 0.462vw), 1rem);
+    font-size: clamp(0.75rem, min(0.023rem + 3.636vw, 0.803rem + 0.308vw), 1rem);
     line-height: 1;
     gap: 0.5rem;
     align-items: center;
