@@ -1,12 +1,11 @@
 ---
 title: スキルを組み合わせたコンテンツ制作フロー
-date: coming-soon
-description: 面倒事と抜け漏れを避けるモチベーション戦略
+date: "2026-08-16"
+description: 面倒な手順と抜け漏れを避けるモチベーション戦略
 tags:
   - claude-code
   - mdsvex
 series: color-prism-ai
-draft: true
 ---
 
 import FigureBox from "$/components/image-wrapper/FigureBox.astro"
@@ -199,7 +198,19 @@ SVG図版のスタイルガイドと、Three.jsデモの実装規約を分けて
 
 `:::Fix`は実は`target`Propsを指定することができ、省略時は`text`で文章に対する修正指示だが、SVG図版への修正指示なら`svg`、Three.jsデモへの修正指示なら`demo`を指定する。
 
-> TODO：targetの各値ごとの指示例コード
+```md
+:::Fix
+インライン数式の前後には空白を空ける
+:::
+
+:::Fix{target="svg"}
+グラフの縦軸に単位を入れる
+:::
+
+:::Fix{target="demo"}
+モバイルだとベクトルが太すぎ、ラベルが小さすぎて読めないので、調整
+:::
+```
 
 このPropsの値が、そのまま担当スキルの振り分けになる。`svg`なら`/svg-diagram-component{:bash}`スキル、`demo`なら`/add-threejs-demo{:bash}`、`text`なら`/author-style-writer{:bash}`が修正処理を引き取る。
 
@@ -267,12 +278,12 @@ SVG図版のスタイルガイドと、Three.jsデモの実装規約を分けて
 
 これらのタスクリストの最新状態との同期処理は、差分を検出するスクリプトに委譲される。
 
-> TODO：なんでスキル任せではなく、わざわざ専用スクリプトを実装したんだっけ？
-
 ```bash title="一覧YAMLを編集したあと"
 node scripts/sync-tasklists.mjs --check   # 差分を報告するだけ（差分があれば exit 1）
 node scripts/sync-tasklists.mjs --write   # 差分を書き込む
 ```
+
+節をまたいだ項目の移動や、片方のリストにだけある欠落を拾わなければならず、スキルに任せるとかえって取りこぼす。数える・書き写すという知能が特に必要ない単純作業は、AIよりもスクリプトの方が確実だと考えている。
 
 ちなみに、これらのタスクリストが最新の状態になっているかどうかも、`/commit-this{:bash}`スキルで最終チェックされる。
 記事の公開だけでなく、ページのタイトルを変更したり、YAML内で記事を並べ替えただけでも、これらのタスクリストとの整合をとる必要がある。そのため、`/commit-this{:bash}`スキルは必要に応じてタスクリスト更新スクリプトを実行してからコミットを行う。
