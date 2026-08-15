@@ -37,34 +37,31 @@ const categories = [...tagsByCategory.entries()]
 </div>
 
 <style>
-  /* 件数順に読むリストではなく「守備範囲の広さ」を見せる塊として扱うため、
-     中央寄せにしたうえで、親セクションのpadding-inlineを打ち消して見出しより広い帯にする */
   .TagsList {
     display: grid;
     gap: 2rem;
-    margin-inline: calc(var(--section-padding-inline, 0px) * -1);
   }
 
   .category {
     display: grid;
-    gap: 0.75rem;
+    justify-items: flex-start;
+    gap: 1rem;
   }
 
   /* 帯の塊を区切るラベルであって読ませる見出しではないため、proseのh3より控えめに寄せる */
   .label {
     margin: 0;
     text-align: center;
-    font-size: 0.875rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
+    font-size: 1.1rem;
+    font-weight: 400;
     color: light-dark(var(--slate-500), var(--slate-300));
+    font-family: "Ubuntu Mono";
   }
 
   .tags {
     display: flex;
     list-style-type: none;
     flex-wrap: wrap;
-    justify-content: center;
     gap: clamp(0.5rem, 0.356rem + 0.616vw, 0.75rem);
     margin-block: 0;
     padding: 0;
