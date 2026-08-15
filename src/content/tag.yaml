@@ -171,6 +171,10 @@ slidev:
   name: Slidev
   description: Markdownでスライドを書ける、Web技術ベースのプレゼンテーションツール
   url: https://sli.dev/
+sql:
+  name: SQL
+  description: リレーショナルデータベースのデータを定義・操作するための問い合わせ言語
+  url: https://ja.wikipedia.org/wiki/SQL
 starlight:
   name: Starlight
   description: Astroでドキュメントサイトを構築するための公式テーマ
