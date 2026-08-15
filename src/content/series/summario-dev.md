@@ -3,9 +3,10 @@ title: Summario開発記
 articles:
   - summario-dev/concept
   - summario-dev/technologies
+  - summario-dev/tiptap-document
+  - summario-dev/implementation
   - summario-dev/data-fetch-state
   - summario-dev/jotai
-  - summario-dev/tiptap-document
   - summario-dev/tiptap-scheme
   #- summario-dev/tiptap-section
   #- summario-dev/tiptap-add-block-by-dnd
