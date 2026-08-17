@@ -64,7 +64,7 @@ const event = defineCollection({
 })
 
 const blog = defineCollection({
-  loader: glob({ pattern: "**/*.md", base: "./src/content/blog" }),
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/blog" }),
   schema: () =>
     z.object({
       title: z.string().max(100, "The title length must be less than or equal to 100 chars"),
