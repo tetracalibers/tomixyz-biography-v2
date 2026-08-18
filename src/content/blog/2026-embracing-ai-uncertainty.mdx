@@ -1,0 +1,76 @@
+---
+title: ユースレスなクリエイティブ
+date: "2026-08-17"
+description: 数学アートで楽しめるAIの不確実性と偶然のゴール
+---
+
+import FigureBox from "$/components/image-wrapper/FigureBox.astro"
+
+import img_BezierCurvePattern from "../../assets/blog/2026-embracing-ai-uncertainty/bezier-curve-pattern.png"
+import img_BezierCurvePatternRectilinear from "../../assets/blog/2026-embracing-ai-uncertainty/bezier-curve-pattern-rectilinear.png"
+import img_BezierCurvePatternRectilinearSimple from "../../assets/blog/2026-embracing-ai-uncertainty/bezier-curve-pattern-rectilinear-simple.png"
+import img_BezierCurvePatternRectilinearSimpleCircle from "../../assets/blog/2026-embracing-ai-uncertainty/bezier-curve-pattern-rectilinear-simple-circle.png"
+import img_Wallpaper from "../../assets/blog/2026-embracing-ai-uncertainty/wallpaper.png"
+import img_KiteDart from "../../assets/blog/2026-embracing-ai-uncertainty/kite-dart.png"
+
+遊びから学べることは案外たくさんある。
+
+最近、AIの不確実性を自分の指示不足と捉えてしまって、苦しくなっていた部分があった。
+でも、数学アート（ジェネラティブアート）をやっていると、AIの不確実性が味方に思えてくるし、自分のアイデアとゴールのない道を同時に楽しめるのだ。
+
+## ベジェ曲線と対称パターン
+
+ベジェ曲線を取り入れて作った基本領域を、対称的になるように繰り返して作ったパターン。
+
+<FigureBox src={img_BezierCurvePattern} />
+
+ちょっとヒトデみたいだな…と思って、直線的な図形にしてみる。
+
+<FigureBox src={img_BezierCurvePatternRectilinear} />
+
+ここから細い放射線や細かい点をなくせば、もっとシンプルになるのでは？
+エスニックなクッションでありそうな模様になった。
+
+<FigureBox src={img_BezierCurvePatternRectilinearSimple} />
+
+直線的な図形を保ちつつ、円に収めてみる。
+
+<FigureBox src={img_BezierCurvePatternRectilinearSimpleCircle} />
+
+## 壁紙群
+
+壁紙群と呼ばれる、周期性を持つ模様。
+
+<FigureBox src={img_Wallpaper} />
+
+さまざまな分類があるので、ChatGPTにそれぞれの特徴をざっと書いてもらった。
+
+| パターン             | 多色との相性 | 印象・特徴                      | おすすめ色数 |
+| ---------------- | ------ | -------------------------- | -----: |
+| **p6m**          | ★★★★★  | 万華鏡・タイル・花・結晶っぽい。非常にまとまりやすい |    3〜6 |
+| **p6**           | ★★★★★  | p6mより自由で、有機的・動きのある六角形構成    |    3〜6 |
+| **p4m**          | ★★★★★  | 正方形ベース。幾何学的で整然としている        |    2〜5 |
+| **p4g**          | ★★★★★  | 正方形系だが、p4mより意外性や動きが出る      |    3〜5 |
+| **p3m1**         | ★★★★☆  | 三角形・宝石・花弁のような構成が得意         |    3〜6 |
+| **p31m**         | ★★★★☆  | p3m1と似るが、モチーフの見え方が少し違う     |    3〜6 |
+| **p3**           | ★★★★☆  | 三角形ベースで自由度が高い              |    3〜6 |
+| **p2**           | ★★★☆☆  | 自由度が高い。抽象柄・テキスタイル向き        |    2〜6 |
+| **pm / pg / cm** | ★★★☆☆  | ストライプ感や流れを作りやすい            |    2〜4 |
+| **p1**           | ★★☆☆☆  | 何でもできるが、対称性による美しさは出にくい     |     任意 |
+
+ここから色分けをして、色彩検定のインテリアスタイルに合わせた雰囲気ごとの壁紙風にしたいなと思っている。（オーソドックスとかエレガントとかは、なんとなく合いそうなインテリアスタイルの名前）
+
+## カイト＆ダートタイリング
+
+カイト＆ダートタイリングを少し崩して、結晶風のパターンを目指したもの。
+きっちりとした完全な対称にはせず、結晶の成長を途中で止めて白い地を残している。
+
+<FigureBox src={img_KiteDart} />
+
+三角形に沿って直線を引き、その直線どうしがぴったりとした頂点を結ばずに交わっているのが、まるで定規で適当に引いた補助線のように見える。補助線の内部を自由に塗りつぶしたような、大人の塗り絵にありそうなモチーフでもあり、「作りかけのパッチワーク」と表現するのもおもしろいかもしれない。
+
+## 役に立つものばかりではないが
+
+もちろん、業務でAIを使うには、ゴール設定とそこに導くコントロール力が必要だけど。2次元のジェネラティブアートより、3DCGを真剣にやった方がずっと仕事には生かせそうだなと思ってはいるけれど。
+
+それでも、楽しみながら乗りこなす力は遊びから得られるもの。ユースレスで自己満足的な成功体験はとても必要。
