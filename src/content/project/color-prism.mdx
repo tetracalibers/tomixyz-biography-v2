@@ -15,7 +15,6 @@ tags:
   - munsell
   - claude-code
   - claude-design
-  - cytoscape-js
 description: 色彩からCG・画像処理までつながるビジュアル学習サイト
 pinned: true
 ---
@@ -37,9 +36,6 @@ import img_AnalyzePageFull from "../../assets/topics/color-prism/analyze-page-fu
 import img_PatternsModernPageBaseColor from "../../assets/topics/color-prism/patterns-modern-page-base-color.png"
 import img_PatternsModernPagePreview from "../../assets/topics/color-prism/patterns-modern-page-preview.png"
 import img_CgTransformationPage from "../../assets/topics/color-prism/cg-transformation-perspective-and-parallel-projection-page.png"
-import img_InnerLinkGraph from "../../assets/topics/color-prism/inner-link-graph.png"
-import img_InnerLinkGraphNode from "../../assets/topics/color-prism/inner-link-graph-node.png"
-import img_InnerLinkGraphDraft from "../../assets/topics/color-prism/inner-link-graph-draft.png"
 
 文章を読むだけでは理解しづらい色や光の現象を、図解・クイズ・シミュレータ・3Dデモを通して体験できる学習サイトを制作しています。
 
@@ -201,16 +197,6 @@ Color Prism の記事は[mdsvex](https://mdsvex.pngwn.io/)で管理しており�
 
 ### 記事間の内部リンクを可視化
 
-記事で貼られている内部リンクを可視化するツールを実装し、リンク切れや、書きかけのページへのリンクを把握できるようにしています。
+記事で貼られている内部リンクを可視化するツールを実装し、リンク切れや、書きかけのページへのリンクを把握できるようにしています。詳しくは次のページをご覧ください。
 
-[Cytoscape.js](https://js.cytoscape.org/)と[d3-force](https://d3js.org/d3-force)を組み合わせて描画したグラフです。
-
-<FigureBox src={img_InnerLinkGraph} />
-
-記事を表すノードをクリックすると、その記事をリンクで参照している他の記事、記事内にリンクを貼っている他の記事という双方向のリンク状態を見ることができます。
-
-<FigureBox src={img_InnerLinkGraphNode} />
-
-また、フィルタリング機能も備えており、たとえば、本文がまったく書かれていない記事と書きかけの記事だけを表示して、コンテンツ群全体の執筆状況を把握する用途でも使っています。
-
-<FigureBox src={img_InnerLinkGraphDraft} />
+- [Inner Link Graph](/projects/inner-link-graph)
