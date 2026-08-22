@@ -38,6 +38,11 @@ css:
   description: Webページの見た目やレイアウトを記述するスタイルシート言語
   category: web-platform
   url: https://developer.mozilla.org/ja/docs/Web/CSS
+cytoscape-js:
+  name: Cytoscape.js
+  description: グラフ構造の描画とインタラクションを扱うJavaScriptライブラリ
+  category: graphics
+  url: https://js.cytoscape.org/
 d3:
   name: D3.js
   description: データからSVGなどの可視化を組み立てるJavaScriptライブラリ
@@ -296,6 +301,12 @@ tiptap:
   description: ProseMirrorをベースにしたヘッドレスなリッチテキストエディタフレームワーク
   category: authoring
   url: https://tiptap.dev/
+tweakpane:
+  name: Tweakpane
+  description: パラメータ調整や値の監視を行うUIを構築するライブラリ
+  category: graphics
+  skill: false
+  url: https://tweakpane.github.io/docs/
 typescript:
   name: TypeScript
   description: JavaScriptに静的な型付けを加えたプログラミング言語
@@ -330,6 +341,7 @@ web-speech-api:
   name: Web Speech API
   description: 音声認識と音声合成をブラウザ上で扱うためのWeb API
   category: web-platform
+  skill: false
   url: https://developer.mozilla.org/ja/docs/Web/API/Web_Speech_API
 webgl:
   name: WebGL

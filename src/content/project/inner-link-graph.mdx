@@ -1,0 +1,32 @@
+---
+title: Inner Link Graph
+date: "2026-08-22"
+image: ../../assets/topics/inner-link-graph/inner-link-graph.png
+github: https://github.com/tetracalibers/pccs-lens/tree/main/link-graph
+tags:
+  - cytoscape-js
+  - d3
+description: 記事間の内部リンクを可視化する制作支援ツール
+---
+
+import FigureBox from "$/components/image-wrapper/FigureBox.astro"
+
+import img_InnerLinkGraph from "../../assets/topics/inner-link-graph/inner-link-graph.png"
+import img_InnerLinkGraphNode from "../../assets/topics/inner-link-graph/inner-link-graph-node.png"
+import img_InnerLinkGraphDraft from "../../assets/topics/inner-link-graph/inner-link-graph-draft.png"
+
+[Color Prism](/projects/color-prism)というサイトが育っていくにつれて、記事やそこで扱うトピックの依存関係の把握が大変になりつつあります。
+
+そこで、記事で貼られている内部リンクを可視化し、リンク切れや、書きかけのページへのリンクを視覚的に把握できるツールを制作しました。
+
+グラフは、[Cytoscape.js](https://js.cytoscape.org/)と[d3-force](https://d3js.org/d3-force)を組み合わせて描画しています。
+
+<FigureBox src={img_InnerLinkGraph} />
+
+記事を表すノードをクリックすると、その記事をリンクで参照している他の記事、記事内にリンクを貼っている他の記事という双方向のリンク状態を見ることができます。
+
+<FigureBox src={img_InnerLinkGraphNode} />
+
+また、フィルタリング機能も備えており、たとえば、本文がまったく書かれていない記事と書きかけの記事だけを表示して、コンテンツ群全体の執筆状況を把握する用途でも使っています。
+
+<FigureBox src={img_InnerLinkGraphDraft} />
