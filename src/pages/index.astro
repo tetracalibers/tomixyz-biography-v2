@@ -2,7 +2,7 @@
 import DefaultPageLayout from "$/layouts/default.astro"
 import { Image } from "astro:assets"
 import img_tomixy from "$/assets/profiles/pastel-tomixy_op.png"
-import img_color_prism from "$/assets/highlights/color-prism.png"
+import img_color_prism from "$/assets/highlights/color-prism.jpg"
 import { marked } from "marked"
 import Timeline from "$components/pages/index/Timeline.astro"
 import Prose from "$components/prose/Prose.astro"
@@ -99,10 +99,10 @@ const history = [
   </Prose>
   <Prose>
     <div class="section -highlight">
-      <h2 class="heading">Spotlight</h2>
+      <h2 class="heading">Highlight</h2>
       <Highlight
         image={img_color_prism}
-        alt="Color Prism - 見て・触って学ぶ 色彩の暗記帳"
+        alt="Color Prism - 見て・触って学ぶ 色と視覚表現"
         href="https://color-prism.net/"
         body={highlight}
       />
